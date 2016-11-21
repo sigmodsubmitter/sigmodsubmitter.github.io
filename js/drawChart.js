@@ -337,11 +337,11 @@ function drawChart() {
     var layout = 
     { 
         xaxis: {
-            title: 'Write cost (#IOs/update)',
+            title: 'Update cost (IOs)',
             range: [ xmin, xmax ] 
         },
         yaxis: {
-            title: 'Read cost (#IOs/lookup)',
+            title: 'Lookup cost (IOs)',
             range: [ymin, ymax]
         },
         title:'Pareto frontiers for State-of-the-art and Monkey Tuning'
