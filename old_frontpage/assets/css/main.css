@@ -1,0 +1,473 @@
+/*
+ * Author: Carlos Alvarez
+ * URL: http://alvarez.is
+ *
+ * Project Name: Minimal - Free Bootstrap 3 Theme
+ * Version: 1.0
+ * URL: http://blacktie.co
+ */
+
+/*preload*/
+div#preload { display: none; }
+
+body {
+  /*background-color: #f3e5ab;*/
+    font-family: 'EB Garamond', serif;
+    font-weight: 300;
+    font-size: 16px;
+    color: #b94a48;
+
+    -webkit-font-smoothing: antialiased;
+    -webkit-overflow-scrolling: touch;
+}
+
+.navbar-inverse {
+    background-color: #c1b379;
+    border-color: #f3e5ab;
+}
+
+li  a {
+    color: #b94a48;
+}
+
+/* Titles */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+    color: #111;
+}
+
+ol {
+    color: #111;
+}
+
+h2 {
+    color: #111;
+}
+
+h4 {
+    color: #111;
+}
+
+/* Paragraph & Typographic */
+p {
+    line-height: 28px;
+    margin-bottom: 25px;
+}
+
+.centered {
+    text-align: center;
+}
+
+/* Links */
+a {
+    color: #f85c37;
+    word-wrap: break-word;
+
+    -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+    transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+a:hover,
+a:focus {
+    color: #7b7b7b;
+    text-decoration: none;
+    outline: 0;
+}
+
+a:before,
+a:after {
+    -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+    transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+a.disabled {
+   cursor: not-allowed;
+}
+
+ hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+
+/* ==========================================================================
+   Wrap Sections
+   ========================================================================== */
+
+#headerwrap {
+	background: url(../img/header-bg.jpg) no-repeat center top;
+	margin-top: -10px;
+	padding-top:20px;
+	text-align:center;
+	background-attachment: relative;
+	background-position: center center;
+	min-height: 700px;
+	width: 100%;
+	
+    -webkit-background-size: 100%;
+    -moz-background-size: 100%;
+    -o-background-size: 100%;
+    background-size: 100%;
+
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+#headerwrap h1 {
+	margin-top: 150px;
+	color: white;
+	font-size: 70px;
+	font-weight: 700;
+}
+
+
+#headerwrap h3 {
+	color: white;
+	font-size: 30px;
+	font-weight: 100;
+    font-family: 'EB Garamond', serif;
+    font-style: oblique;
+}
+
+#headerwrap .logo {
+	text-align: left;
+	margin-left: 20px;
+	margin-top: 15px;
+}
+
+
+/* Footer Wrap */
+
+#f {
+	/*background: #f3e5ab;*/
+	background: #f3f5eb;
+	padding-top: 70px;
+	padding-bottom: 0px;
+	text-align: center;
+}
+
+#f h3 {
+	color: #111;
+	font-size: 28px;
+	font-weight: 700;
+	letter-spacing: 1px;	
+}
+
+#f i {
+	font-size: 8px;
+	color: #111;
+    padding: 3px;
+}
+
+#f p {
+	font-size: 20px;
+	color: #111;
+}
+
+#f img {
+	text-align: center;
+}
+
+
+/* MENU CONF*/
+
+.menu {
+	position: fixed;
+	right: -200px;
+	width: 260px;
+	height: 100%;
+	top: 0;
+	z-index: 10;
+	text-align: left;
+}
+
+.menu.menu-open {
+	right: 0px;
+}
+
+.menu-wrap {
+	position: absolute;
+	top: 0;
+	left: 60px;
+	background: #1a1a1a;
+	width: 200px;
+	height: 100%;
+}
+
+.menu h1.logo a {
+	font-family: 'Oswald', sans-serif;
+	font-size: 16px;
+	font-weight: 700;
+	letter-spacing: 0.15em;
+	line-height: 40px;
+	text-transform: uppercase;
+	color: #ffffff;
+	margin-top: 20px;
+}
+
+.menu h1.logo a:hover {
+	color: #f85c37;
+}
+
+.menu img.logo {
+	margin: 20px 0;
+	max-width: 160px;
+}
+
+.menu a {
+	margin-left: 20px;
+	color: #808080;
+	display: block;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 40px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.menu a:hover {
+	color: #ffffff;
+}
+
+.menu a:active {
+	color: #ffffff;
+}
+
+.menu a > i {
+	float: left;
+	display: inline-block;
+	vertical-align: middle; 
+	text-align: left;
+	width: 25px;
+	font-size: 14px;
+	line-height: 40px;
+	margin: 25px 2px;
+}
+
+.menu-close {
+	cursor: pointer;
+	display: block;
+	position: absolute;
+	font-size: 14px;
+	color: #808080;
+	width: 40px;
+	height: 40px;
+	line-height: 40px;
+	top: 20px;
+	right: 5px;
+	-webkit-transition: all .1s ease-in-out;
+	   -moz-transition: all .1s ease-in-out;
+		-ms-transition: all .1s ease-in-out;
+		 -o-transition: all .1s ease-in-out;
+			transition: all .1s ease-in-out;
+}
+
+.menu-close:hover {
+	color: #ffffff;
+	-webkit-transition: all .1s ease-in-out;
+	   -moz-transition: all .1s ease-in-out;
+		-ms-transition: all .1s ease-in-out;
+		 -o-transition: all .1s ease-in-out;
+			transition: all .1s ease-in-out;
+}
+
+/* Push the body after clicking the menu button */
+.body-push {
+	overflow-x: hidden;
+	position: relative;
+	left: 0;
+}
+
+.body-push-toright {
+	left: 200px;
+}
+
+.body-push-toleft {
+	left: -200px;
+}
+
+.menu,
+.body-push {
+	-webkit-transition: all .3s ease;
+	   -moz-transition: all .3s ease;
+		-ms-transition: all .3s ease;
+		 -o-transition: all .3s ease;
+			transition: all .3s ease;
+}
+
+#menuToggle {
+	position: absolute;
+	top: 20px;
+	left: 0;
+	z-index: 11;
+	display: block;
+	text-align: center;
+	font-size: 14px;
+	color: #ffffff;
+	width: 40px;
+	height: 40px;
+	line-height: 40px;
+	cursor: pointer;
+	background: rgba(0,0,0,0.25);
+	-webkit-transition: all .1s ease-in-out;
+	   -moz-transition: all .1s ease-in-out;
+		-ms-transition: all .1s ease-in-out;
+		 -o-transition: all .1s ease-in-out;
+			transition: all .1s ease-in-out;
+}
+
+#menuToggle:hover {
+	color: #ffffff;
+	background: rgba(0,0,0,0.2);
+	-webkit-transition: all .1s ease-in-out;
+	   -moz-transition: all .1s ease-in-out;
+		-ms-transition: all .1s ease-in-out;
+		 -o-transition: all .1s ease-in-out;
+			transition: all .1s ease-in-out;
+}
+
+
+
+/* --------------------------------------------
+   Navbar
+   -------------------------------------------- */
+
+.navbar h3{
+/*	height: 80px;	*/
+    margin-top: 12px;
+}
+
+
+.navbar-brand{
+	max-width: 300px;
+	margin-top: -7px;	
+}
+
+.navbar-clear a{
+	color:white;
+}
+
+.navbar-clear li a:hover/*, .navbar-clear li.active a*/{
+	background-color:transparent;
+	padding: 5px 5px 3px 5px;
+	margin:10px;
+	border-bottom: 2px solid #f42f2f;
+}
+
+
+
+@media (max-width: 480px) {
+    .navbar-header {
+        float: none;
+    }
+    .navbar-left,.navbar-right {
+        float: none !important;
+    }
+    .navbar-toggle {
+        display: block;
+    }
+    .navbar-collapse {
+        border-top: 1px solid transparent;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .navbar-fixed-top {
+    top: 0;
+    border-width: 0 0 1px;
+  }
+    .navbar-collapse.collapse {
+        display: none!important;
+    }
+    .navbar-nav {
+        float: none!important;
+    margin-top: 7.5px;
+  }
+  .navbar-nav>li {
+        float: none;
+    }
+    .navbar-nav>li>a {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .collapse.in{
+      display:block !important;
+  }
+}
+
+
+/* --------------------------------------------
+   Modal
+   -------------------------------------------- */
+
+.modal-header {
+    padding:17px 15px;
+    border-bottom:0px solid #eee;
+    background-color: #ffffff;
+    color: #aaaa00;
+	text-align: center;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+     border-top-left-radius: 5px;
+     border-top-right-radius: 5px;
+ }
+ 
+ .modal {
+    top: 10%;
+}
+
+.modal-body {
+    text-align: center;
+    color: #aaaaaa;
+    background-color: #ffffff;
+    max-height: 800px;
+}
+
+.modal-footer {
+    text-align: center;
+}
+
+
+
+@media (max-width: 440px) {
+	#headerwrap h2 {
+		font-size: 24px;
+	}
+}
+
+@media (max-width: 440px) {
+	#f p {
+		font-size: 17px;
+		line-height: 22px;
+	}
+	#f h2 {
+		font-size: 24px;
+		line-height: 35px;
+	}
+	#f h4 {
+		font-size: 17px;
+		line-height: 32px;
+	}
+}
+
+
+
+
+#navtext a {
+    font-size: 20px;
+}
+
+

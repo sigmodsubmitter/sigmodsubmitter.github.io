@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="images/favicon-monkey.png" rel="icon" type="image/x-icon"/>
+
+    <title>LSM Tuning with Monkey</title>
+   
+
+    <!-- Bootstrap Core CSS - Uses Bootswatch Flatly Theme: http://bootswatch.com/flatly/ -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/lsm_button.css" rel="stylesheet">
+    <link href="css/tooltip.css" rel="stylesheet">
+
+
+    <!-- Custom JS -->
+    <script src="js/monkey.js"></script>
+    <script src="js/autoRerun.js"></script>
+    <script src="js/drawChart.js"></script>
+
+    <!-- Custom Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Permanent+Marker%7CReenie+Beanie%7CRock+Salt%7CIndie+Flower' rel='stylesheet' type='text/css'>    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script type="text/javascript" src="js/loader.js"></script>
+    <script type="text/javascript">
+      // google.charts.load('current', {'packages':['corechart']});
+      // google.charts.setOnLoadCallback(drawChart);
+    </script>
+</head>
+
+<body id="page-top" class="index">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#page-top">Monkey</em></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="hidden">
+                        <a href="#page-top"></a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#problem">The Problem</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#research">Research</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#demo">Visualization</a>
+                    </li>
+
+<!--
+                      <li class="page-scroll">
+                        <a href="#overview">Overview</a>
+                    </li>
+                   <li class="page-scroll">
+                        <a href="#research">Research</a>
+                    </li>
+ 
+                     <li class="page-scroll">
+                        <a href="#people">People</a>
+                    </li>
+                     <li class="page-scroll">
+                        <a href="#publications">Papers</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#about">About</a>
+                    </li>
+  --> 
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="intro-text">
+                        <span class="name"><u>M</u>onkey: <u>O</u>ptimal <u>N</u>avigable <u>Key</u>-Value Store</span>
+                     </div>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+
+    <section id="problem">
+        <div class="container">
+            <div class="row" style="text-align: center">
+            	<h2>Problem: Suboptimal LSM-Tree Tuning</h2>
+                <br>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <img class="img-responsive img-centered" src="./images/key-value.png" alt="">
+                </div>
+                <div class="col-lg-8">
+                    <p>The backbone of modern, persistent key-value stores is an LSM-tree. Modern applications require both efficient lookups and updates, and LSM-trees provide a good balance by buffering updates in main memory, flushing the buffer to persistent storage as a sorted run when it is full, and bounding lookup cost by (1) sort-merging runs in the background and (2) using main memory-resident Bloom filters to probabilistically skip runs that do not contain a target key.  </p>
+                    <p>
+                    In this work, we show that LSM-based key-value stores exhibit an intrinsic, trade-off between lookup cost, update cost, and main memory utilization. However, all existing designs enable a suboptimal and difficult to tune trade-off among these metrics. We pinpoint the problem to the fact that all modern key-value stores suboptimally co-tune the <strong>merge policy</strong>, the <strong>size ratio</strong> between levels, the <strong>buffer size</strong>, and the Bloom filters' <strong> false positive rates</strong>.
+                    </p>
+                </div>  
+            </div>                 
+                         
+        </div>
+    </section>
+
+
+    <section id="research" class="alternate" >
+        <div class="container">
+            <div class="row" style="text-align: center">
+                <h2>LSM-Tree Tuning With Monkey</h2>
+                <br>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <p>
+                        We present Monkey, an LSM-based key-value store that is able to strike the best possible balance between the costs of updates and lookups for any given application. The core insight is that worst-case lookup cost is proportional to the sum of the false positive rates of the Bloom filters across all levels of the LSM-tree. Contrary to state-of-the-art key-value stores that assign a fixed number of bits-per-element to all Bloom filters, Monkey allocates memory to filters across different levels so as to minimize this sum. Thus, Monkey improves the worst-case lookup cost relative  to the state-of-the-art  by 50-90% without losing anything. 
+
+                    </p>
+                </div>  
+                <div class="col-lg-6">
+                    <img class="img-responsive img-centered" src="./images/monkey-working.png" alt="">
+                </div>
+            </div>    
+            <div class="row">
+                <div class="col-lg-12">
+                <p>
+                Furthermore, we map the LSM-tree design space onto a closed-form model that enables predicting lookup and update performance under any tuning and dataset. The model enables finding the balance between lookup and update costs that maximizes throughput for a given application workload. The model can also answer what-if questions about how changes in environmental parameters would impact performance and how to adapt the various LSM-tree design elements accordingly. 
+
+                <!--
+                depending on the workload (proportion of lookups and updates), the dataset (number and size of entries), and the underlying hardware (main memory available, disk vs. flash)
+
+                answer what-if design questions about how changes in environmental parameters would impact performance and how to adapt the various LSM-tree design elements accordingly. --></p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Overview -->
+    <!-- <section id="overview"> -->
+
+
+    <section id="demo">
+        <div class="container page-scroll">
+
+
+            <div class="row" style="text-align: center">
+                <h2>Monkey in Action</h2>
+                <br>
+            </div>
+                        <div class="row">
+                <div class="col-lg-12">
+                <p> 
+                We now present an interactive visualization of the Monkey design space and how to navigate it. It is meant as (i) an educational tool to help understanding the impact of different design decisions on performance, and as (ii) a tuning tool for system administrators to improve performance and/or answer what-if design questions. 
+                </p>
+                <p>
+                To focus on a particular slice of the design space, we enable parameterization of the <strong>dataset:</strong> (1) number of entries, (2) size of entries, the <strong>environment:</strong> (3) size of persistent storage pages, and the <strong>main memory allocation:</strong> (4) size of the LSM-tree's buffer, (5) total size of all Bloom filters. Based on these parameters, we plot the trade-off curve between lookup cost and update cost below. We enable navigating this curve to reach a particular balance between lookup cost and update cost by parameterizing the <strong> merge operation frequency, </strong> which is a function of (6) the merge policy, and (7) the size ratio between adjacent levels of the LSM-tree. 
+                </p> <p>
+                We give three default configurations as reference points. All configurations are for a 1 TB LSM-tree. Configuration 1 has no Bloom filters. Configurations 2 and 3 both have 80 GB Bloom filters, but they use tiering and leveling respectively. 
+                </p> <p>
+                Alongside the trade-off curve for Monkey, as also plot the trade-off curve for state-of-the-art designs, which assigns the same false positive rate to Bloom filters across all levels. The curve shows that Monkey dominates state-of-the-art designs for any configuration whereby the filters' overall size is greater than 0. 
+                </p> <p>
+                Further below the figure for the trade-off curves, we illustrate the shape of the particular LSM-tree and the tuning of its Bloom filters for the selected configuration. We show how Monkey and the state-of-the-art each tune the Bloom filters. 
+                </p> <p>
+                Everything assumes worst-case zero-result lookups and updates. Thus, the analysis enables predicting worst-case operation throughput. 
+                </p>
+                </div>
+            </div>
+
+            <a href="#showBF" id="clicktoshow"></a>
+            <div id="showBF" class="row">
+            <br>
+            </div>
+
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="input-group input-group-lg text-center">
+                        <span class="input-group-btn">
+                            <button id="scenario1" class="btn btn-default" style="-webkit-border-radius: 20px; border-radius: 20px; background: #c51c30;" type="button" id="bloomTuningButton" onclick="scenario1()">Configuration 1</button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="input-group input-group-lg text-center">
+                        <span class="input-group-btn">
+                            <button id="scenario2" class="btn btn-default" style="-webkit-border-radius: 20px; border-radius: 20px; background: #c51c30;" type="button" id="bloomTuningButton" onclick="scenario2()">Configuration 2</button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="input-group input-group-lg text-center">
+                        <span class="input-group-btn">
+                            <button id="scenario3" class="btn btn-default" style="-webkit-border-radius: 20px; border-radius: 20px; background: #c51c30;" type="button" id="bloomTuningButton" onclick="scenario3()">Configuration 3</button>
+                        </span>
+                    </div>
+                </div>
+            </div>         
+            <br>
+            <div class="row">
+                <div class="col-lg-6">    
+                <h4 style="text-align: center">Dataset</h4>            
+                    
+                </div>
+                <div class="col-lg-6">                
+                    <h4 style="text-align: center">Environment</h4>
+                </div>                
+                <div class="col-lg-6">
+                    <div class="input-group">
+                      <span class="input-group-addon"><span data-tooltip="Number of Entries in the Index (e.g., 10485760)." data-tooltip-position="bottom">1. # Entries</span></span>
+                      <input id="N" type="text" class="form-control" aria-label="Index Size N (elements)" placeholder="Number of Entries in the Index (e.g., 10485760)" style="text-align:right" onkeyup="re_run()"/>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                      <span class="input-group-addon"><span data-tooltip="Key-Value pair size in bytes (e.g., 16)." data-tooltip-position="bottom">2. Entry size (bytes)</span></span>
+                      <input id="E" type="text" class="form-control" aria-label="Key-Value pair size (bytes)" placeholder="Key-Value pair size in bytes (e.g., 16)" style="text-align:right" onkeyup="re_run()"/>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="input-group">
+                      <span class="input-group-addon"><span data-tooltip="Page Size in bytes (e.g., 4096)." data-tooltip-position="bottom">3. Page size (bytes)</span></span>
+                      <input id="P" type="text" class="form-control" aria-label="Page Size P (bytes)" placeholder="Page Size in bytes (e.g., 4096)" style="text-align:right" onkeyup="re_run()"/>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-lg-6">    
+                <h4 style="text-align: center">Main Memory Allocation</h4>            
+                    
+                </div>
+                <div class="col-lg-6">                
+                    <h4 style="text-align: center">Merge Operation Frequency</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">                
+                    <div class="input-group">
+                      <span class="input-group-addon"><span data-tooltip="Buffer Size in MB (e.g., 2)." data-tooltip-position="bottom">4. Buffer size (MB)</span></span>
+                      <input id="mbuffer" type="text" class="form-control" aria-label="Buffer Size Mbuffer (MB)" placeholder="Buffer Size in MB (e.g., 2)"  style="text-align:right" onkeyup="re_run()"/>
+                    </div>
+                </div>
+                <div class="col-lg-6">                
+                    <div class="input-group">
+                    <span class="input-group-addon" style="text-align: left;"><span data-tooltip="With leveling each level has one run, and with tiering each level has (up to) size_ratio-1 runs." data-tooltip-position="bottom" >6. Merge policy</span></span>
+                      <span class="input-group-addon">leveling&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="level" value="1" checked="true" onchange="re_run()"/></span>
+                      <span class="input-group-addon">tiering&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="tier" value="0" onchange="re_run()"/></span>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-lg-6"> 
+
+
+                    <div class="input-group">
+                    <span class="input-group-addon"><span data-tooltip="Total main memory allocated to BFs in MB (e.g., 6)." data-tooltip-position="bottom">5. Bloom filters' overall size (MB)</span></span>
+                      <input id="mfilter" type="text" class="form-control" aria-label="Bloom filter size" placeholder="Total main memory allocated to BFs in MB (e.g., 6)" style="text-align:right" onkeyup="re_run()"/>
+                    </div>
+
+                </div>
+                <div class="col-lg-6">                
+                    <div class="input-group">
+                      <span class="input-group-addon"><span data-tooltip="Ratio between capacities of adjacent levels (e.g., 2)." data-tooltip-position="bottom">7. Size ratio</span></span>
+                      <input id="T" type="text" class="form-control" aria-label="Size Ratio T" placeholder="Ratio between capacities of adjacent levels (e.g., 2)" style="text-align:right" onkeyup="re_run()"/>
+                      <!-- <span class="input-group-addon">(bytes)</span> -->
+                    </div>
+                </div>
+            </div>
+            <hr>
+             <div class="row text-center">
+
+                <div id="myDiv" class="col-lg-12" style="width: 1000px; height: 400px; padding-left: 80px;"><!-- Plotly chart will be drawn inside this DIV --></div> 
+
+            </div>
+            <hr>
+            <div id="result_tuning" class="text-center">
+                <span data-tooltip="Bloom filter allocation will be displayed here!" data-tooltip-position="bottom"><p><em>Click on one of the scenarios above and get ready for Monkey business.</em></p>  </span>
+            </div>
+            
+
+
+
+        </div>
+    </section>
+
+
+    <section id="conclusions" class="alternate" >
+        <div class="container">
+            <div class="row" style="text-align: center">
+                <div class="col-lg-8">
+                    <h2>Conclusions</h2>
+                </div>
+                <br><br><br>
+            </div>
+            <div class="row">
+                <div class="col-lg-8">
+                    <p>
+                        We show that LSM-based key-value stores exhibit an intrinsic trade-off among query cost, update cost, and main memory utilization. However, all existing designs strike a suboptimal and difficult to tune balance among these metrics. We present Monkey, an LSM-based key-value store that reaches the Pareto performance curve by allocating the Bloom filters so as to minimize the worst-case query cost. Monkey uses closed-form models to navigate the design space to find the holistic tuning that maximizes throughput under a given main memory budget, application workload, and storage medium.
+                    </p>
+                </div>  
+                <div class="col-lg-4">
+                    <img class="img-responsive img-centered" src="./images/monkey-baloon.png" alt="">
+                </div>
+            </div>    
+        </div>
+    </section>
+
+    <!-- People Section -->
+ <!--    <section  id="people">
+
+    </section> -->
+    
+
+    
+
+
+
+    <!-- Footer -->
+    <footer class="text-center">
+        <div class="footer-above">
+            <div class="container">
+                <div class="row">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-below">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        Copyright &copy; SIGMOD subsmitter 2016  – All Rights Reserved
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button (Only visible on small and extra-small screen sizes) -->
+    <div class="scroll-top page-scroll visible-xs visble-sm">
+        <a class="btn btn-primary" href="#page-top">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+    </div>
+
+    
+<script type="text/javascript">
+var sc_project=11168654; 
+var sc_invisible=1; 
+var sc_security="99bf8838"; 
+var scJsHost = (("https:" == document.location.protocol) ?
+"https://secure." : "http://www.");
+document.write("<sc"+"ript type='text/javascript' src='" +
+scJsHost+
+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+<noscript><div class="statcounter"><a title="shopify
+analytics ecommerce tracking"
+href="http://statcounter.com/shopify/" target="_blank"><img
+class="statcounter"
+src="//c.statcounter.com/11168654/0/99bf8838/1/"
+alt="shopify analytics ecommerce
+tracking"></a></div></noscript>
+
+
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script src="js/classie.js"></script>
+    <script src="js/cbpAnimatedHeader.js"></script>
+
+    <!-- Contact Form JavaScript -->
+    <script src="js/jqBootstrapValidation.js"></script>
+    <!-- <script src="js/contact_me.js"></script> -->
+
+    <!-- Custom Theme JavaScript -->
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>
