@@ -271,11 +271,11 @@ function reset_button_colors()
 
 function scenario1()
 {
-    document.getElementById("N").value=10485760; //(10M values)
+    document.getElementById("N").value=68719476736; //(10M values)
     document.getElementById("E").value=16;
     document.getElementById("mbuffer").value=2; //in MB
-    document.getElementById("T").value=2;
-    document.getElementById("mfilter").value=6; //in MB (5 bits per element)
+    document.getElementById("T").value=10;
+    document.getElementById("mfilter").value=81920; //in MB (5 bits per element)
     document.getElementById("P").value=4096; //in B
     document.getElementsByName("ltradio")[0].checked=true;
     document.getElementsByName("ltradio")[1].checked=false;
@@ -291,11 +291,11 @@ function scenario2()
     document.getElementById("N").value=68719476736; //(2^36 values)
     document.getElementById("E").value=16;
     document.getElementById("mbuffer").value=2; //in MB
-    document.getElementById("T").value=10;
+    document.getElementById("T").value=4;
     document.getElementById("mfilter").value=81920; //in MB (10 bits per element)
     document.getElementById("P").value=4096; //in B
-    document.getElementsByName("ltradio")[0].checked=true;
-    document.getElementsByName("ltradio")[1].checked=false;
+    document.getElementsByName("ltradio")[0].checked=false;
+    document.getElementsByName("ltradio")[1].checked=true;
 
     reset_button_colors()
     document.getElementById("scenario2").style.background='#000000';   
@@ -308,11 +308,11 @@ function scenario3()
     document.getElementById("N").value=68719476736; //(2^36 values)
     document.getElementById("E").value=16;
     document.getElementById("mbuffer").value=2; //in MB
-    document.getElementById("T").value=4;
-    document.getElementById("mfilter").value=81920; //in MB (10 bits per element)
+    document.getElementById("T").value=2;
+    document.getElementById("mfilter").value=0; //in MB (10 bits per element)
     document.getElementById("P").value=4096; //in B
-    document.getElementsByName("ltradio")[0].checked=false;
-    document.getElementsByName("ltradio")[1].checked=true;
+    document.getElementsByName("ltradio")[0].checked=true;
+    document.getElementsByName("ltradio")[1].checked=false;
 
     reset_button_colors()
     document.getElementById("scenario3").style.background='#000000';   
