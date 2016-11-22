@@ -721,7 +721,11 @@ function clickbloomTuningButton(move_to_anchor) {
 	   	    var div_col4=document.createElement("div");
 		    div_col4.setAttribute("class","col-lg-6")
 
-	        message="Monkey is "+(Rbaseline/Rmonkey).toFixed(2)+"x faster for reads! While the write cost is the same for both approaches, it is affected by the merging strategy."
+            var speedup=(Rbaseline/Rmonkey).toFixed(2);
+
+            if (isNaN(speedup))
+                speedup="1.0"
+	        message="Monkey is "+speedup+"x faster for reads! While the write cost is the same for both approaches, it is affected by the merging strategy."
 	        if (leveltier==0)
 	            message+=" TIERING: When a run is flushed to the next level it is NOT merged with the already existing runs (if any). Hence, every time a run is pushed to the next level it is written only once.";
 	        else if (leveltier==1)
@@ -733,7 +737,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	        var p4=document.createElement("p");
 	        p4.setAttribute("style","text-align: center;")
 	        var em4=document.createElement("em");
-	        em4.textContent=("Monkey is "+(Rbaseline/Rmonkey).toFixed(2)+"x faster!")
+	        em4.textContent=("Monkey is "+speedup+"x faster!")
 	        p4.appendChild(em4);
 	        span4.appendChild(p4);
 	        div_col4.appendChild(span4);
