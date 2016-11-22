@@ -14,7 +14,7 @@ $(".show-more a").each(function() {
     if (actualHide > visibleHeight) {
         $link.show();
     } else {
-        $link.hide();
+        // $link.hide();
     }
 });
 
@@ -35,7 +35,7 @@ function getShowLinkText(currentText) {
     var caption=document.getElementById("figure1_caption");
     if (currentText.toUpperCase() === "SHOW MORE...") {
         newText = "Show less.";
-        caption.innerHTML = "<strong>Figure 1.</strong> The LSM-tree design space exhibits a trade-off between lookup cost and update cost that can be navigated by tuning the merge policy and size ratio. In general, the curve for Monkey  dominates the curve for the state-of-the-art because Monkey minimizes worst-case query cost by allocating main memory among the Bloom filters so as to minimize the sum of their false positive rates. <br> To generate these curves, we plug different combinations of the merge policy and the size ratio into our closed-form equations for lookup cost and update cost, and we plot lookup cost against update cost for corresponding values of the merge policy and size ratio.  ";
+        caption.innerHTML = "<strong>Figure 1.</strong> The LSM-tree design space exhibits a trade-off between lookup cost and update cost that can be navigated by tuning the merge policy and size ratio. In general, the curve for Monkey  dominates the curve for the state-of-the-art because Monkey minimizes worst-case query cost by allocating main memory among the Bloom filters so as to minimize the sum of their false positive rates. To generate these curves, we plug different combinations of the merge policy and the size ratio into our closed-form equations for lookup cost and update cost, and we plot lookup cost against update cost for corresponding values of the merge policy and size ratio.  ";
     } else {
         newText = "Show more...";
         caption.innerHTML = "<strong>Figure 1.</strong> The LSM-tree design space exhibits a trade-off between lookup cost and update cost that can be navigated by tuning the merge policy and size ratio. ";
