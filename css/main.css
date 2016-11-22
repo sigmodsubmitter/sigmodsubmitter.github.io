@@ -763,7 +763,20 @@ h3.acknowledgements {
 	vertical-align: middle;
 }
 
+/* The following is for the show-more and show-less buttoms */
 
+div.text-container {
+    margin: 0 auto;
+    text-align: justify;   
+}
 
+.text-content{
+    line-height: 1em;
+}
 
+.short-text {
+    overflow: hidden;
+    height: 4em;
+    text-align: justify;
+}
 

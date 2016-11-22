@@ -25,7 +25,6 @@
     <!-- Custom JS -->
     <script src="js/monkey.js"></script>
     <script src="js/autoRerun.js"></script>
-    <script src="js/drawChart.js"></script>
 
     <!-- Custom Fonts -->
     <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -149,7 +148,7 @@
             <div class="row">
                 <div class="col-lg-6">
                     <p>
-                        We present Monkey, an LSM-based key-value store that is able to strike the best possible balance between the costs of updates and lookups for any given application. The core insight is that worst-case lookup cost is proportional to the sum of the false positive rates of the Bloom filters across all levels of the LSM-tree. Contrary to state-of-the-art key-value stores that assign a fixed number of bits-per-element to all Bloom filters, Monkey allocates memory to filters across different levels so as to minimize this sum. Thus, Monkey improves the worst-case lookup cost relative  to the state-of-the-art  by 50-90% without losing anything. 
+                        We present Monkey, an LSM-based key-value store that is able to strike the best possible balance between the costs of updates and lookups for any given application. The core insight is that worst-case lookup cost is proportional to the sum of the false positive rates of the Bloom filters across all levels of the LSM-tree. Contrary to state-of-the-art key-value stores that assign a fixed number of bits-per-element to all Bloom filters, Monkey allocates memory to filters across different levels so as to minimize the sum of their false positive rates. Thus, Monkey improves the worst-case lookup cost relative to the state-of-the-art by 50-90% without losing anything. 
 
                     </p>
                 </div>  
@@ -160,7 +159,7 @@
             <div class="row">
                 <div class="col-lg-12">
                 <p>
-                Furthermore, we map the LSM-tree design space onto a closed-form model that enables predicting lookup and update performance under any tuning and dataset. The model enables finding the balance between lookup and update costs that maximizes throughput for a given application workload. The model can also answer what-if questions about how changes in environmental parameters would impact performance and how to adapt the various LSM-tree design elements accordingly. 
+                Furthermore, we map the LSM-tree design space onto a closed-form model that precisely predicts the worst-case I/O costs of lookups and updates with respect to any tuning and dataset. The model enables finding the balance between lookup and update costs that maximizes throughput for a given application workload. The model can also answer what-if questions about how changes in environmental parameters would impact performance and how to adapt the various LSM-tree design elements accordingly. 
 
                 <!--
                 depending on the workload (proportion of lookups and updates), the dataset (number and size of entries), and the underlying hardware (main memory available, disk vs. flash)
@@ -188,15 +187,9 @@
                 We now present an interactive visualization of the Monkey design space and how to navigate it. It is meant as an educational tool to demonstrate the impact of different design decisions on performance, and as a tuning tool to help system administrators improve performance and answer what-if design questions. 
                 </p>
                 <p>
-                <strong>Parameterized Trade-off Curve.</strong> To focus on a particular slice of the design space, we enable parameterization of the <em>dataset </em> (number and size of data entries), the <em>environment</em> (size of persistent storage pages), and <em>main memory allocation</em> (size of the LSM-tree's buffer, and total size of all Bloom filters). Based on these parameters, we plot the trade-off curve between the worst-case costs of lookups and updates for Monkey. We enable navigating this curve to reach a particular balance between lookup cost and update cost by parameterizing the <em> merge operation frequency, </em> which is a function of the merge policy (tiering vs. leveling) and the size ratio between adjacent levels of the LSM-tree. 
+                <strong>Parameterized Trade-off Curve.</strong> To focus on a particular slice of the design space, we enable parameterization of the <em>dataset </em> (number and size of data entries), the <em>environment</em> (size of persistent storage pages), and <em>main memory allocation</em> (size of the LSM-tree's buffer, and total size of all Bloom filters). In Figure 1 below, we plot the trade-off curve between the worst-case costs of lookups and updates based on these parameters for both Monkey and the state-of-the-art. We enable navigating these curves to strike a particular balance between lookup cost and update cost by varying the <em> merge operation frequency, </em> which is a function of the merge policy (tiering vs. leveling) and the size ratio between adjacent levels of the LSM-tree. 
                 </p> <p>
-                 <strong>Default Configurations.</strong> We give three default configurations as reference points. All of them are for a 1 TB LSM-tree with 16 byte entries. Configurations 1 and 2 reflect the default tuning of two state-of-the-art systems, LevelDB and Cassandra respectively. Configuration 3 is for an LSM-tree with no Bloom filters. 
-                </p> <p>
-                <strong>Comparison to the State-of-the-Art.</strong> As a baseline for Monkey, we also plot the trade-off curve for state-of-the-art designs. The figure shows that Monkey dominates state-of-the-art designs by achieving a lower lookup cost for any configuration. The reason is that worst-case lookup cost is equal to the sum of false positive rates of all Bloom filters. In contrast to state-of-the-art designs that assign the same false positive rate to Bloom filters across all levels, Monkey allocates main memory among its Bloom filters so as to minimize the sum of their false positive rates. 
-                </p> <p>
-                <strong>LSM-tree Visualization.</strong> Below the curves, we illustrate the structure of the LSM-tree resulting from any particular configuration of the tuning parameters. This visualisation enables a more detailed comparison between how Monkey and state-of-the-art designs tune their Bloom filters. Monkey allocates less bits-per-element (i.e., higher false positive rate) to Bloom filters at deeper levels
-
-
+                 <strong>Default Configurations.</strong> We give three default configurations as reference points. All of them are for a 1 TB LSM-tree with 16 byte entries. Configurations 1 and 2 reflect the default tuning of two state-of-the-art systems, LevelDB and Cassandra respectively. Configuration 3 shows the border-case where we do not allocate any main memory to the Bloom filters, and so Monkey and the state-of-the-art designs converge to a traditional LSM-tree with no Bloom filters,
                 </p>
                 </div>
             </div>
@@ -308,12 +301,34 @@
                 <div id="myDiv" class="col-lg-12" style="width: 1000px; height: 400px; padding-left: 80px;"><!-- Plotly chart will be drawn inside this DIV --></div> 
 
             </div>
+            
+
+            <div class="row">
+                <div class="col-lg-1"> </div>
+                <div class="col-lg-9">
+                <div class="text-container" >
+                    <span id="figure1_caption" class="text-content short-text">
+                     <strong>Figure 1.</strong> The LSM-tree design space exhibits a trade-off between lookup cost and update cost that can be navigated by tuning the merge policy and size ratio.                     
+                    </span>
+                    <span class="show-more">
+                     <a href="#">Show more...</a>
+                    </span>
+                </div>
+
+                </div>
+
+            </div>
             <hr>
+
             <div id="result_tuning" class="text-center">
                 <span data-tooltip="Bloom filter allocation will be displayed here!" data-tooltip-position="bottom"><p><em>Click on one of the scenarios above and get ready for Monkey business.</em></p>  </span>
             </div>
             
-
+            <div class="row">
+                <p>
+                <strong>LSM-tree Visualization.</strong> Below the curves, we illustrate the structure of the LSM-tree resulting from any particular configuration of the tuning parameters. This visualisation enables a more detailed comparison between how Monkey and state-of-the-art designs tune their Bloom filters. Monkey allocates less bits-per-element (i.e., higher false positive rate) to Bloom filters at deeper levels
+                </p>
+            </div>
 
 
         </div>
@@ -345,18 +360,12 @@
  <!--    <section  id="people">
 
     </section> -->
-    
-
-    
-
-
 
     <!-- Footer -->
     <footer class="text-center">
         <div class="footer-above">
             <div class="container">
                 <div class="row">
-
                     </div>
                 </div>
             </div>
@@ -417,6 +426,8 @@ tracking"></a></div></noscript>
 
     <!-- Custom Theme JavaScript -->
     <script src="js/main.js"></script>
+    <script src="js/show_more.js"></script>
+    <script src="js/drawChart.js"></script>
 
 </body>
 

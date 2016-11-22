@@ -1,5 +1,5 @@
 
-setTimeout(function(){ initChart() }, 1000);
+setTimeout(initChart, 5);
 // setTimeout(function(){ 
 //   $(document).ready(function(){
 //     $('[data-toggle="tooltip"]').tooltip({
@@ -108,7 +108,8 @@ function initChart() {
             title: 'Lookup cost (I/Os)',
             range: [ymin, ymax]
         },
-        title:'Pareto frontiers for State-of-the-art and Monkey Tuning'
+        //title:'Pareto frontiers for State-of-the-art and Monkey Tuning'
+        title:''
     };
 
     Plotly.newPlot('myDiv', data, layout);
@@ -344,7 +345,8 @@ function drawChart() {
             title: 'Lookup cost (I/Os)',
             range: [ymin, ymax]
         },
-        title:'Pareto frontiers for State-of-the-art and Monkey Tuning'
+        //title:'Pareto frontiers for State-of-the-art and Monkey Tuning'
+        title:''
     };
 
     Plotly.newPlot('myDiv', data, layout);
