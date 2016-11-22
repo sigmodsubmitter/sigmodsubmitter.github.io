@@ -1,5 +1,5 @@
 // The following is for the show-more show-less buttons
-$(".show-more a").each(function() {
+$(".show-more_fig1 a").each(function() {
     var $link = $(this);
     var $content = $link.parent().prev("span.text-content");
 
@@ -18,7 +18,7 @@ $(".show-more a").each(function() {
     }
 });
 
-$(".show-more a").on("click", function() {
+$(".show-more_fig1 a").on("click", function() {
     var $link = $(this);
     var $content = $link.parent().prev("span.text-content");
     var linkText = $link.text();
