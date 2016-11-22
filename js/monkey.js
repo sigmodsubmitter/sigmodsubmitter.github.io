@@ -355,7 +355,7 @@ function clickbloomTuningButton(move_to_anchor) {
     var leveltier = getRadioValueByName("ltradio");
     // console.log("leveltier \t" + leveltier + "\n");
 
-    console.log(N)
+    // console.log(N)
 
     if (document.getElementById("N").value=="" || document.getElementById("E").value=="" || document.getElementById("T").value=="" || document.getElementById("P").value=="" 
         || document.getElementById("mbuffer").value=="" || document.getElementById("mfilter").value=="" || isNaN(N) 
@@ -525,71 +525,33 @@ function clickbloomTuningButton(move_to_anchor) {
 		    p1.textContent=((i+1)+"")
 		    div_col1.appendChild(p1);
 
-	   	 //    var div_col2=document.createElement("div");
-		    // div_col2.setAttribute("class","col-lg-2")
-		    // var p2=document.createElement("p");
-		    // p2.setAttribute("style","text-align: center;")
-      //       if (Math.abs(filters_baseline[i].fp-1)<0.0001)
-      //           p2.textContent=((filters_baseline[i].fp*100).toFixed(0)+"% ("+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(1)+" bits)")
-      //       else
-      //           p2.textContent=((filters_baseline[i].fp*100).toFixed(2)+"% ("+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(1)+" bits)")
-		    // div_col2.appendChild(p2);
-
 
 	   	    var div_col2=document.createElement("div");
 		    div_col2.setAttribute("class","col-lg-2")
-        	
-        	var MSD2=getMostSignificantDigit(filters_baseline[i].fp);
-
+         	var MSD2=getMostSignificantDigit(filters_baseline[i].fp);
         	var message2=(filters_baseline[i].fp*100).toFixed(MSD2+1)+"% false positive rate, assigning "+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(2)+" bits per element, resulting in "+formatBytes(filters_baseline[i].mem,1)+" bytes of memory used."
-        	console.log(message)
-        	console.log(filters_baseline[i])
         	var span2=document.createElement("span");
         	span2.setAttribute("data-tooltip",message2);
         	span2.setAttribute("data-tooltip-position","left")
-
 		    var p2=document.createElement("p");
 		    p2.setAttribute("style","text-align: center;")
-		    if (Math.abs(filters_baseline[i].fp-1)<0.0001)
-		    	p2.textContent=(filters_baseline[i].fp*100).toFixed(MSD2-1)+"%"
-			else
-		    	p2.textContent=(filters_baseline[i].fp*100).toFixed(MSD2-1)+"%"
-		 //    if (Math.abs(filters_monkey[i].fp-1)<0.0001)
-		 //    	p3.textContent=((filters_monkey[i].fp*100).toFixed(0)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
-			// else
-		 //    	p3.textContent=((filters_monkey[i].fp*100).toFixed(2)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
+	    	p2.textContent=(filters_baseline[i].fp*100).toFixed(MSD2-1)+"%"
         	span2.appendChild(p2);
 		    div_col2.appendChild(span2);
 
 
-
-
 	   	    var div_col3=document.createElement("div");
 		    div_col3.setAttribute("class","col-lg-2")
-        	
-        	console.log(getMostSignificantDigit(filters_monkey[i].fp))
-        	console.log(filters_monkey[i].fp)
         	var MSD=getMostSignificantDigit(filters_monkey[i].fp);
-
         	var message=(filters_monkey[i].fp*100).toFixed(MSD+1)+"% false positive rate, assigning "+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(2)+" bits per element, resulting in "+formatBytes(filters_monkey[i].mem,1)+" bytes of memory used."
-        	console.log(message)
         	var span3=document.createElement("span");
         	span3.setAttribute("data-tooltip",message);
         	span3.setAttribute("data-tooltip-position","right")
-
 		    var p3=document.createElement("p");
 		    p3.setAttribute("style","text-align: center;")
-		    if (Math.abs(filters_monkey[i].fp-1)<0.0001)
-		    	p3.textContent=(filters_monkey[i].fp*100).toFixed(MSD-1)+"%"
-			else
-		    	p3.textContent=(filters_monkey[i].fp*100).toFixed(MSD-1)+"%"
-		 //    if (Math.abs(filters_monkey[i].fp-1)<0.0001)
-		 //    	p3.textContent=((filters_monkey[i].fp*100).toFixed(0)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
-			// else
-		 //    	p3.textContent=((filters_monkey[i].fp*100).toFixed(2)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
+	    	p3.textContent=(filters_monkey[i].fp*100).toFixed(MSD-1)+"%"
         	span3.appendChild(p3);
 		    div_col3.appendChild(span3);
-
 
 
 	   	    var div_col4=document.createElement("div");
@@ -1040,8 +1002,8 @@ function print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_
 
     //print_write_optimized_extreme(conf, use_new_strategy);
 
-    console.log(input_conf)
-    console.log(conf)
+    // console.log(input_conf)
+    // console.log(conf)
 
     var last_c = LSM_config();
     for (var W = 0.001; W <= 0.2; W += 0.001) {

@@ -11,7 +11,7 @@ function re_run() {
     
     if (x>=37 && x<=40 || x==9 || x==16 || x==17 || x==91 || x==18 || x==65)
     {
-        console.log("User is clicking on arrows or tab (9) or shift (16) or ctrl (17) or cmd (91) or alt (18). no rerun.")
+        console.log("User is clicking on arrows or tab (9) or shift (16) or ctrl (17) or cmd (91) or alt (18). No rerun.")
         return;
     }
 
@@ -57,14 +57,14 @@ function re_run_now() {
     if (!isNaN(P))
         document.getElementById("P").value=P;
 
-    console.log("")
-    console.log("N="+N)
-    console.log("E="+E)
-    console.log("mbuffer="+mbuffer)
-    console.log("T="+T)
-    console.log("P="+P)
-    console.log("mfilter="+mfilter)
-    console.log("leveltier="+leveltier)
+    // console.log("")
+    // console.log("N="+N)
+    // console.log("E="+E)
+    // console.log("mbuffer="+mbuffer)
+    // console.log("T="+T)
+    // console.log("P="+P)
+    // console.log("mfilter="+mfilter)
+    // console.log("leveltier="+leveltier)
 
     var color='#777';
     document.getElementById("scenario1").style.background=color;   
