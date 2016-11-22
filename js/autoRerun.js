@@ -11,7 +11,7 @@ function re_run() {
     
     if (x>=37 && x<=40 || x==9 || x==16 || x==17 || x==91 || x==18 || x==65)
     {
-        console.log("User is clicking on arrows or tab (9) or shift (16) or ctrl (17) or cmd (91) or alt (18). no rerun.")
+        console.log("User is clicking on arrows or tab (9) or shift (16) or ctrl (17) or cmd (91) or alt (18). No rerun.")
         return;
     }
 
@@ -19,6 +19,13 @@ function re_run() {
     {
         var N = parseInt(document.getElementById("N").value.replace(/\D/g,''),10);
         document.getElementById("N").value=numberWithCommas(N)
+        // console.log(numberWithCommas(N))
+    }
+
+    if(event.target.id=="mfilter")
+    {
+        var mfilter = parseInt(document.getElementById("mfilter").value.replace(/\D/g,''),10);
+        document.getElementById("mfilter").value=numberWithCommas(mfilter)
         // console.log(numberWithCommas(N))
     }
 
@@ -53,7 +60,7 @@ function re_run_now() {
     if (!isNaN(T))
         document.getElementById("T").value=T;
     if (!isNaN(mfilter))
-        document.getElementById("mfilter").value=mfilter/1048576;
+        document.getElementById("mfilter").value=numberWithCommas(mfilter/1048576)
     if (!isNaN(P))
         document.getElementById("P").value=P;
 

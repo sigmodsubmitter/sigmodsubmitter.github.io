@@ -145,15 +145,19 @@ function getPoint(tieringVsLeveling, T, mfilter, conf, use_monkey) {
                 return {W: meetingW, R: meetingR};
 }
 
+
+
 function drawChart() {
 
-    var N = parseInt(document.getElementById("N").value.replace(/\D/g,''),10);
-    var E = parseInt(document.getElementById("E").value,10);
-    var mbuffer = parseFloat(document.getElementById("mbuffer").value)*1048576;
-    var T = parseInt(document.getElementById("T").value, 10);
-    var mfilter = parseFloat(document.getElementById("mfilter").value)*1048576;
-    var P = parseInt(document.getElementById("P").value, 10);
-    var isLeveled = isRadioLeveled("ltradio");  // tiered is 0, leveled is 1
+    var inputParameters = parseInputTextBoxes();
+
+    var N=inputParameters.N;
+    var E=inputParameters.E;
+    var mbuffer=inputParameters.mbuffer;
+    var T=inputParameters.T;
+    var mfilter=inputParameters.mfilter;
+    var P=inputParameters.P;
+    var isLeveled=inputParameters.isLeveled;
 
     var conf = new LSM_config();
     conf.T=-1;
