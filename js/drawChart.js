@@ -1,5 +1,5 @@
 
-setTimeout(initChart, 5);
+setTimeout(scenario1, 200);
 // setTimeout(function(){ 
 //   $(document).ready(function(){
 //     $('[data-toggle="tooltip"]').tooltip({
