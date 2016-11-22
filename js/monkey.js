@@ -5,6 +5,40 @@ function Filter() {
     var mem;
 }
 
+var log10 = Math.log(10);
+function getSignificantDigitCount(n) {
+    n = Math.abs(String(n).replace(".", "")); //remove decimal and make positive
+    if (n == 0) return 0;
+    while (n != 0 && n % 10 == 0) n /= 10; //kill the 0s at the end of n
+
+    return Math.floor(Math.log(n) / log10) + 1; //get number of digits
+}
+
+function getMostSignificantDigit(d)
+{
+	var i=0;
+	if (d>1)
+		return -1;
+	else
+	{
+		while (d<1)
+		{
+			d=d*10;
+			i++;
+		}
+		return i;
+	}
+}
+
+function formatBytes(bytes,decimals) {
+   if(bytes == 0) return '0 Byte';
+   var k = 1024; // or 1024 for binary
+   var dm = decimals + 1 || 3;
+   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+   var i = Math.floor(Math.log(bytes) / Math.log(k));
+   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -368,7 +402,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	    var div_title_col1=document.createElement("div");
 	    div_title_col1.setAttribute("class","col-lg-4")
 	    var lsm_header1=document.createElement("h5");
-	    lsm_header1.textContent="Bloom Filter Memory Allocation";
+	    lsm_header1.textContent="False Positive Rates";
 	    lsm_header1.setAttribute("style","text-align: center;")
 		div_title_col1.appendChild(lsm_header1);
 		div_row2.appendChild(div_title_col1); // added secondary row title
@@ -491,29 +525,64 @@ function clickbloomTuningButton(move_to_anchor) {
 		    p1.textContent=((i+1)+"")
 		    div_col1.appendChild(p1);
 
+	   	 //    var div_col2=document.createElement("div");
+		    // div_col2.setAttribute("class","col-lg-2")
+		    // var p2=document.createElement("p");
+		    // p2.setAttribute("style","text-align: center;")
+      //       if (Math.abs(filters_baseline[i].fp-1)<0.0001)
+      //           p2.textContent=((filters_baseline[i].fp*100).toFixed(0)+"% ("+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(1)+" bits)")
+      //       else
+      //           p2.textContent=((filters_baseline[i].fp*100).toFixed(2)+"% ("+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(1)+" bits)")
+		    // div_col2.appendChild(p2);
+
+
 	   	    var div_col2=document.createElement("div");
 		    div_col2.setAttribute("class","col-lg-2")
+        	
+        	var MSD2=getMostSignificantDigit(filters_baseline[i].fp);
+
+        	var message2=(filters_baseline[i].fp*100).toFixed(MSD2+1)+"% false positive rate, assigning "+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(2)+" bits per element, resulting in "+formatBytes(filters_baseline[i].mem,1)+" bytes of memory used."
+        	console.log(message)
+        	console.log(filters_baseline[i])
+        	var span2=document.createElement("span");
+        	span2.setAttribute("data-tooltip",message2);
+        	span2.setAttribute("data-tooltip-position","left")
+
 		    var p2=document.createElement("p");
 		    p2.setAttribute("style","text-align: center;")
-            if (Math.abs(filters_baseline[i].fp-1)<0.0001)
-                p2.textContent=((filters_baseline[i].fp*100).toFixed(0)+"% ("+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(1)+" bits)")
-            else
-                p2.textContent=((filters_baseline[i].fp*100).toFixed(2)+"% ("+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(1)+" bits)")
-		    div_col2.appendChild(p2);
+		    if (Math.abs(filters_baseline[i].fp-1)<0.0001)
+		    	p2.textContent=(filters_baseline[i].fp*100).toFixed(MSD2-1)+"%"
+			else
+		    	p2.textContent=(filters_baseline[i].fp*100).toFixed(MSD2-1)+"%"
+		 //    if (Math.abs(filters_monkey[i].fp-1)<0.0001)
+		 //    	p3.textContent=((filters_monkey[i].fp*100).toFixed(0)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
+			// else
+		 //    	p3.textContent=((filters_monkey[i].fp*100).toFixed(2)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
+        	span2.appendChild(p2);
+		    div_col2.appendChild(span2);
+
+
+
 
 	   	    var div_col3=document.createElement("div");
 		    div_col3.setAttribute("class","col-lg-2")
-        	var message=(filters_baseline[i].fp*100).toFixed(4)+"% false positive rate, assigning "+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(2)+" bits per element, resulting in "+numberWithCommas(filters_baseline[i].mem)+" bytes of memory used."
+        	
+        	console.log(getMostSignificantDigit(filters_monkey[i].fp))
+        	console.log(filters_monkey[i].fp)
+        	var MSD=getMostSignificantDigit(filters_monkey[i].fp);
+
+        	var message=(filters_monkey[i].fp*100).toFixed(MSD+1)+"% false positive rate, assigning "+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(2)+" bits per element, resulting in "+formatBytes(filters_monkey[i].mem,1)+" bytes of memory used."
+        	console.log(message)
         	var span3=document.createElement("span");
         	span3.setAttribute("data-tooltip",message);
-        	span3.setAttribute("data-tooltip-position","bottom")
+        	span3.setAttribute("data-tooltip-position","right")
 
 		    var p3=document.createElement("p");
 		    p3.setAttribute("style","text-align: center;")
 		    if (Math.abs(filters_monkey[i].fp-1)<0.0001)
-		    	p3.textContent=(filters_monkey[i].fp*100).toFixed(0)+"%"
+		    	p3.textContent=(filters_monkey[i].fp*100).toFixed(MSD-1)+"%"
 			else
-		    	p3.textContent=(filters_monkey[i].fp*100).toFixed(2)+"%"
+		    	p3.textContent=(filters_monkey[i].fp*100).toFixed(MSD-1)+"%"
 		 //    if (Math.abs(filters_monkey[i].fp-1)<0.0001)
 		 //    	p3.textContent=((filters_monkey[i].fp*100).toFixed(0)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
 			// else
@@ -521,16 +590,16 @@ function clickbloomTuningButton(move_to_anchor) {
         	span3.appendChild(p3);
 		    div_col3.appendChild(span3);
 
+
+
 	   	    var div_col4=document.createElement("div");
 		    div_col4.setAttribute("class","col-lg-6")
 		    div_col4.setAttribute("style","text-align: center;")
-
 
 		    var levelcss=i+1;
 		    if (filters_monkey.length<5)
 		    	levelcss=5-filters_monkey.length+1+i;
 			// console.log(i+":"+levelcss)
-			
 
 		    var button=document.createElement("button");
 		    button.setAttribute("class","lsm_button lsm_button"+(levelcss));
