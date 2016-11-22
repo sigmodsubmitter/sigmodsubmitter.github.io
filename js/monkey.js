@@ -66,21 +66,7 @@ function getRmax(lt,N,E,B,T)
     return R;
 }
 
-function clickRWboundsButton() {
 
-    var N = parseInt(document.getElementById("N").value,10);
-    var E = parseInt(document.getElementById("E").value,10);
-    var mbuffer = parseFloat(document.getElementById("mbuffer").value)*1048576;
-    var T = parseInt(document.getElementById("T").value, 10);
-    var leveltier = getRadioValueByName("ltradio");
-
-    console.log(leveltier);
-    var Rmax;
-    Rmax=getRmax(leveltier,N,E,mbuffer,T);
-    document.getElementById('RmaxLabel').value = "Rmax = "+Rmax;
-
-
-}
 
 
 function calc_R(f)
@@ -264,14 +250,15 @@ function eval_R(filters, leveltier, T)
 
 function reset_button_colors()
 {
-    document.getElementById("scenario1").style.background='#c51c30';   
-    document.getElementById("scenario2").style.background='#c51c30';   
-    document.getElementById("scenario3").style.background='#c51c30';   
+	var color='#777';
+    document.getElementById("scenario1").style.background=color;   
+    document.getElementById("scenario2").style.background=color;   
+    document.getElementById("scenario3").style.background=color;   
 }
 
 function scenario1()
 {
-    document.getElementById("N").value=68719476736; //(10M values)
+    document.getElementById("N").value=numberWithCommas(68719476736); //(10M values)
     document.getElementById("E").value=16;
     document.getElementById("mbuffer").value=2; //in MB
     document.getElementById("T").value=10;
@@ -283,12 +270,12 @@ function scenario1()
     reset_button_colors()
     document.getElementById("scenario1").style.background='#000000';   
 
-    clickbloomTuningButton()    
+    clickbloomTuningButton(true)    
 }
 
 function scenario2()
 {
-    document.getElementById("N").value=68719476736; //(2^36 values)
+    document.getElementById("N").value=numberWithCommas(68719476736); //(2^36 values)
     document.getElementById("E").value=16;
     document.getElementById("mbuffer").value=2; //in MB
     document.getElementById("T").value=4;
@@ -300,12 +287,12 @@ function scenario2()
     reset_button_colors()
     document.getElementById("scenario2").style.background='#000000';   
 
-    clickbloomTuningButton()    
+    clickbloomTuningButton(true)    
 }
 
 function scenario3()
 {
-    document.getElementById("N").value=68719476736; //(2^36 values)
+    document.getElementById("N").value=numberWithCommas(68719476736); //(2^36 values)
     document.getElementById("E").value=16;
     document.getElementById("mbuffer").value=2; //in MB
     document.getElementById("T").value=2;
@@ -317,20 +304,24 @@ function scenario3()
     reset_button_colors()
     document.getElementById("scenario3").style.background='#000000';   
 
-    clickbloomTuningButton()    
+    clickbloomTuningButton(true)    
 }
 
 
-function clickbloomTuningButton() {
-    var N = parseInt(document.getElementById("N").value,10);
-    var E = parseInt(document.getElementById("E").value,10);
-    var mbuffer = parseFloat(document.getElementById("mbuffer").value)*1048576;
-    var T = parseInt(document.getElementById("T").value, 10);
-    var mfilter = parseFloat(document.getElementById("mfilter").value)*1048576;
-    var P = parseInt(document.getElementById("P").value, 10);
+function clickbloomTuningButton(move_to_anchor) {
+
+
+    var N = parseInt(document.getElementById("N").value.replace(/\D/g,''),10);
+    var E = parseInt(document.getElementById("E").value.replace(/\D/g,''),10);
+    var mbuffer = parseFloat(document.getElementById("mbuffer").value.replace(/\D/g,''))*1048576;
+    var T = parseInt(document.getElementById("T").value.replace(/\D/g,''), 10);
+    var mfilter = parseFloat(document.getElementById("mfilter").value.replace(/\D/g,''))*1048576;
+    var P = parseInt(document.getElementById("P").value.replace(/\D/g,''), 10);
     //var W = parseFloat(document.getElementById("W").value);
     var leveltier = getRadioValueByName("ltradio");
     // console.log("leveltier \t" + leveltier + "\n");
+
+    console.log(N)
 
     if (document.getElementById("N").value=="" || document.getElementById("E").value=="" || document.getElementById("T").value=="" || document.getElementById("P").value=="" 
         || document.getElementById("mbuffer").value=="" || document.getElementById("mfilter").value=="" || isNaN(N) 
@@ -482,6 +473,10 @@ function clickbloomTuningButton() {
     result_div.appendChild(div_new_row); 
 
 
+    var lsm_button_size_ratio=(500-100)/filters_monkey.length;
+    var cur_length=100;
+    cur_length+=lsm_button_size_ratio;
+
 
 	var last_is_smaller=false;
     for (var i=0;i<filters_monkey.length;i++)
@@ -508,13 +503,23 @@ function clickbloomTuningButton() {
 
 	   	    var div_col3=document.createElement("div");
 		    div_col3.setAttribute("class","col-lg-2")
+        	var message=(filters_baseline[i].fp*100).toFixed(4)+"% false positive rate, assigning "+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(2)+" bits per element, resulting in "+numberWithCommas(filters_baseline[i].mem)+" bytes of memory used."
+        	var span3=document.createElement("span");
+        	span3.setAttribute("data-tooltip",message);
+        	span3.setAttribute("data-tooltip-position","bottom")
+
 		    var p3=document.createElement("p");
 		    p3.setAttribute("style","text-align: center;")
 		    if (Math.abs(filters_monkey[i].fp-1)<0.0001)
-		    	p3.textContent=((filters_monkey[i].fp*100).toFixed(0)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
+		    	p3.textContent=(filters_monkey[i].fp*100).toFixed(0)+"%"
 			else
-		    	p3.textContent=((filters_monkey[i].fp*100).toFixed(2)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
-		    div_col3.appendChild(p3);
+		    	p3.textContent=(filters_monkey[i].fp*100).toFixed(2)+"%"
+		 //    if (Math.abs(filters_monkey[i].fp-1)<0.0001)
+		 //    	p3.textContent=((filters_monkey[i].fp*100).toFixed(0)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
+			// else
+		 //    	p3.textContent=((filters_monkey[i].fp*100).toFixed(2)+"% ("+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(1)+" bits)")
+        	span3.appendChild(p3);
+		    div_col3.appendChild(span3);
 
 	   	    var div_col4=document.createElement("div");
 		    div_col4.setAttribute("class","col-lg-6")
@@ -526,46 +531,25 @@ function clickbloomTuningButton() {
 		    	levelcss=5-filters_monkey.length+1+i;
 			// console.log(i+":"+levelcss)
 			
+
+		    var button=document.createElement("button");
+		    button.setAttribute("class","lsm_button lsm_button"+(levelcss));
+		    if (last_is_smaller)
+		    	button.setAttribute("class","lsm_button_not_solid");
+		    else
+		    	button.setAttribute("class","lsm_button");
+		    button.setAttribute("style","width: "+cur_length+"px");
+		    cur_length+=lsm_button_size_ratio;
+		    var text=document.createTextNode(numberWithCommas(filters_monkey[i].nokeys)+((last_is_smaller)?" (level is not full)":""))
+		    button.appendChild(text);
+		    div_col4.appendChild(button);
+
 			if (i==(filters_monkey.length-2))
 			{
-			    var button=document.createElement("button");
-			    button.setAttribute("class","lsm_button lsm_button4");
-			    var text=document.createTextNode(numberWithCommas(filters_monkey[i].nokeys))
-			    button.appendChild(text);
-			    div_col4.appendChild(button);
 			    if (filters_monkey[i].nokeys>filters_monkey[i+1].nokeys)
 			    	last_is_smaller=true;
-
 			}
-			else if (i==(filters_monkey.length-1))
-			{
-			    var button=document.createElement("button");
-			    if (last_is_smaller)
-			    	button.setAttribute("class","lsm_button_not_solid lsm_button5");
-			    else
-			    	button.setAttribute("class","lsm_button lsm_button5");
-			    var text=document.createTextNode(numberWithCommas(filters_monkey[i].nokeys)+((last_is_smaller)?" (level is not full)":""))
-			    button.appendChild(text);
-			    div_col4.appendChild(button);
-			}
-			else if (levelcss<=3)
-			{
-
-			    var button=document.createElement("button");
-			    button.setAttribute("class","lsm_button lsm_button"+(levelcss));
-			    var text=document.createTextNode(numberWithCommas(filters_monkey[i].nokeys))
-			    button.appendChild(text);
-			    div_col4.appendChild(button);
-			}
-			else
-			{
-			    var p4=document.createElement("p");
-			    p4.setAttribute("style","text-align: center;")
-			    p4.textContent=("...")
-			    div_col4.appendChild(p4);
-			}
-
-
+		
 	    	div_new_row.appendChild(div_col1);
 	    	div_new_row.appendChild(div_col2);
 	    	div_new_row.appendChild(div_col3);
@@ -700,291 +684,8 @@ function clickbloomTuningButton() {
     // var hr=document.createElement("hr");
     // result_div.appendChild(hr)
 
-
-$(function() {
-    // console.log($("#clicktoshow")[0])
-    $("#clicktoshow")[0].click();
-});
-
-
-
-
-    //var generateHere = document.getElementById("generate-here");
-	//generateHere.innerHTML = '<div class="someclass"><a href="www.example.com"><p>some text</p></a></div>';
-
-
-    return;
-    
-    //Initialize the false positive so that they are all equal
-    for (var i=0;i<filter_array.length;i++)
-    {
-        filter_array[i].fp=R/maxNumRuns;
-    }
-    var regularFP=R/maxNumRuns;
-    var regularBFsizeMB=calcTotalMemBits(filter_array)/8/1024/1024;
-    console.log("The size of the default LSM tree in MB: "+(calcTotalMemBits(filter_array)/8/1024/1024))
-
-
-    return;
-
-    var diff = 0.001;
-    var current_num_bits = calcTotalMemBits(filter_array);
-    var original = current_num_bits;
-    //console.log("start val:  %f\n", current);
-
-    console.log("uniform strategy:  "+ current_num_bits / (8 * 1024) );
-
-    //prvar(filter_array, current, 0);
-
-    var change = true;
-    var iteration = 0;
-    while (true) {
-        change = false;
-
-        for (var i = 0; i < filter_array.length - 1; i++) {
-            for (var j = i + 1; j < filter_array.length ; j++) {
-
-                filter_array[i].fp += diff;
-                filter_array[j].fp -= diff;
-                var value = calcTotalMemBits(filter_array);
-                if (value < current_num_bits && value > 0 && filter_array[j].fp > 0 && filter_array[i].fp < 1) {
-                    current_num_bits = value;
-                    change = true;
-                    continue;
-                }
-                filter_array[i].fp -= diff * 2;
-                filter_array[j].fp += diff * 2;
-
-                value = calcTotalMemBits(filter_array);
-
-                if (value < current_num_bits && value > 0 && filter_array[i].fp > 0 && filter_array[j].fp < 1) {
-                    current_num_bits = value;
-                    change = true;
-                    continue;
-                }
-
-                filter_array[i].fp += diff;
-                filter_array[j].fp -= diff;
-            }
-        }
-        if (!change) {
-            diff /= 2;
-            if (diff < 0.0000001) {
-                break;
-            }
-        }
-        //prvar(filter_array, current, iteration);
-        iteration++;
-        //prvar_detail(filter_array, current);
-    }
-    // prvar_detail(filter_array, current_num_bits);
-    console.log("ratio saving  "+ current_num_bits / original );
-    console.log("original "+ original / (8 * 1024)+"KB");
-    //total_uniform_RAM3(limit_on_reads, size_ratio, filter_array.back().size, page_size);
-    console.log("current "+ current_num_bits / (8 * 1024)+"KB");
-    //console.log("size:  %ld\n", filter_array.back().size);
-
-
-    for (var i=0;i<filter_array.length;i++)
-    {
-        if (Math.abs(filter_array[i].fp-1)<0.0000001)
-            filter_array[i].fp=1.0;
-    }
-
-
-    console.log(filter_array.length);
-    console.log(filter_array);
-
-    document.getElementById("explanation").value ="";
-    document.getElementById("explanation").value = "The LSM tree holds "+(N*E/1024/1024).toFixed(1)+" MB of Key-Value pairs.\n";
-    document.getElementById("explanation").value += "Level 0 buffer size is "+(mbuffer/1024/1024).toFixed(1)+" MB.\n";
-    var bf_total_size=calcTotalMemBits(filter_array);
-    document.getElementById("explanation").value += "Bloom filter memory consumtion for state-of-the-art is "+(regularBFsizeMB).toFixed(1)+" MB.\n";
-    document.getElementById("explanation").value += "Bloom filter memory consumtion for MonKey is "+(bf_total_size/8/1024/1024).toFixed(1)+" MB, i.e., "+(regularBFsizeMB/(bf_total_size/8/1024/1024)).toFixed(2)+ "x smaller.\n";
-    
-
-    document.getElementById("explanation").value += ("Level\t\t#Keys\t\tfp (%)\t\tfp state-of-art\n");
-    var total_keys=0;
-    for (var i=0;i<filter_array.length;i++)
-    {
-        console.log(filter_array[i].nokeys+", "+filter_array[i].fp);
-        total_keys+=filter_array[i].nokeys;
-        document.getElementById("explanation").value += ("  "+(i+1)+"  \t\t"+pad(numberWithCommas(filter_array[i].nokeys),12," ")+"\t\t"+(100*filter_array[i].fp).toFixed(2)+"%\t\t"+(100*regularFP).toFixed(2)+"% hello\n");
-
-    }
-    console.log("Total indexed keys: "+total_keys);
-
-
-    var W;
-    var entries_per_page=Math.floor(P/E);
-    if (leveltier==0)
-        W=(filter_array.length/entries_per_page)*(T-1)/2;
-    else if (leveltier==1)
-        W=(filter_array.length/entries_per_page)*(T-1)/T;
-
-    document.getElementById("W").value = W.toFixed(4);
-
 }
 
-
-function clickbloomTuningButton_OLD() {
-
-// document.getElementById("mEV").value=document.getElementById("mEV").value.replace(/\./g,"");
-// document.getElementById("mPWage").value=document.getElementById("mPWage").value.replace(/\./g,"");
-
-    var N = parseInt(document.getElementById("N").value,10);
-    var E = parseInt(document.getElementById("E").value,10);
-    var mbuffer = parseFloat(document.getElementById("mbuffer").value)*1048576;
-    var T = parseInt(document.getElementById("T").value, 10);
-    var R = parseFloat(document.getElementById("R").value);
-    var P = parseInt(document.getElementById("P").value, 10);
-    var W = parseFloat(document.getElementById("W").value);
-    var leveltier = getRadioValueByName("ltradio");
-    
-    Rmax=getRmax(leveltier,N,E,mbuffer,T);
-    document.getElementById('RmaxLabel').value = "Rmax = "+Rmax;
-
-    if (R>Rmax)
-    {
-            document.getElementById("explanation").value = ("Rmax = "+Rmax+", and you selected R = "+R+". Please select an R < Rmax.");
-            return;
-    }       
-
-    var filter_array = [];
-    var remainingKeys=N;
-    var level=0;
-    //Calculate the number of keys per level in a almost-full in each level LSM tree
-    while (remainingKeys>0)
-    {
-        level++;
-        var levelKeys=Math.ceil(Math.min(Math.pow(T,level)*mbuffer/E,N));
-        var newFilter = new Filter();
-        newFilter.nokeys=levelKeys;
-        newFilter.fp=1.0;
-        console.log("New remaining keys: "+(remainingKeys-levelKeys))
-        if (remainingKeys-levelKeys<0)
-            newFilter.nokeys=remainingKeys;
-        filter_array.push(newFilter);
-        remainingKeys=remainingKeys-levelKeys;
-        console.log(levelKeys)
-    }
-
-    var maxNumRuns;
-    if (leveltier==0)
-        maxNumRuns=filter_array.length;
-    else if (leveltier==1)
-        maxNumRuns=filter_array.length*(T-1);
-    
-    //Initialize the false positive so that they are all equal
-    for (var i=0;i<filter_array.length;i++)
-    {
-        filter_array[i].fp=R/maxNumRuns;
-    }
-    var regularFP=R/maxNumRuns;
-    var regularBFsizeMB=calcTotalMemBits(filter_array)/8/1024/1024;
-    console.log("The size of the default LSM tree in MB: "+(calcTotalMemBits(filter_array)/8/1024/1024))
-
-
-
-
-    var diff = 0.001;
-    var current_num_bits = calcTotalMemBits(filter_array);
-    var original = current_num_bits;
-    //console.log("start val:  %f\n", current);
-
-    console.log("uniform strategy:  "+ current_num_bits / (8 * 1024) );
-
-    //prvar(filter_array, current, 0);
-
-    var change = true;
-    var iteration = 0;
-    while (true) {
-        change = false;
-
-        for (var i = 0; i < filter_array.length - 1; i++) {
-            for (var j = i + 1; j < filter_array.length ; j++) {
-
-                filter_array[i].fp += diff;
-                filter_array[j].fp -= diff;
-                var value = calcTotalMemBits(filter_array);
-                if (value < current_num_bits && value > 0 && filter_array[j].fp > 0 && filter_array[i].fp < 1) {
-                    current_num_bits = value;
-                    change = true;
-                    continue;
-                }
-                filter_array[i].fp -= diff * 2;
-                filter_array[j].fp += diff * 2;
-
-                value = calcTotalMemBits(filter_array);
-
-                if (value < current_num_bits && value > 0 && filter_array[i].fp > 0 && filter_array[j].fp < 1) {
-                    current_num_bits = value;
-                    change = true;
-                    continue;
-                }
-
-                filter_array[i].fp += diff;
-                filter_array[j].fp -= diff;
-            }
-        }
-        if (!change) {
-            diff /= 2;
-            if (diff < 0.0000001) {
-                break;
-            }
-        }
-        //prvar(filter_array, current, iteration);
-        iteration++;
-        //prvar_detail(filter_array, current);
-    }
-    // prvar_detail(filter_array, current_num_bits);
-    console.log("ratio saving  "+ current_num_bits / original );
-    console.log("original "+ original / (8 * 1024)+"KB");
-    //total_uniform_RAM3(limit_on_reads, size_ratio, filter_array.back().size, page_size);
-    console.log("current "+ current_num_bits / (8 * 1024)+"KB");
-    //console.log("size:  %ld\n", filter_array.back().size);
-
-
-    for (var i=0;i<filter_array.length;i++)
-    {
-        if (Math.abs(filter_array[i].fp-1)<0.0000001)
-            filter_array[i].fp=1.0;
-    }
-
-
-    console.log(filter_array.length);
-    console.log(filter_array);
-
-    document.getElementById("explanation").value ="";
-    document.getElementById("explanation").value = "The LSM tree holds "+(N*E/1024/1024).toFixed(1)+" MB of Key-Value pairs.\n";
-    document.getElementById("explanation").value += "Level 0 buffer size is "+(mbuffer/1024/1024).toFixed(1)+" MB.\n";
-    var bf_total_size=calcTotalMemBits(filter_array);
-    document.getElementById("explanation").value += "Bloom filter memory consumtion for state-of-the-art is "+(regularBFsizeMB).toFixed(1)+" MB.\n";
-    document.getElementById("explanation").value += "Bloom filter memory consumtion for MonKey is "+(bf_total_size/8/1024/1024).toFixed(1)+" MB, i.e., "+(regularBFsizeMB/(bf_total_size/8/1024/1024)).toFixed(2)+ "x smaller.\n";
-    
-
-    document.getElementById("explanation").value += ("Level\t\t#Keys\t\tfp (%)\t\tfp state-of-art\n");
-    var total_keys=0;
-    for (var i=0;i<filter_array.length;i++)
-    {
-        console.log(filter_array[i].nokeys+", "+filter_array[i].fp);
-        total_keys+=filter_array[i].nokeys;
-        document.getElementById("explanation").value += ("  "+(i+1)+"  \t\t"+pad(numberWithCommas(filter_array[i].nokeys),12," ")+"\t\t"+(100*filter_array[i].fp).toFixed(2)+"%\t\t"+(100*regularFP).toFixed(2)+"%  hello \n");
-
-    }
-    console.log("Total indexed keys: "+total_keys);
-
-
-    var W;
-    var entries_per_page=Math.floor(P/E);
-    if (leveltier==0)
-        W=(filter_array.length/entries_per_page)*(T-1)/2;
-    else if (leveltier==1)
-        W=(filter_array.length/entries_per_page)*(T-1)/T;
-
-    document.getElementById("W").value = W.toFixed(4);
-
-}
 
 //////////////////////////////////////
 //AUX HOLISTIC TUNING FUNCTIONS
@@ -1106,34 +807,7 @@ function get_accurate_R(M, T, N, B, P, leveled) {
 
 //////////////////////////////////////
 
-function holisticTuning()
-{
-    var N = parseInt(document.getElementById("N").value,10);
-    var E = parseInt(document.getElementById("E").value,10);
-    var M = parseInt(document.getElementById("M").value, 10)*1048576;
-    var page_size = parseInt(document.getElementById("P").value, 10);
-    document.getElementById("explanationHolistic").value="";
 
-    var conf = new LSM_config();
-    conf.N=N;
-    conf.E=E;
-    conf.B=page_size/E;
-    conf.M=M;
-
-    conf.P=0;
-    conf.T=0;
-    conf.L=0;
-    conf.R=0;
-    conf.W=0;
-    conf.valid=false;
-    conf.throughput=0;
-    conf.num_levels=0;
-    console.log("start")
-    print_csv_experiment(conf,0,true,-1,true,true,true);
-
-// function print_csv_experiment(conf, num_commas, print_details, fix_buffer_size = -1, use_new_strategy = true, smoothing = false, differentiate_tiered_leveled = true) {
-
-}
 
 
 function smooth(to_print) {

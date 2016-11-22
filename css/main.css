@@ -486,6 +486,17 @@ footer .footer-below {
    Buttons
    -------------------------------------------- */
 
+.btn-params {
+    -webkit-border-radius: 20px !important; 
+    -moz-border-radius: 20px !important; 
+    -ms-border-radius: 20px !important; 
+    -o-border-radius: 20px !important; 
+    border-radius: 20px !important; 
+    background: #777;
+    height: 56px !important;
+    padding: 14px 27px !important;
+}
+
 .btn-xl {
     padding: 20px 40px;
     border-color: #cf1b1b;
@@ -643,6 +654,13 @@ h3.acknowledgements {
 
 
 #demo h2{
+    padding-top: 10px;
+    padding-bottom: 5px;
+    text-align: center;
+    text-transform: none;
+}
+
+#interactiveDemo h2{
     padding-top: 10px;
     padding-bottom: 5px;
     text-align: center;
