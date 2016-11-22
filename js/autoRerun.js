@@ -64,14 +64,14 @@ function re_run_now() {
     if (!isNaN(P))
         document.getElementById("P").value=P;
 
-    console.log("")
-    console.log("N="+N)
-    console.log("E="+E)
-    console.log("mbuffer="+mbuffer)
-    console.log("T="+T)
-    console.log("P="+P)
-    console.log("mfilter="+mfilter)
-    console.log("leveltier="+leveltier)
+    // console.log("")
+    // console.log("N="+N)
+    // console.log("E="+E)
+    // console.log("mbuffer="+mbuffer)
+    // console.log("T="+T)
+    // console.log("P="+P)
+    // console.log("mfilter="+mfilter)
+    // console.log("leveltier="+leveltier)
 
     var color='#777';
     document.getElementById("scenario1").style.background=color;   

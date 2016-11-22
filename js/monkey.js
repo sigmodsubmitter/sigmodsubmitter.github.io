@@ -43,7 +43,7 @@ function getSignificantDigitCount(n) {
 function getMostSignificantDigit(d)
 {
 	var i=0;
-	if (d>1)
+	if (d>1 || d<=0)
 		return -1;
 	else
 	{
@@ -228,7 +228,6 @@ function getBaselineFPassigment(N,E,mbuffer,T,mfilter,P,leveltier)
         }
         iteration++;
     }
-
     for (var i = 0; i < filter_array.length; i++) {
         filter_array[i].fp = calc_R(filter_array[i]);
         // console.log(filter_array[i].mem+', '+filter_array[i].fp)
@@ -534,207 +533,265 @@ function clickbloomTuningButton(move_to_anchor) {
     var cur_length=100;
     cur_length+=lsm_button_size_ratio;
 
-
-	var last_is_smaller=false;
-    for (var i=0;i<filters_monkey.length;i++)
+    if (N<=(mbuffer/E))
     {
-	    var div_new_row=document.createElement("div");
-	    div_new_row.setAttribute("class","row")
-
-	   	    var div_col1=document.createElement("div");
-		    div_col1.setAttribute("class","col-lg-1 col-lg-offset-1")
-		    var p1=document.createElement("p");
-		    p1.setAttribute("style","text-align: "+first_col_alignment+";")
-		    p1.textContent=((i+1)+"")
-		    div_col1.appendChild(p1);
-
-
-	   	    var div_col2=document.createElement("div");
-		    div_col2.setAttribute("class","col-lg-2")
-         	var MSD2=getMostSignificantDigit(filters_baseline[i].fp);
-        	var message2="Level "+(i+1)+": "+(filters_baseline[i].fp*100).toFixed(MSD+1)+"% false positive rate, assigning "+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(2)+" bits per element, resulting in "+formatBytes(filters_baseline[i].mem/8,1)+" for Bloom filters (out of "+formatBytes(mfilter)+" for all levels)."
-        	var span2=document.createElement("span");
-        	span2.setAttribute("data-tooltip",message2);
-        	span2.setAttribute("data-tooltip-position","left")
-		    var p2=document.createElement("p");
-		    p2.setAttribute("style","text-align: center;")
-	    	p2.textContent=(filters_baseline[i].fp*100).toFixed(MSD2-1)+"%"
-        	span2.appendChild(p2);
-		    div_col2.appendChild(span2);
-
-
-	   	    var div_col3=document.createElement("div");
-		    div_col3.setAttribute("class","col-lg-2")
-        	var MSD=getMostSignificantDigit(filters_monkey[i].fp);
-        	var message="Level "+(i+1)+": "+(filters_monkey[i].fp*100).toFixed(MSD+1)+"% false positive rate, assigning "+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(2)+" bits per element, resulting in "+formatBytes(filters_monkey[i].mem/8,1)+" for Bloom filters (out of "+formatBytes(mfilter)+" for all levels)."
-        	var span3=document.createElement("span");
-        	span3.setAttribute("data-tooltip",message);
-        	span3.setAttribute("data-tooltip-position","right")
-		    var p3=document.createElement("p");
-		    p3.setAttribute("style","text-align: center;")
-	    	p3.textContent=(filters_monkey[i].fp*100).toFixed(MSD-1)+"%"
-        	span3.appendChild(p3);
-		    div_col3.appendChild(span3);
-
-
-	   	    var div_col4=document.createElement("div");
-		    div_col4.setAttribute("class","col-lg-6")
-		    div_col4.setAttribute("style","text-align: center;")
-
-		    var levelcss=i+1;
-		    if (filters_monkey.length<5)
-		    	levelcss=5-filters_monkey.length+1+i;
-			// console.log(i+":"+levelcss)
-
-		    var button=document.createElement("button");
-		    button.setAttribute("class","lsm_button lsm_button"+(levelcss));
-		    if (last_is_smaller)
-		    	button.setAttribute("class","lsm_button_not_solid");
-		    else
-		    	button.setAttribute("class","lsm_button");
-		    button.setAttribute("style","width: "+cur_length+"px");
-		    cur_length+=lsm_button_size_ratio;
-		    var text=document.createTextNode(numberWithCommas(filters_monkey[i].nokeys)+((last_is_smaller)?" (level is not full)":""))
-		    button.appendChild(text);
-		    div_col4.appendChild(button);
-
-			if (i==(filters_monkey.length-2))
-			{
-			    if (filters_monkey[i].nokeys>filters_monkey[i+1].nokeys)
-			    	last_is_smaller=true;
-			}
-		
-	    	div_new_row.appendChild(div_col1);
-	    	div_new_row.appendChild(div_col2);
-	    	div_new_row.appendChild(div_col3);
-	    	div_new_row.appendChild(div_col4);
-    	result_div.appendChild(div_new_row); 
-
-
-    }
-
-    var hr=document.createElement("hr");
-    result_div.appendChild(hr)
-
-
-    //total read cost line
+    	//nothing in LSM tree
+//adding the buffer row
     var div_new_row=document.createElement("div");
     div_new_row.setAttribute("class","row")
-
-    	var Rbaseline=eval_R(filters_baseline, leveltier, T);
-    	var Rmonkey=eval_R(filters_monkey, leveltier, T);
-
-   	    var div_col1=document.createElement("div");
-	    div_col1.setAttribute("class","col-lg-2")
-	    var p1=document.createElement("p");
-	    p1.setAttribute("style","text-align: right;")
-	    p1.textContent=("Total read cost:")
-	    div_col1.appendChild(p1);
-
-        var message;
-        if (leveltier==0)
-            message="TIERING: The worst-case read cost (i.e., when the value does not exist) when the merging strategy is tiering, is the sum of the false positives for all levels multiplied by size_artio-1, because we read a page from every run that every level has even though we do not need it with the false positive probability.";
-   	    else if (leveltier==1)
-            message="LEVELING: The worst-case read cost (i.e., when the value does not exist) when the merging strategy is leveling, is the sum of the false positives for all levels, because we read a page from every level even though we do not need it with the false positive probability.";
-        var div_col2=document.createElement("div");
-	    div_col2.setAttribute("class","col-lg-2")
-        var span2=document.createElement("span");
-        span2.setAttribute("data-tooltip",message);
-        span2.setAttribute("data-tooltip-position","bottom")
-	    var p2=document.createElement("p");
-	    p2.setAttribute("style","text-align: center;")
-        var em2=document.createElement("em");
-        em2.textContent=(Rbaseline.toFixed(3)+" IOs/query")
-        p2.appendChild(em2);
-        span2.appendChild(p2);
-        div_col2.appendChild(span2);
-	    
-        var div_col3=document.createElement("div");
-        div_col3.setAttribute("class","col-lg-2")
-        var span3=document.createElement("span");
-        span3.setAttribute("data-tooltip",message);
-        span3.setAttribute("data-tooltip-position","bottom")
-        var p3=document.createElement("p");
-        p3.setAttribute("style","text-align: center;")
-        var em3=document.createElement("em");
-        em3.textContent=(Rmonkey.toFixed(3)+" IOs/query")
-        p3.appendChild(em3);
-        span3.appendChild(p3);
-        div_col3.appendChild(span3);
-
-   	    var div_col4=document.createElement("div");
-	    div_col4.setAttribute("class","col-lg-6")
-
-        message="Monkey is "+(Rbaseline/Rmonkey).toFixed(2)+"x faster for reads! While the write cost is the same for both approaches, it is affected by the merging strategy."
-        if (leveltier==0)
-            message+=" TIERING: When a run is flushed to the next level it is NOT merged with the already existing runs (if any). Hence, every time a run is pushed to the next level it is written only once.";
-        else if (leveltier==1)
-            message+=" LEVELING: When a run is flushed to the next level it is ALWAYS merged with the already existing runs (if any). Hence, every flush causes (up to) size_ratio-1 merges in the next level.";
-
-        var span4=document.createElement("span");
-        span4.setAttribute("data-tooltip",message);
-        span4.setAttribute("data-tooltip-position","bottom")
-        var p4=document.createElement("p");
-        p4.setAttribute("style","text-align: center;")
-        var em4=document.createElement("em");
-        em4.textContent=("Monkey is "+(Rbaseline/Rmonkey).toFixed(2)+"x faster!")
-        p4.appendChild(em4);
-        span4.appendChild(p4);
-        div_col4.appendChild(span4);
-
-    	div_new_row.appendChild(div_col1);
-    	div_new_row.appendChild(div_col2);
-    	div_new_row.appendChild(div_col3);
-    	div_new_row.appendChild(div_col4);
-	result_div.appendChild(div_new_row); 
-
-    //total write cost line
-    var div_new_row=document.createElement("div");
-    div_new_row.setAttribute("class","row")
-
-        var W;
-        var entries_per_page=Math.floor(P/E);
-        if (leveltier==1)
-            W=(filters_monkey.length/entries_per_page)*(T-1)/2;
-        else if (leveltier==0)
-            W=(filters_monkey.length/entries_per_page)*(T-1)/T;
-
 
         var div_col1=document.createElement("div");
-        div_col1.setAttribute("class","col-lg-2")
-        var p1=document.createElement("p");
-        p1.setAttribute("style","text-align: right;")
-        p1.textContent=("Total write cost:")
-        div_col1.appendChild(p1);
+        div_col1.setAttribute("class","col-lg-1")
+
+        var div_col1b=document.createElement("div");
+        div_col1b.setAttribute("class","col-lg-1")
 
         var div_col2=document.createElement("div");
         div_col2.setAttribute("class","col-lg-2")
-        var p2=document.createElement("p");
-        p2.setAttribute("style","text-align: center;")
-        p2.textContent=(W.toFixed(3)+" IOs/update")
-        div_col2.appendChild(p2);
 
         var div_col3=document.createElement("div");
         div_col3.setAttribute("class","col-lg-2")
-        var p3=document.createElement("p");
-        p3.setAttribute("style","text-align: center;")
-        p3.textContent=(W.toFixed(3)+" IOs/update")
-        div_col3.appendChild(p3);
 
         var div_col4=document.createElement("div");
         div_col4.setAttribute("class","col-lg-6")
+        div_col4.setAttribute("style","text-align: center;")
         var p4=document.createElement("p");
         p4.setAttribute("style","text-align: center;")
-        p4.textContent=("")
+        p4.textContent=("All data entries fit into the buffer")
+        var p4b=document.createElement("p");
+        p4b.setAttribute("style","text-align: center;")
+        p4b.textContent=("Add more entries to see a tree!")
+
         div_col4.appendChild(p4);
+        div_col4.appendChild(p4b);
 
 
         div_new_row.appendChild(div_col1);
+        div_new_row.appendChild(div_col1b);
         div_new_row.appendChild(div_col2);
         div_new_row.appendChild(div_col3);
         div_new_row.appendChild(div_col4);
     result_div.appendChild(div_new_row); 
 
+
+	    var hr=document.createElement("hr");
+	    result_div.appendChild(hr)
+
+    }
+    else
+    {
+
+		var last_is_smaller=false;
+	    for (var i=0;i<filters_monkey.length;i++)
+	    {
+		    var div_new_row=document.createElement("div");
+		    div_new_row.setAttribute("class","row")
+
+		   	    var div_col1=document.createElement("div");
+			    div_col1.setAttribute("class","col-lg-1 col-lg-offset-1")
+			    var p1=document.createElement("p");
+			    p1.setAttribute("style","text-align: "+first_col_alignment+";")
+			    p1.textContent=((i+1)+"")
+			    div_col1.appendChild(p1);
+
+
+		   	    var div_col2=document.createElement("div");
+			    div_col2.setAttribute("class","col-lg-2")
+	         	var MSD2=getMostSignificantDigit(filters_baseline[i].fp);
+	        	if (MSD2>10)
+	        		MSD2=10;
+	        	var message2="Level "+(i+1)+": "+(filters_baseline[i].fp*100).toFixed(MSD2+1)+"% false positive rate, assigning "+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(2)+" bits per element, resulting in "+formatBytes(filters_baseline[i].mem/8,1)+" for Bloom filters (out of "+formatBytes(mfilter)+" for all levels)."
+	        	var span2=document.createElement("span");
+	        	span2.setAttribute("data-tooltip",message2);
+	        	span2.setAttribute("data-tooltip-position","left")
+			    var p2=document.createElement("p");
+			    p2.setAttribute("style","text-align: center;")
+	        	if (MSD2<1)
+	        		MSD2=1;
+		    	p2.textContent=(filters_baseline[i].fp*100).toFixed(MSD2-1)+"%"
+	        	span2.appendChild(p2);
+			    div_col2.appendChild(span2);
+
+
+		   	    var div_col3=document.createElement("div");
+			    div_col3.setAttribute("class","col-lg-2")
+	        	var MSD=getMostSignificantDigit(filters_monkey[i].fp);
+	        	if (MSD>10)
+	        		MSD=10;
+	        	var message="Level "+(i+1)+": "+(filters_monkey[i].fp*100).toFixed(MSD+1)+"% false positive rate, assigning "+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(2)+" bits per element, resulting in "+formatBytes(filters_monkey[i].mem/8,1)+" for Bloom filters (out of "+formatBytes(mfilter)+" for all levels)."
+	        	var span3=document.createElement("span");
+	        	span3.setAttribute("data-tooltip",message);
+	        	span3.setAttribute("data-tooltip-position","right")
+			    var p3=document.createElement("p");
+			    p3.setAttribute("style","text-align: center;")
+	        	if (MSD<1)
+	        		MSD=1;
+		    	p3.textContent=(filters_monkey[i].fp*100).toFixed(MSD-1)+"%"
+	        	span3.appendChild(p3);
+			    div_col3.appendChild(span3);
+
+
+		   	    var div_col4=document.createElement("div");
+			    div_col4.setAttribute("class","col-lg-6")
+			    div_col4.setAttribute("style","text-align: center;")
+
+			    var levelcss=i+1;
+			    if (filters_monkey.length<5)
+			    	levelcss=5-filters_monkey.length+1+i;
+				// console.log(i+":"+levelcss)
+
+			    var button=document.createElement("button");
+			    button.setAttribute("class","lsm_button lsm_button"+(levelcss));
+			    if (last_is_smaller)
+			    	button.setAttribute("class","lsm_button_not_solid");
+			    else
+			    	button.setAttribute("class","lsm_button");
+			    button.setAttribute("style","width: "+cur_length+"px");
+			    cur_length+=lsm_button_size_ratio;
+			    var text=document.createTextNode(numberWithCommas(filters_monkey[i].nokeys)+((last_is_smaller)?" (level is not full)":""))
+			    button.appendChild(text);
+			    div_col4.appendChild(button);
+
+				if (i==(filters_monkey.length-2))
+				{
+				    if (filters_monkey[i].nokeys>filters_monkey[i+1].nokeys)
+				    	last_is_smaller=true;
+				}
+			
+		    	div_new_row.appendChild(div_col1);
+		    	div_new_row.appendChild(div_col2);
+		    	div_new_row.appendChild(div_col3);
+		    	div_new_row.appendChild(div_col4);
+	    	result_div.appendChild(div_new_row); 
+
+
+	    }
+	
+
+
+	    var hr=document.createElement("hr");
+	    result_div.appendChild(hr)
+
+
+	    //total read cost line
+	    var div_new_row=document.createElement("div");
+	    div_new_row.setAttribute("class","row")
+
+	    	var Rbaseline=eval_R(filters_baseline, leveltier, T);
+	    	var Rmonkey=eval_R(filters_monkey, leveltier, T);
+
+	   	    var div_col1=document.createElement("div");
+		    div_col1.setAttribute("class","col-lg-2")
+		    var p1=document.createElement("p");
+		    p1.setAttribute("style","text-align: right;")
+		    p1.textContent=("Total read cost:")
+		    div_col1.appendChild(p1);
+
+	        var message;
+	        if (leveltier==0)
+	            message="TIERING: The worst-case read cost (i.e., when the value does not exist) when the merging strategy is tiering, is the sum of the false positives for all levels multiplied by size_artio-1, because we read a page from every run that every level has even though we do not need it with the false positive probability.";
+	   	    else if (leveltier==1)
+	            message="LEVELING: The worst-case read cost (i.e., when the value does not exist) when the merging strategy is leveling, is the sum of the false positives for all levels, because we read a page from every level even though we do not need it with the false positive probability.";
+	        var div_col2=document.createElement("div");
+		    div_col2.setAttribute("class","col-lg-2")
+	        var span2=document.createElement("span");
+	        span2.setAttribute("data-tooltip",message);
+	        span2.setAttribute("data-tooltip-position","bottom")
+		    var p2=document.createElement("p");
+		    p2.setAttribute("style","text-align: center;")
+	        var em2=document.createElement("em");
+	        em2.textContent=(Rbaseline.toFixed(3)+" IOs/query")
+	        p2.appendChild(em2);
+	        span2.appendChild(p2);
+	        div_col2.appendChild(span2);
+		    
+	        var div_col3=document.createElement("div");
+	        div_col3.setAttribute("class","col-lg-2")
+	        var span3=document.createElement("span");
+	        span3.setAttribute("data-tooltip",message);
+	        span3.setAttribute("data-tooltip-position","bottom")
+	        var p3=document.createElement("p");
+	        p3.setAttribute("style","text-align: center;")
+	        var em3=document.createElement("em");
+	        em3.textContent=(Rmonkey.toFixed(3)+" IOs/query")
+	        p3.appendChild(em3);
+	        span3.appendChild(p3);
+	        div_col3.appendChild(span3);
+
+	   	    var div_col4=document.createElement("div");
+		    div_col4.setAttribute("class","col-lg-6")
+
+	        message="Monkey is "+(Rbaseline/Rmonkey).toFixed(2)+"x faster for reads! While the write cost is the same for both approaches, it is affected by the merging strategy."
+	        if (leveltier==0)
+	            message+=" TIERING: When a run is flushed to the next level it is NOT merged with the already existing runs (if any). Hence, every time a run is pushed to the next level it is written only once.";
+	        else if (leveltier==1)
+	            message+=" LEVELING: When a run is flushed to the next level it is ALWAYS merged with the already existing runs (if any). Hence, every flush causes (up to) size_ratio-1 merges in the next level.";
+
+	        var span4=document.createElement("span");
+	        span4.setAttribute("data-tooltip",message);
+	        span4.setAttribute("data-tooltip-position","bottom")
+	        var p4=document.createElement("p");
+	        p4.setAttribute("style","text-align: center;")
+	        var em4=document.createElement("em");
+	        em4.textContent=("Monkey is "+(Rbaseline/Rmonkey).toFixed(2)+"x faster!")
+	        p4.appendChild(em4);
+	        span4.appendChild(p4);
+	        div_col4.appendChild(span4);
+
+	    	div_new_row.appendChild(div_col1);
+	    	div_new_row.appendChild(div_col2);
+	    	div_new_row.appendChild(div_col3);
+	    	div_new_row.appendChild(div_col4);
+		result_div.appendChild(div_new_row); 
+
+	    //total write cost line
+	    var div_new_row=document.createElement("div");
+	    div_new_row.setAttribute("class","row")
+
+	        var W;
+	        var entries_per_page=Math.floor(P/E);
+	        if (leveltier==1)
+	            W=(filters_monkey.length/entries_per_page)*(T-1)/2;
+	        else if (leveltier==0)
+	            W=(filters_monkey.length/entries_per_page)*(T-1)/T;
+
+
+	        var div_col1=document.createElement("div");
+	        div_col1.setAttribute("class","col-lg-2")
+	        var p1=document.createElement("p");
+	        p1.setAttribute("style","text-align: right;")
+	        p1.textContent=("Total write cost:")
+	        div_col1.appendChild(p1);
+
+	        var div_col2=document.createElement("div");
+	        div_col2.setAttribute("class","col-lg-2")
+	        var p2=document.createElement("p");
+	        p2.setAttribute("style","text-align: center;")
+	        p2.textContent=(W.toFixed(3)+" IOs/update")
+	        div_col2.appendChild(p2);
+
+	        var div_col3=document.createElement("div");
+	        div_col3.setAttribute("class","col-lg-2")
+	        var p3=document.createElement("p");
+	        p3.setAttribute("style","text-align: center;")
+	        p3.textContent=(W.toFixed(3)+" IOs/update")
+	        div_col3.appendChild(p3);
+
+	        var div_col4=document.createElement("div");
+	        div_col4.setAttribute("class","col-lg-6")
+	        var p4=document.createElement("p");
+	        p4.setAttribute("style","text-align: center;")
+	        p4.textContent=("")
+	        div_col4.appendChild(p4);
+
+
+	        div_new_row.appendChild(div_col1);
+	        div_new_row.appendChild(div_col2);
+	        div_new_row.appendChild(div_col3);
+	        div_new_row.appendChild(div_col4);
+	    result_div.appendChild(div_new_row); 
+
+	}
     // var hr=document.createElement("hr");
     // result_div.appendChild(hr)
 
