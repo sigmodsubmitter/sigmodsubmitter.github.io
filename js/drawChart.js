@@ -147,7 +147,7 @@ function getPoint(tieringVsLeveling, T, mfilter, conf, use_monkey) {
 
 function drawChart() {
 
-    var N = parseInt(document.getElementById("N").value,10);
+    var N = parseInt(document.getElementById("N").value.replace(/\D/g,''),10);
     var E = parseInt(document.getElementById("E").value,10);
     var mbuffer = parseFloat(document.getElementById("mbuffer").value)*1048576;
     var T = parseInt(document.getElementById("T").value, 10);
