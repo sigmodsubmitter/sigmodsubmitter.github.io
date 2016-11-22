@@ -1,3 +1,5 @@
+text-overflow: unset;
+
 html, body{
 	background-color: #000; /*#11714C*/ 
 }
@@ -213,7 +215,7 @@ header .intro-text .skills {
     }
 
     header .intro-text .name {
-        font-size: 4.25em;
+        font-size: 4.1em;
     }
 
     header .intro-text .skills {

@@ -22,6 +22,13 @@ function re_run() {
         // console.log(numberWithCommas(N))
     }
 
+    if(event.target.id=="mfilter")
+    {
+        var mfilter = parseInt(document.getElementById("mfilter").value.replace(/\D/g,''),10);
+        document.getElementById("mfilter").value=numberWithCommas(mfilter)
+        // console.log(numberWithCommas(N))
+    }
+
 
     // console.log(timer)
     if(timer){
@@ -53,18 +60,18 @@ function re_run_now() {
     if (!isNaN(T))
         document.getElementById("T").value=T;
     if (!isNaN(mfilter))
-        document.getElementById("mfilter").value=mfilter/1048576;
+        document.getElementById("mfilter").value=numberWithCommas(mfilter/1048576)
     if (!isNaN(P))
         document.getElementById("P").value=P;
 
-    // console.log("")
-    // console.log("N="+N)
-    // console.log("E="+E)
-    // console.log("mbuffer="+mbuffer)
-    // console.log("T="+T)
-    // console.log("P="+P)
-    // console.log("mfilter="+mfilter)
-    // console.log("leveltier="+leveltier)
+    console.log("")
+    console.log("N="+N)
+    console.log("E="+E)
+    console.log("mbuffer="+mbuffer)
+    console.log("T="+T)
+    console.log("P="+P)
+    console.log("mfilter="+mfilter)
+    console.log("leveltier="+leveltier)
 
     var color='#777';
     document.getElementById("scenario1").style.background=color;   
