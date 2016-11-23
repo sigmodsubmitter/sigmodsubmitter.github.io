@@ -826,7 +826,7 @@ function get_W(N, T, B, P, leveled) {
         return 0;
     }
 
-    var loga = Math.ceil(Math.log(N / (B * P)) / Math.log(T));
+    var loga = Math.log(N / (B * P)) / Math.log(T);
     var denom = leveled ? 2.0 : T;
     var all =  ((T - 1.0) / denom);
     all = loga * all ;
@@ -846,14 +846,14 @@ function get_R_uniform_strategy(M, T, N, B, P, leveled) {
     if (M <= 0) {
         var c = Math.log(N / (B * P));
         var  b = c / Math.log(T);
-        var  a = 1.0 + Math.ceil( b );
+        var  a = 1.0 + b ;
         a *= leveled ? 1 : (T - 1);
         return a;
     }
 
     //double L = !leveled ? floor(1 +  log(N/(B * P)) / log(T)) : ceil(1 +  log(N/(B * P)) / log(T));
     //double L = !leveled ? floor(1 +  log(N/(B * P)) / log(T)) : ceil(1 +  log(N/(B * P)) / log(T));
-    var L = Math.ceil(1 +  Math.log(N/ (B * P)) / Math.log(T));
+    var L = 1 +  Math.log(N/ (B * P)) / Math.log(T);
     if (!leveled) {
         //L--;
     }
@@ -881,7 +881,7 @@ function get_accurate_R(M, T, N, B, P, leveled) {
     if (M <= 0) {
         var c = Math.log(N / (B * P));
         var b = c / Math.log(T);
-        var a = 1.0 + Math.ceil( b );
+        var a = 1.0 +  b ;
         a *= leveled ? 1 : (T - 1);
         return a;
     }
@@ -893,8 +893,8 @@ function get_accurate_R(M, T, N, B, P, leveled) {
     F *= Math.log(T);
     F /= 8 * 1024;
 
-    var j = Math.max(Math.ceil(Math.log(F / M) / Math.log(T)), 0.0);
-    var L = Math.ceil(1 + Math.log(N / (B * P)) / Math.log(T)) - j;
+    var j = Math.max(Math.log(F / M) / Math.log(T), 0.0);
+    var L = 1 + Math.log(N / (B * P)) / Math.log(T) - j;
     //printf("%f\n", L);
     //double L = !leveled ? floor(1 +  log(N/(B * P)) / log(T)) : ceil(1 +  log(N/(B * P)) / log(T));
 
@@ -1030,7 +1030,7 @@ function find_optimal_R(input_conf, constant_buffer_size = -1, use_new_bloom_tun
         for (var P = starting_buffer_size;  P * B <= max_elements_in_buffer; P *= T) {
             for (var L = 0; L <= 1; L++) {
                 var leveled = L;
-                var num_levels = 1 + Math.ceil(Math.log(N / (B * P)) / Math.log(T));
+                var num_levels = 1 + Math.log(N / (B * P)) / Math.log(T);
                 var mem_for_bloom = M - P * B * E; 
                 
                 var current_R = use_new_bloom_tuning ? get_accurate_R(mem_for_bloom / 1024, T, N, B, P, leveled) :
@@ -1045,7 +1045,7 @@ function find_optimal_R(input_conf, constant_buffer_size = -1, use_new_bloom_tun
                     is_leveled = leveled;
                     conf.W = current_W;
                     conf.valid = true;
-                    conf.num_levels = Math.ceil(1 +  Math.log(N/(B * P)) / Math.log(T));
+                    conf.num_levels = 1 +  Math.log(N/(B * P)) / Math.log(T);
                 }
             }
         }
