@@ -6,16 +6,20 @@ function re_run(e) {
     var event = e || event;
     var x = event.which || event.keyCode;  // Use either which or keyCode, depending on browser support
     // console.log(event.timeStamp)
-    // console.log(x)
+     // console.log(x)
     // console.log(String.fromCharCode(x))
     // console.log("running in a few")
     
-    if (x>=37 && x<=40 || x==9 || x==16 || x==17 || x==91 || x==18 || x==65)
+    if (!((x==38 || x==40) && (event.target.id=="E" || event.target.id=="mbuffer" || event.target.id=="P" || event.target.id=="T")))
     {
-        console.log("User is clicking on arrows or tab (9) or shift (16) or ctrl (17) or cmd (91) or alt (18). No rerun.")
-        return;
-    }
-
+	    if (x>=37 && x<=40 || x==9 || x==16 || x==17 || x==91 || x==18 || x==65)
+	    {
+	        // if (event.target.id=="N" || event.target.id=="mfilter")
+	        console.log("User is clicking ["+x+"] on arrows or tab (9) or shift (16) or ctrl (17) or cmd (91) or alt (18). No rerun.")
+	        return;
+	    }
+	}
+	
     if(event.target.id=="N")
     {
         var N = parseInt(document.getElementById("N").value.replace(/\D/g,''),10);
