@@ -119,13 +119,14 @@ function initChart() {
 
 function addPoint(tieringVsLeveling, T, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, use_monkey) {
                 var meetingR;
+                var N_used = conf.N * (T-1) / T;
                 if (use_monkey) {
-                    meetingR = get_accurate_R(mfilter / 1024, T, conf.N, conf.B, conf.P, tieringVsLeveling);
+                    meetingR = get_accurate_R(mfilter / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
                 }
                 else {
-                    meetingR = get_R_uniform_strategy(mfilter  / 1024, T, conf.N, conf.B, conf.P, tieringVsLeveling);
+                    meetingR = get_R_uniform_strategy(mfilter  / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
                 }
-                var meetingW = get_W(conf.N, T, conf.B, conf.P, tieringVsLeveling);
+                var meetingW = get_W(N_used, T, conf.B, conf.P, tieringVsLeveling);
                     monkeyTW.push(meetingW);
                     monkeyTR.push(meetingR);
                     monkeyT_Ratio.push("Ratio: "+T);   
@@ -134,13 +135,14 @@ function addPoint(tieringVsLeveling, T, mfilter, conf, monkeyTW, monkeyTR, monke
 
 function getPoint(tieringVsLeveling, T, mfilter, conf, use_monkey) {
                 var meetingR;
+                var N_used = conf.N * (T-1) / T;
                 if (use_monkey) {
-                    meetingR = get_accurate_R(mfilter / 1024, T, conf.N, conf.B, conf.P, tieringVsLeveling);
+                    meetingR = get_accurate_R(mfilter / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
                 }
                 else {
-                    meetingR = get_R_uniform_strategy(mfilter  / 1024, T, conf.N, conf.B, conf.P, tieringVsLeveling);
+                    meetingR = get_R_uniform_strategy(mfilter  / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
                 }
-                var meetingW = get_W(conf.N, T, conf.B, conf.P, tieringVsLeveling);
+                var meetingW = get_W(N_used, T, conf.B, conf.P, tieringVsLeveling);
                 return {W: meetingW, R: meetingR};
 }
 

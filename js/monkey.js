@@ -1024,19 +1024,20 @@ function find_optimal_R(input_conf, constant_buffer_size = -1, use_new_bloom_tun
     }
 
     var min_W = 1;
-    var min_R = (1 + Math.log(N) / Math.log(2)) * B, best_T = 2, best_P = 1;
+    var min_R = (1 + Math.log(N/2) / Math.log(2)) * B, best_T = 2, best_P = 1;
     var is_leveled = 1;
     for (var T = 2; T < B * 4; T++) {
         for (var P = starting_buffer_size;  P * B <= max_elements_in_buffer; P *= T) {
             for (var L = 0; L <= 1; L++) {
                 var leveled = L;
-                var num_levels = 1 + Math.log(N / (B * P)) / Math.log(T);
+                var N_used = N * (T-1) / (T);
+                var num_levels = 1 + Math.log(N_used / (B * P)) / Math.log(T);
                 var mem_for_bloom = M - P * B * E; 
                 
-                var current_R = use_new_bloom_tuning ? get_accurate_R(mem_for_bloom / 1024, T, N, B, P, leveled) :
-                        get_R_uniform_strategy(mem_for_bloom / 1024, T, N, B, P, leveled);
+                var current_R = use_new_bloom_tuning ? get_accurate_R(mem_for_bloom / 1024, T, N_used, B, P, leveled) :
+                        get_R_uniform_strategy(mem_for_bloom / 1024, T, N_used, B, P, leveled);
 
-                var current_W = get_W(N, T, B, P, leveled);
+                var current_W = get_W(N_used, T, B, P, leveled);
                 if (mem_for_bloom >= 0 && current_R < min_R && current_W < W) {
                     min_R = current_R;
                     best_T = T;
@@ -1045,7 +1046,7 @@ function find_optimal_R(input_conf, constant_buffer_size = -1, use_new_bloom_tun
                     is_leveled = leveled;
                     conf.W = current_W;
                     conf.valid = true;
-                    conf.num_levels = 1 +  Math.log(N/(B * P)) / Math.log(T);
+                    conf.num_levels = 1 +  Math.log(N_used/(B * P)) / Math.log(T);
                 }
             }
         }
@@ -1107,11 +1108,11 @@ function print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_
         prev_W = c.W;
         prev_L = c.L;
 
-        if (c.L == 1 && last_c.L == 0 && last_c.T == 2 && differentiate_tiered_leveled) {
+        /*if (c.L == 1 && last_c.L == 0 && last_c.T == 2 && differentiate_tiered_leveled) {
             last_c.L = 1;
             array_to_print.push(last_c);
             //print_csv_line(last_c, num_commas, print_details);
-        }
+        }*/
 
         array_to_print.push(c);
         //print_csv_line(c, num_commas, print_details);
