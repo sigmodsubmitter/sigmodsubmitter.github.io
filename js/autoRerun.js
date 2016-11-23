@@ -1,8 +1,9 @@
 var timer=null;
 
-function re_run() {
+function re_run(e) {
     // console.log(event)
     // console.log(event.target)
+    var event = e || event;
     var x = event.which || event.keyCode;  // Use either which or keyCode, depending on browser support
     // console.log(event.timeStamp)
     // console.log(x)
