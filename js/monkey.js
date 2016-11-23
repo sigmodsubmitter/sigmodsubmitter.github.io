@@ -684,7 +684,7 @@ function clickbloomTuningButton(move_to_anchor) {
 		    div_col1.setAttribute("class","col-lg-2")
 		    var p1=document.createElement("p");
 		    p1.setAttribute("style","text-align: right;")
-		    p1.textContent=("Total read cost:")
+		    p1.textContent=("Total lookup cost:")
 		    div_col1.appendChild(p1);
 
 	        var message;
@@ -700,7 +700,7 @@ function clickbloomTuningButton(move_to_anchor) {
 		    var p2=document.createElement("p");
 		    p2.setAttribute("style","text-align: center;")
 	        var em2=document.createElement("em");
-	        em2.textContent=(Rbaseline.toFixed(3)+" IOs/query")
+	        em2.textContent=(Rbaseline.toFixed(3)+" IOs/lookup")
 	        p2.appendChild(em2);
 	        span2.appendChild(p2);
 	        div_col2.appendChild(span2);
@@ -713,7 +713,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	        var p3=document.createElement("p");
 	        p3.setAttribute("style","text-align: center;")
 	        var em3=document.createElement("em");
-	        em3.textContent=(Rmonkey.toFixed(3)+" IOs/query")
+	        em3.textContent=(Rmonkey.toFixed(3)+" IOs/lookup")
 	        p3.appendChild(em3);
 	        span3.appendChild(p3);
 	        div_col3.appendChild(span3);
@@ -764,7 +764,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	        div_col1.setAttribute("class","col-lg-2")
 	        var p1=document.createElement("p");
 	        p1.setAttribute("style","text-align: right;")
-	        p1.textContent=("Total write cost:")
+	        p1.textContent=("Total update cost:")
 	        div_col1.appendChild(p1);
 
 	        var div_col2=document.createElement("div");

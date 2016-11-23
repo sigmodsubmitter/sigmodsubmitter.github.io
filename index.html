@@ -128,7 +128,7 @@
                     <img class="img-responsive img-centered" src="./images/key-value.png" alt="">
                 </div>
                 <div class="col-lg-8">
-                    <p>The backbone of modern, persistent key-value stores is an LSM-tree. Modern applications require both efficient lookups and updates, and LSM-trees provide a good balance by buffering updates in main memory, flushing the buffer to persistent storage as a sorted run when it is full, and bounding lookup cost by (1) sort-merging runs in the background and (2) using main memory-resident Bloom filters to probabilistically skip runs that do not contain a target key.  </p>
+                    <p>The backbone of modern, persistent key-value stores is an LSM-tree. Modern applications require both efficient lookups and updates, and LSM-trees provide a good balance. To make updates efficient, they buffer updated entries in main memory and flush the buffer to persistent storage as a sorted run when it is full. To make lookups efficient, they sort-merge runs in the background to restrict the number of runs that a lookup has to probe, and they use main memory-resident Bloom filters to allow lookups to probabilistically skip runs that do not contain a target key.  </p>
                     <p>
                     In this work, we show that LSM-based key-value stores exhibit an intrinsic, trade-off between lookup cost, update cost, and main memory utilization. However, all existing designs enable a suboptimal and difficult to tune trade-off among these metrics. We pinpoint the problem to the fact that all modern key-value stores suboptimally co-tune the <strong>merge policy</strong>, the <strong>size ratio</strong> between levels, the <strong>buffer size</strong>, and the Bloom filters' <strong> false positive rates</strong>.
                     </p>
@@ -187,14 +187,18 @@
                 We now present an interactive visualization of the Monkey design space and how to navigate it. It is meant as an educational tool to demonstrate the impact of different design decisions on performance, and as a tuning tool to help system administrators improve performance and answer what-if design questions. 
                 </p>
                 <p>
-                <strong>Figure 1: Parameterized Trade-off Curve.</strong>   
-                In Figure 1 below, we plot the trade-off curves between the worst-case costs of lookups and updates for both Monkey and the state-of-the-art.
-                To focus on a particular slice of the design space, we enable parameterization of the <em>dataset </em> (number and size of data entries), the <em>environment</em> (size of persistent storage pages), and <em>main memory allocation</em> (size of the LSM-tree's buffer, and total size of all Bloom filters). We enable navigating these curves to strike a particular balance between lookup cost and update cost by varying the <em> merge operation frequency, </em> which is a function of the merge policy (tiering vs. leveling) and the size ratio between adjacent levels of the LSM-tree. 
+                <strong>Figure 1: Trade-off Curves.</strong>   
+                In Figure 1 below, we plot the trade-off curves between the worst-case costs of lookups and updates for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels. 
+                </p>
+                <p>
+                To focus on a particular slice of the design space in Figure 1, we enable parameterization of the <em>dataset </em> (number and size of data entries), the <em>environment</em> (size of persistent storage pages), and <em>main memory allocation</em> (size of the LSM-tree's buffer, and total size of all Bloom filters). We enable navigating the curves in Figure 1 to strike a particular balance between lookup cost and update cost by varying the <em> merge operation frequency, </em> which is a function of the merge policy (tiering vs. leveling) and the size ratio between adjacent levels of the LSM-tree. 
+                </p>
+                <p>
+                Figure 1 shows that Monkey dominates state-of-the-art deisgns across the whole design space. The reason is that it allocates main memory across the Bloom filters so as to minimize lookup cost, and it can trade the gain in lookup cost for better update cost by varying the merge policy and size ratio. 
                 </p> 
-
             
                 <p>
-                <strong>Figure 2: LSM-tree Visualization.</strong> In Figure 2 below, we illustrate the structure of the LSM-tree resulting from any particular configuration. This visualisation enables a more detailed comparison  how Monkey and state-of-the-art designs tune the Bloom filters for every level of a particular LSM-tree. 
+                <strong>Figure 2: LSM-tree Visualization.</strong> In Figure 2 below, we give a more detailed comparison of how Monkey and state-of-the-art designs tune Bloom filters across different levels of the LSM-tree. The figure dynamically computes and illustrates the number and sizes of the different levels of the LSM-tree for any configuration specified by the user. Alongside each level, the figure shows the false positive rate that Monkey and state-of-the-art designs assign to filters for that level. In general, the figure shows that Monkey allocates relatively more main memory to filters at shallower levels of the LSM-tree. The intuition is that worst-case lookup cost is equal to the sum of false positive rates across all levels, and since shallower levels contain exponentially less entries, and it takes a lower overall amount of main memory to reduce their false positive rates and thereby result in a greater reduction to the overall sum of false positive rates.  
                 </p>
          <p>
                  <strong>Default Configurations.</strong> We give three default configurations as reference points. All of them are for a 1 TB LSM-tree with 16 byte entries. Configurations 1 and 2 reflect the default tuning of two state-of-the-art systems, LevelDB and Cassandra respectively. Configuration 3 is an edge-case where no memory is allocated to the Bloom filters, and so the trade-off curves for Monkey and state-of-the-art designs converge.
@@ -217,7 +221,7 @@
             <div class="row" style="text-align: center">
                 <h2>Interactive Visualization</h2>
                 <p style="text-align: center;">
-                <em>Click on one of the configuration buttons below or enter a custom configuration to visualize the corresponding performance trade-off curves in Figure 1 and the resulting LSM-tree tuning in Figure 2.  </em>
+                <em>Click on one of the configuration buttons below or enter a custom configuration to visualize the corresponding performance trade-off curves in Figure 1 and the detailed tuning of the resulting LSM-tree in Figure 2.  </em>
                 </p>
                 <br>
             </div>
@@ -378,7 +382,7 @@
             <div class="row">
                 <div class="col-lg-8">
                     <p>
-                        We show that LSM-based key-value stores exhibit an intrinsic trade-off among query cost, update cost, and main memory utilization. However, all existing designs strike a suboptimal and difficult to tune balance among these metrics. We present Monkey, an LSM-based key-value store that reaches the Pareto performance curve by allocating the Bloom filters so as to minimize the worst-case query cost. Monkey uses closed-form models to navigate the design space to find the holistic tuning that maximizes throughput under a given main memory budget, application workload, and storage medium.
+                        We show that LSM-based key-value stores exhibit an intrinsic trade-off among lookup cost, update cost, and main memory utilization. However, all existing designs strike a suboptimal and difficult to tune balance among these metrics. We present Monkey, an LSM-based key-value store that reaches the Pareto performance curve by allocating the Bloom filters so as to minimize the worst-case lookup cost. Monkey uses closed-form models to navigate the design space to find the holistic tuning that maximizes throughput under a given main memory budget, application workload, and storage medium.
                     </p>
                 </div>  
                 <div class="col-lg-4">

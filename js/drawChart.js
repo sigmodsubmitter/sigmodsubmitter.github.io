@@ -168,8 +168,7 @@ function drawChart() {
     conf.E=E;
     conf.B=P/E;
 
-    var smoothing=false;
-    smoothing=true;
+    var smoothing=true;
 //print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_size = -1, use_monkey = true, smoothing = false, differentiate_tiered_leveled = true) 
     var monkey_pareto = print_csv_experiment(conf, 0, false, mbuffer, true, smoothing)
     var state_of_art_pareto = print_csv_experiment(conf, 0, false, mbuffer, false, smoothing)
@@ -207,10 +206,14 @@ function drawChart() {
         {
             if (monkeyLW.length==0)
             {
+
+                addPoint(0, 4, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, 1);
                 addPoint(0, 3, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, 1);
                 addPoint(0, 2, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, 1);
                 addPoint(1, 2, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
                 addPoint(1, 3, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
+
+
                 
             }
             monkeyLW.push(monkey_pareto[i].W.toFixed(4));
@@ -243,10 +246,13 @@ function drawChart() {
         {
             if (state_of_artLW.length==0)
             {
+                addPoint(0, 4, mfilter, conf, state_of_artTW, state_of_artTR, state_of_artT_Ratio, 0);
                 addPoint(0, 3, mfilter, conf, state_of_artTW, state_of_artTR, state_of_artT_Ratio, 0);
                 addPoint(0, 2, mfilter, conf, state_of_artTW, state_of_artTR, state_of_artT_Ratio, 0);
                 var meeting_point = addPoint(1, 2, mfilter, conf, state_of_artLW, state_of_artLR, state_of_artL_Ratio, 0);
                 addPoint(1, 3, mfilter, conf, state_of_artLW, state_of_artLR, state_of_artL_Ratio, 0);
+                //addPoint(1, 4, mfilter, conf, state_of_artLW, state_of_artLR, state_of_artL_Ratio, 0);
+                
                 meetSoA_R = meeting_point.R;
                 meetSoA_W = meeting_point.W;
             }
