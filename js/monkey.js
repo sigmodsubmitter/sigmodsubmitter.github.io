@@ -516,7 +516,7 @@ function clickbloomTuningButton(move_to_anchor) {
         div_col4.setAttribute("style","text-align: center;")
         var button=document.createElement("button");
         button.setAttribute("class","lsm_button lsm_button_buffer");
-        var text=document.createTextNode(numberWithCommas(mbuffer/E))
+        var text=document.createTextNode(numberWithCommas(Math.floor(mbuffer/E)))
         button.appendChild(text);
         div_col4.appendChild(button);
 
