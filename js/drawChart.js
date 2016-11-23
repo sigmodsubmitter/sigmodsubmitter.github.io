@@ -126,10 +126,9 @@ function addPoint(tieringVsLeveling, T, mfilter, conf, monkeyTW, monkeyTR, monke
                     meetingR = get_R_uniform_strategy(mfilter  / 1024, T, conf.N, conf.B, conf.P, tieringVsLeveling);
                 }
                 var meetingW = get_W(conf.N, T, conf.B, conf.P, tieringVsLeveling);
-                monkeyTW.push(meetingW);
-                monkeyTR.push(meetingR);
-                monkeyT_Ratio.push("Ratio: "+T);
-
+                    monkeyTW.push(meetingW);
+                    monkeyTR.push(meetingR);
+                    monkeyT_Ratio.push("Ratio: "+T);   
                 return {W: meetingW, R: meetingR};
 }
 
@@ -168,8 +167,7 @@ function drawChart() {
     conf.E=E;
     conf.B=P/E;
 
-    var smoothing=false;
-    smoothing=true;
+    var smoothing=true;
 //print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_size = -1, use_monkey = true, smoothing = false, differentiate_tiered_leveled = true) 
     var monkey_pareto = print_csv_experiment(conf, 0, false, mbuffer, true, smoothing)
     var state_of_art_pareto = print_csv_experiment(conf, 0, false, mbuffer, false, smoothing)
@@ -199,23 +197,28 @@ function drawChart() {
     {
         if (monkey_pareto[i].L==0)
         {
-            monkeyTW.push(monkey_pareto[i].W.toFixed(4));
-            monkeyTR.push(monkey_pareto[i].R.toFixed(2));
-            monkeyT_Ratio.push("Ratio: "+monkey_pareto[i].T);
+            if (monkey_pareto[i].T > 4) {
+                monkeyTW.push(monkey_pareto[i].W.toFixed(4));
+                monkeyTR.push(monkey_pareto[i].R.toFixed(2));
+                monkeyT_Ratio.push("Ratio: " + monkey_pareto[i].T);
+            }
         }
         else
         {
             if (monkeyLW.length==0)
             {
+                addPoint(0, 4, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, 1);
                 addPoint(0, 3, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, 1);
                 addPoint(0, 2, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, 1);
                 addPoint(1, 2, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
                 addPoint(1, 3, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
-                
+                addPoint(1, 4, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
             }
-            monkeyLW.push(monkey_pareto[i].W.toFixed(4));
-            monkeyLR.push(monkey_pareto[i].R.toFixed(2));
-            monkeyL_Ratio.push("Ratio: "+monkey_pareto[i].T);
+            if (monkey_pareto[i].T > 4) {
+                monkeyLW.push(monkey_pareto[i].W.toFixed(4));
+                monkeyLR.push(monkey_pareto[i].R.toFixed(2));
+                monkeyL_Ratio.push("Ratio: " + monkey_pareto[i].T);
+            }
         }
     }
 
@@ -235,24 +238,31 @@ function drawChart() {
                 highestSoA_R = state_of_art_pareto[i].R;
                 highestSoA_W = state_of_art_pareto[i].W;
             }
-            state_of_artTW.push(state_of_art_pareto[i].W.toFixed(4));
-            state_of_artTR.push(state_of_art_pareto[i].R.toFixed(2));
-            state_of_artT_Ratio.push("Ratio: "+state_of_art_pareto[i].T);
+            if (state_of_art_pareto[i].T > 4) {
+                state_of_artTW.push(state_of_art_pareto[i].W.toFixed(4));
+                state_of_artTR.push(state_of_art_pareto[i].R.toFixed(2));
+                state_of_artT_Ratio.push("Ratio: "+state_of_art_pareto[i].T);
+            }
         }
         else
         {
             if (state_of_artLW.length==0)
             {
+                addPoint(0, 4, mfilter, conf, state_of_artTW, state_of_artTR, state_of_artT_Ratio, 0);
                 addPoint(0, 3, mfilter, conf, state_of_artTW, state_of_artTR, state_of_artT_Ratio, 0);
                 addPoint(0, 2, mfilter, conf, state_of_artTW, state_of_artTR, state_of_artT_Ratio, 0);
                 var meeting_point = addPoint(1, 2, mfilter, conf, state_of_artLW, state_of_artLR, state_of_artL_Ratio, 0);
                 addPoint(1, 3, mfilter, conf, state_of_artLW, state_of_artLR, state_of_artL_Ratio, 0);
+                addPoint(1, 4, mfilter, conf, state_of_artLW, state_of_artLR, state_of_artL_Ratio, 0);
+                
                 meetSoA_R = meeting_point.R;
                 meetSoA_W = meeting_point.W;
             }
-            state_of_artLW.push(state_of_art_pareto[i].W.toFixed(4));
-            state_of_artLR.push(state_of_art_pareto[i].R.toFixed(2));
-            state_of_artL_Ratio.push("Ratio: "+state_of_art_pareto[i].T);
+            if (state_of_art_pareto[i].T > 4) {
+              state_of_artLW.push(state_of_art_pareto[i].W.toFixed(4));
+               state_of_artLR.push(state_of_art_pareto[i].R.toFixed(2));
+               state_of_artL_Ratio.push("Ratio: "+state_of_art_pareto[i].T);
+            }   
         }
     }
 
