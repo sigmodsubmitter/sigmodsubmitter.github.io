@@ -43,7 +43,7 @@ function re_run(e) {
         var T = parseInt(document.getElementById("T").value.replace(/\D/g,''),10);
         if (T<2)
             document.getElementById("T").value=2;
-        console.log(numberWithCommas(T))
+        // console.log(numberWithCommas(T))
     }
 
 
