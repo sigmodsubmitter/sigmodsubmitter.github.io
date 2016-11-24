@@ -1083,7 +1083,7 @@ function find_optimal_R(input_conf, constant_buffer_size = -1, use_new_bloom_tun
                         get_R_uniform_strategy(mem_for_bloom / 1024, T, N_used, B, P, leveled);
 
                 var current_W = get_W(N_used, T, B, P, leveled);
-                if (mem_for_bloom >= 0 && current_R < min_R && current_W < W) {
+                if (mem_for_bloom >= 0 && current_R < min_R && current_W <= W) {
                     min_R = current_R;
                     best_T = T;
                     best_P = P;
@@ -1105,6 +1105,19 @@ function find_optimal_R(input_conf, constant_buffer_size = -1, use_new_bloom_tun
 
 
 
+
+function getPoint(tieringVsLeveling, T, mfilter, conf, use_monkey) {
+                var meetingR;
+                var N_used = conf.N * (T-1) / T;
+                if (use_monkey) {
+                    meetingR = get_accurate_R(mfilter / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
+                }
+                else {
+                    meetingR = get_R_uniform_strategy(mfilter  / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
+                }
+                var meetingW = get_W(N_used, T, conf.B, conf.P, tieringVsLeveling);
+                return {W: meetingW, R: meetingR};
+}
 
 
 
@@ -1130,13 +1143,20 @@ function print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_
 
     var array_to_print = new Array();
 
-    //print_write_optimized_extreme(conf, use_new_strategy);
+    var meeting_W = getPoint(0, 2, conf.M, conf, true).W;
+    var min_W = getPoint(0, 4, conf.M, conf, true).W;
+    var max_W = getPoint(1, 10, conf.M, conf, true).W;
 
+    var starting_W = min_W * 0.01;
+    var finishing_W = max_W * 10;
+    var steps_for_leveling = (finishing_W - meeting_W) / 130;
+
+    //print_write_optimized_extreme(conf, use_new_strategy);
     // console.log(input_conf)
     // console.log(conf)
 
     var last_c = LSM_config();
-    for (var W = 0.001; W <= 0.2; W += 0.001) {
+    for (var W = starting_W; W <= finishing_W; W += 0.001) {
         conf.W = W;
 
         var c = find_optimal_R(conf, fix_buffer_size, use_monkey);
@@ -1163,12 +1183,15 @@ function print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_
         //print_csv_line(c, num_commas, print_details);
 
         last_c = c;
+
+        if (W >= meeting_W) {
+            W += steps_for_leveling;
+        }
     }
 
     var num_eliminated = 1;
     while (smoothing && num_eliminated > 0) {
         num_eliminated = smooth(array_to_print);
-        // console.log("smooting... " +num_eliminated)
         //printf("%d   \n", num_eliminated);
     }
 

@@ -133,18 +133,7 @@ function addPoint(tieringVsLeveling, T, mfilter, conf, monkeyTW, monkeyTR, monke
                 return {W: meetingW, R: meetingR};
 }
 
-function getPoint(tieringVsLeveling, T, mfilter, conf, use_monkey) {
-                var meetingR;
-                var N_used = conf.N * (T-1) / T;
-                if (use_monkey) {
-                    meetingR = get_accurate_R(mfilter / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
-                }
-                else {
-                    meetingR = get_R_uniform_strategy(mfilter  / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
-                }
-                var meetingW = get_W(N_used, T, conf.B, conf.P, tieringVsLeveling);
-                return {W: meetingW, R: meetingR};
-}
+
 
 
 
@@ -169,7 +158,7 @@ function drawChart() {
     conf.E=E;
     conf.B=P/E;
 
-    var smoothing=true;
+    var smoothing=false;
 //print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_size = -1, use_monkey = true, smoothing = false, differentiate_tiered_leveled = true) 
     var monkey_pareto = print_csv_experiment(conf, 0, false, mbuffer, true, smoothing)
     var state_of_art_pareto = print_csv_experiment(conf, 0, false, mbuffer, false, smoothing)
