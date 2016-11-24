@@ -77,6 +77,7 @@ function re_run_now() {
     if (!isNaN(P))
         document.getElementById("P").value=P;
 
+    console.log("Running with: N="+N+", E="+E+", buffer="+(mbuffer/1048576)+", T="+T+", P="+P+", filter="+(mfilter/1048576)+", isLeveled="+leveltier)
     // console.log("")
     // console.log("N="+N)
     // console.log("E="+E)
