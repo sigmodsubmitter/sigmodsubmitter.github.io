@@ -600,7 +600,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	         	var MSD2=getMostSignificantDigit(filters_baseline[i].fp);
 	        	if (MSD2>10)
 	        		MSD2=10;
-	        	var message2="Level "+(i+1)+": "+(filters_baseline[i].fp*100).toFixed(MSD2+1)+"% false positive rate, assigning "+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(2)+" bits per element, resulting in "+formatBytes(filters_baseline[i].mem/8,1)+" for Bloom filters (out of "+formatBytes(mfilter)+" for all levels)."
+	        	var message2="The false positive rate for Bloom filters at Level "+(i+1)+" is "+(filters_baseline[i].fp*100).toFixed(MSD2+1)+"%. This entails "+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(2)+" bits-per-element, resulting in a total of "+formatBytes(filters_baseline[i].mem/8,1)+" for Bloom filters at this level out of "+formatBytes(mfilter)+" for Bloom filters across all levels."
 	        	var span2=document.createElement("span");
 	        	span2.setAttribute("data-tooltip",message2);
 	        	span2.setAttribute("data-tooltip-position","left")
@@ -618,7 +618,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	        	var MSD=getMostSignificantDigit(filters_monkey[i].fp);
 	        	if (MSD>10)
 	        		MSD=10;
-	        	var message="Level "+(i+1)+": "+(filters_monkey[i].fp*100).toFixed(MSD+1)+"% false positive rate, assigning "+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(2)+" bits per element, resulting in "+formatBytes(filters_monkey[i].mem/8,1)+" for Bloom filters (out of "+formatBytes(mfilter)+" for all levels)."
+	        	var message="The false positive rate for Bloom filters at Level "+(i+1)+" is "+(filters_monkey[i].fp*100).toFixed(MSD+1)+"%. This entails "+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(2)+" bits-per-element, resulting in a total of "+formatBytes(filters_monkey[i].mem/8,1)+" for Bloom filters at this level out of "+formatBytes(mfilter)+" for Bloom filters across all levels."
 	        	var span3=document.createElement("span");
 	        	span3.setAttribute("data-tooltip",message);
 	        	span3.setAttribute("data-tooltip-position","right")
@@ -689,9 +689,9 @@ function clickbloomTuningButton(move_to_anchor) {
 
 	        var message;
 	        if (leveltier==0)
-	            message="TIERING: The worst-case read cost (i.e., when the value does not exist) when the merging strategy is tiering, is the sum of the false positives for all levels multiplied by size_artio-1, because we read a page from every run that every level has even though we do not need it with the false positive probability.";
+	            message="The worst-case cost for a zero-result lookup is the sum of the false positives rates across all runs. With tiering, there are (T-1) runs per level, where T is the size ratio. Therefore, lookup cost is the sum of false positive rate prescriptions across all levels multiplied by (T-1).";
 	   	    else if (leveltier==1)
-	            message="LEVELING: The worst-case read cost (i.e., when the value does not exist) when the merging strategy is leveling, is the sum of the false positives for all levels, because we read a page from every level even though we do not need it with the false positive probability.";
+	            message="The worst-case cost for a zero-result lookup is the sum of the false positives rates across all levels. ";
 	        var div_col2=document.createElement("div");
 		    div_col2.setAttribute("class","col-lg-2")
 	        var span2=document.createElement("span");
@@ -725,12 +725,12 @@ function clickbloomTuningButton(move_to_anchor) {
 
             if (isNaN(speedup))
                 speedup="1.0"
-	        message="Monkey is "+speedup+"x faster for reads! While the write cost is the same for both approaches, it is affected by the merging strategy."
-	        if (leveltier==0)
+	        message="Lookups are "+speedup+"x faster with Monkey. Update cost is the same as the state-of-the-art."
+	        /*if (leveltier==0)
 	            message+=" TIERING: When a run is flushed to the next level it is NOT merged with the already existing runs (if any). Hence, every time a run is pushed to the next level it is written only once.";
 	        else if (leveltier==1)
 	            message+=" LEVELING: When a run is flushed to the next level it is ALWAYS merged with the already existing runs (if any). Hence, every flush causes (up to) size_ratio-1 merges in the next level.";
-
+            */
 	        var span4=document.createElement("span");
 	        span4.setAttribute("data-tooltip",message);
 	        span4.setAttribute("data-tooltip-position","bottom")
@@ -746,11 +746,11 @@ function clickbloomTuningButton(move_to_anchor) {
 	    	div_new_row.appendChild(div_col2);
 	    	div_new_row.appendChild(div_col3);
 	    	div_new_row.appendChild(div_col4);
-		result_div.appendChild(div_new_row); 
+		    result_div.appendChild(div_new_row); 
 
-	    //total write cost line
-	    var div_new_row=document.createElement("div");
-	    div_new_row.setAttribute("class","row")
+	       //total write cost line
+	       var div_new_row=document.createElement("div");
+	       div_new_row.setAttribute("class","row")
 
 	        var W;
 	        var entries_per_page=Math.floor(P/E);
