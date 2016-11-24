@@ -1,6 +1,11 @@
 var timer=null;
 
 function re_run(e) {
+
+    if(timer){
+        clearTimeout(timer);
+        timer = null;
+    }
     
     var event = e || event;
     // console.log(event)
@@ -33,12 +38,15 @@ function re_run(e) {
         // console.log(numberWithCommas(N))
     }
 
-
-    // console.log(timer)
-    if(timer){
-        clearTimeout(timer);
-        timer = null;
+    if(event.target.id=="T")
+    {
+        var T = parseInt(document.getElementById("T").value.replace(/\D/g,''),10);
+        if (T<2)
+            document.getElementById("T").value=2;
+        // console.log(numberWithCommas(T))
     }
+
+
     timer=setTimeout(re_run_now,250);
 
 }
@@ -69,6 +77,7 @@ function re_run_now() {
     if (!isNaN(P))
         document.getElementById("P").value=P;
 
+    console.log("Running with: N="+N+", E="+E+", buffer="+(mbuffer/1048576)+", T="+T+", P="+P+", filter="+(mfilter/1048576)+", isLeveled="+leveltier)
     // console.log("")
     // console.log("N="+N)
     // console.log("E="+E)
