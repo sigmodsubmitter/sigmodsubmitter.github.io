@@ -1,24 +1,23 @@
 var timer=null;
 
 function re_run(e) {
-    // console.log(event)
-    // console.log(event.target)
+    
     var event = e || event;
+    // console.log(event)
+
     var x = event.which || event.keyCode;  // Use either which or keyCode, depending on browser support
     // console.log(event.timeStamp)
-     // console.log(x)
-    // console.log(String.fromCharCode(x))
-    // console.log("running in a few")
-    
-    // if (!((x==38 || x==40) && (event.target.id=="E" || event.target.id=="mbuffer" || event.target.id=="P" || event.target.id=="T")))
-    // {
+    // console.log(x)
+
+    if (!((x==38 || x==40) && (event.target.id=="E" || event.target.id=="mbuffer" || event.target.id=="P" || event.target.id=="T")))
+    {
 	    if (x>=37 && x<=40 || x==9 || x==16 || x==17 || x==91 || x==18 || x==65)
 	    {
 	        // if (event.target.id=="N" || event.target.id=="mfilter")
 	        console.log("User is clicking ["+x+"] on arrows or tab (9) or shift (16) or ctrl (17) or cmd (91) or alt (18). No rerun.")
 	        return;
 	    }
-	// }
+	}
 	
     if(event.target.id=="N")
     {
@@ -40,21 +39,22 @@ function re_run(e) {
         clearTimeout(timer);
         timer = null;
     }
-    timer=setTimeout(re_run_now,200);
+    timer=setTimeout(re_run_now,250);
 
-    // re_run_now();        
 }
 
 
 function re_run_now() {
 
-    var N = parseInt(document.getElementById("N").value.replace(/\D/g,''),10);
-    var E = parseInt(document.getElementById("E").value.replace(/\D/g,''),10);
-    var mbuffer = parseFloat(document.getElementById("mbuffer").value.replace(/\D/g,''))*1048576;
-    var T = parseInt(document.getElementById("T").value.replace(/\D/g,''), 10);
-    var mfilter = parseFloat(document.getElementById("mfilter").value.replace(/\D/g,''))*1048576;
-    var P = parseInt(document.getElementById("P").value.replace(/\D/g,''), 10);
-    var leveltier = getRadioValueByName("ltradio");
+    var inputParameters = parseInputTextBoxes();
+
+    var N=inputParameters.N;
+    var E=inputParameters.E;
+    var mbuffer=inputParameters.mbuffer;
+    var T=inputParameters.T;
+    var mfilter=inputParameters.mfilter;
+    var P=inputParameters.P;
+    var leveltier=inputParameters.leveltier;
 
     if (!isNaN(N))
         document.getElementById("N").value=numberWithCommas(N);
@@ -94,6 +94,12 @@ function re_run_now() {
 
     if (T<2)
     {
+        alert("T="+T+" is too small. It should be 2 or higher.")
+        console.log("T is too small: "+T)
+    }
+    else if (mbuffer==0)
+    {
+        alert("Buffer="+mbuffer+" is too small.")
         console.log("T is too small: "+T)
     }
     else
