@@ -52,10 +52,10 @@ function getShowLinkText(currentText, id) {
        
           if (currentText.toUpperCase() === "SHOW MORE...") {
           newText = "Show less.";
-          caption.innerHTML = "<strong>Figure 2.</strong> The Monkey design space consists of  Monkey minimizes lookup cost by allocating memory to Bloom filters across different levels so as to minimize the sum of their false positive rates. On the right-hand side of the figure, we display the number of entries in each level in the LSM-tree resulting from the chosen configuration. On the left-hand side, we compare how state-of-the-art designs and Monkey set the false positive rates for Bloom filters across different levels. ";
+          caption.innerHTML = "<strong>Figure 2.</strong>  Monkey allocates relatively more main memory (i.e., lower false positive rates) to Bloom filters at shallower levels of the LSM-tree. The LSM-tree structure and visualisation in this figure is dynamically generated based on the configuration selected above. Note that there is a slight discrepency between the overall lookup/update costs in Figures 1 and 2 for corresponding configurations due to rounding errors . ";
        } else {
           newText = "Show more...";
-          caption.innerHTML = "<strong>Figure 2.</strong> Monkey minimizes lookup cost by allocating memory to Bloom filters across different levels so as to minimize the sum of their false positive rates.  ";
+          caption.innerHTML = "<strong>Figure 2.</strong> Monkey allocates relatively more main memory (i.e., lower false positive rates) to Bloom filters at shallower levels of the LSM-tree.     ";
       }
     }
 

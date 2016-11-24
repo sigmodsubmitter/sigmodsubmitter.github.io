@@ -127,8 +127,8 @@ function addPoint(tieringVsLeveling, T, mfilter, conf, monkeyTW, monkeyTR, monke
                     meetingR = get_R_uniform_strategy(mfilter  / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
                 }
                 var meetingW = get_W(N_used, T, conf.B, conf.P, tieringVsLeveling);
-                    monkeyTW.push(meetingW);
-                    monkeyTR.push(meetingR);
+                    monkeyTW.push(meetingW.toFixed(4));
+                    monkeyTR.push(meetingR.toFixed(3));
                     monkeyT_Ratio.push("Ratio: "+T);   
                 return {W: meetingW, R: meetingR};
 }
@@ -201,7 +201,7 @@ function drawChart() {
         {
             if (monkey_pareto[i].T > 4) {
                 monkeyTW.push(monkey_pareto[i].W.toFixed(4));
-                monkeyTR.push(monkey_pareto[i].R.toFixed(2));
+                monkeyTR.push(monkey_pareto[i].R.toFixed(3));
                 monkeyT_Ratio.push("Ratio: " + monkey_pareto[i].T);
             }
         }
@@ -218,7 +218,7 @@ function drawChart() {
             }
             if (monkey_pareto[i].T > 4) {
                 monkeyLW.push(monkey_pareto[i].W.toFixed(4));
-                monkeyLR.push(monkey_pareto[i].R.toFixed(2));
+                monkeyLR.push(monkey_pareto[i].R.toFixed(3));
                 monkeyL_Ratio.push("Ratio: " + monkey_pareto[i].T);
             }
         }
@@ -242,7 +242,7 @@ function drawChart() {
             }
             if (state_of_art_pareto[i].T > 4) {
                 state_of_artTW.push(state_of_art_pareto[i].W.toFixed(4));
-                state_of_artTR.push(state_of_art_pareto[i].R.toFixed(2));
+                state_of_artTR.push(state_of_art_pareto[i].R.toFixed(3));
                 state_of_artT_Ratio.push("Ratio: "+state_of_art_pareto[i].T);
             }
         }
@@ -262,7 +262,7 @@ function drawChart() {
             }
             if (state_of_art_pareto[i].T > 4) {
               state_of_artLW.push(state_of_art_pareto[i].W.toFixed(4));
-               state_of_artLR.push(state_of_art_pareto[i].R.toFixed(2));
+               state_of_artLR.push(state_of_art_pareto[i].R.toFixed(3));
                state_of_artL_Ratio.push("Ratio: "+state_of_art_pareto[i].T);
             }   
         }
