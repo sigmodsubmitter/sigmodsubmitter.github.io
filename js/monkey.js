@@ -702,7 +702,7 @@ function clickbloomTuningButton(move_to_anchor) {
 		    var p2=document.createElement("p");
 		    p2.setAttribute("style","text-align: center;")
 	        var em2=document.createElement("em");
-	        em2.textContent=(Rbaseline.toFixed(3)+" IOs/lookup")
+	        em2.textContent=(Rbaseline.toFixed(3)+" I/Os")
 	        p2.appendChild(em2);
 	        span2.appendChild(p2);
 	        div_col2.appendChild(span2);
@@ -715,7 +715,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	        var p3=document.createElement("p");
 	        p3.setAttribute("style","text-align: center;")
 	        var em3=document.createElement("em");
-	        em3.textContent=(Rmonkey.toFixed(3)+" IOs/lookup")
+	        em3.textContent=(Rmonkey.toFixed(3)+" I/Os")
 	        p3.appendChild(em3);
 	        span3.appendChild(p3);
 	        div_col3.appendChild(span3);
@@ -773,14 +773,14 @@ function clickbloomTuningButton(move_to_anchor) {
 	        div_col2.setAttribute("class","col-lg-2")
 	        var p2=document.createElement("p");
 	        p2.setAttribute("style","text-align: center;")
-	        p2.textContent=(W.toFixed(3)+" IOs/update")
+	        p2.textContent=(W.toFixed(3)+" I/Os")
 	        div_col2.appendChild(p2);
 
 	        var div_col3=document.createElement("div");
 	        div_col3.setAttribute("class","col-lg-2")
 	        var p3=document.createElement("p");
 	        p3.setAttribute("style","text-align: center;")
-	        p3.textContent=(W.toFixed(3)+" IOs/update")
+	        p3.textContent=(W.toFixed(3)+" I/Os")
 	        div_col3.appendChild(p3);
 
 	        var div_col4=document.createElement("div");
@@ -815,7 +815,7 @@ function clickbloomTuningButton(move_to_anchor) {
             div_col2.setAttribute("class","col-lg-2")
             var p2=document.createElement("p");
             p2.setAttribute("style","text-align: center;")
-            p2.textContent=(formatBytes(total_mem,1))
+            p2.textContent=(formatBytes(total_mem,2))
             div_col2.appendChild(p2);
 
             var div_col3=document.createElement("div");
@@ -823,7 +823,7 @@ function clickbloomTuningButton(move_to_anchor) {
             var p3=document.createElement("p");
             p3.setAttribute("style","text-align: center;")
 
-            p3.textContent=(formatBytes(total_mem,1))
+            p3.textContent=(formatBytes(total_mem,2))
             div_col3.appendChild(p3);
 
             var div_col4=document.createElement("div");
