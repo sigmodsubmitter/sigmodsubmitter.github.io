@@ -739,7 +739,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	        var p4=document.createElement("p");
 	        p4.setAttribute("style","text-align: center;")
 	        var em4=document.createElement("em");
-	        em4.textContent=("Monkey is "+speedup+"x faster!")
+	        em4.textContent=("Monkey lookups are "+speedup+"x faster!")
 	        p4.appendChild(em4);
 	        span4.appendChild(p4);
 	        div_col4.appendChild(span4);
