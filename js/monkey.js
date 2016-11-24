@@ -662,7 +662,7 @@ function clickbloomTuningButton(move_to_anchor) {
 		    	div_new_row.appendChild(div_col2);
 		    	div_new_row.appendChild(div_col3);
 		    	div_new_row.appendChild(div_col4);
-	    	result_div.appendChild(div_new_row); 
+	    	  result_div.appendChild(div_new_row); 
 
 
 	    }
@@ -684,14 +684,16 @@ function clickbloomTuningButton(move_to_anchor) {
 		    div_col1.setAttribute("class","col-lg-2")
 		    var p1=document.createElement("p");
 		    p1.setAttribute("style","text-align: right;")
-		    p1.textContent=("Total lookup cost:")
+		    p1.textContent=("Lookup cost:")
 		    div_col1.appendChild(p1);
 
 	        var message;
 	        if (leveltier==0)
-	            message="The worst-case cost for a zero-result lookup is the sum of the false positives rates across all runs. With tiering, there are (T-1) runs per level, where T is the size ratio. Therefore, lookup cost is the sum of false positive rate prescriptions across all levels multiplied by (T-1).";
+	            message="The average I/O cost for a zero-result lookup is the sum of the false positives rates across all runs. With tiering, there are (T-1) runs per level, where T is the size ratio. Therefore, lookup cost is the sum of false positive rate prescriptions across all levels multiplied by (T-1).";
 	   	    else if (leveltier==1)
-	            message="The worst-case cost for a zero-result lookup is the sum of the false positives rates across all levels. ";
+	            message="The average I/O cost for a zero-result lookup is the sum of the false positives rates across all levels. ";
+
+
 	        var div_col2=document.createElement("div");
 		    div_col2.setAttribute("class","col-lg-2")
 	        var span2=document.createElement("span");
@@ -764,7 +766,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	        div_col1.setAttribute("class","col-lg-2")
 	        var p1=document.createElement("p");
 	        p1.setAttribute("style","text-align: right;")
-	        p1.textContent=("Total update cost:")
+	        p1.textContent=("Update cost:")
 	        div_col1.appendChild(p1);
 
 	        var div_col2=document.createElement("div");
@@ -793,7 +795,50 @@ function clickbloomTuningButton(move_to_anchor) {
 	        div_new_row.appendChild(div_col2);
 	        div_new_row.appendChild(div_col3);
 	        div_new_row.appendChild(div_col4);
-	    result_div.appendChild(div_new_row); 
+	        result_div.appendChild(div_new_row); 
+
+            //total write cost line
+           var div_new_row=document.createElement("div");
+           div_new_row.setAttribute("class","row")
+
+            var total_mem = mfilter + mbuffer;
+            //alert("mfilter " + mfilter + "   mbuffer" + mbuffer + "  total_mem " + total_mem);
+
+            var div_col1=document.createElement("div");
+            div_col1.setAttribute("class","col-lg-2")
+            var p1=document.createElement("p");
+            p1.setAttribute("style","text-align: right;")
+            p1.textContent=("Main memory:")
+            div_col1.appendChild(p1);
+
+            var div_col2=document.createElement("div");
+            div_col2.setAttribute("class","col-lg-2")
+            var p2=document.createElement("p");
+            p2.setAttribute("style","text-align: center;")
+            p2.textContent=(formatBytes(total_mem,1))
+            div_col2.appendChild(p2);
+
+            var div_col3=document.createElement("div");
+            div_col3.setAttribute("class","col-lg-2")
+            var p3=document.createElement("p");
+            p3.setAttribute("style","text-align: center;")
+
+            p3.textContent=(formatBytes(total_mem,1))
+            div_col3.appendChild(p3);
+
+            var div_col4=document.createElement("div");
+            div_col4.setAttribute("class","col-lg-6")
+            var p4=document.createElement("p");
+            p4.setAttribute("style","text-align: center;")
+            p4.textContent=("")
+            div_col4.appendChild(p4);
+
+
+            div_new_row.appendChild(div_col1);
+            div_new_row.appendChild(div_col2);
+            div_new_row.appendChild(div_col3);
+            div_new_row.appendChild(div_col4);
+            result_div.appendChild(div_new_row); 
 
 	}
     // var hr=document.createElement("hr");
