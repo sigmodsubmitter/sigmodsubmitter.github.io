@@ -1,6 +1,11 @@
 var timer=null;
 
 function re_run(e) {
+
+    if(timer){
+        clearTimeout(timer);
+        timer = null;
+    }
     
     var event = e || event;
     // console.log(event)
@@ -33,12 +38,15 @@ function re_run(e) {
         // console.log(numberWithCommas(N))
     }
 
-
-    // console.log(timer)
-    if(timer){
-        clearTimeout(timer);
-        timer = null;
+    if(event.target.id=="T")
+    {
+        var T = parseInt(document.getElementById("T").value.replace(/\D/g,''),10);
+        if (T<2)
+            document.getElementById("T").value=2;
+        console.log(numberWithCommas(T))
     }
+
+
     timer=setTimeout(re_run_now,250);
 
 }
