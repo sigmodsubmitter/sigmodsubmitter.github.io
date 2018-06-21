@@ -22,6 +22,11 @@ p {
     line-height: 26px;
 }
 
+.publications a {
+    /*font-weight: bold;*/
+    font-weight: 500;    
+}
+
 p.small {
     font-size: 16px;
 }
@@ -41,7 +46,7 @@ h3,
 h4,
 h5,
 h6 {
-    text-transform: uppercase;
+    text-transform: none;
     font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
     font-weight: 700;
 }
@@ -102,7 +107,6 @@ header, section.alternate, hr.star-light:after {
 
 header {
     text-align: center;
-    color: #fff;
     /*background-attachment: fixed;*/
     background-image: url(../images/monkey-alone-bg.png);
     background-position: center center;
@@ -263,6 +267,10 @@ header .intro-text .skills {
     font-weight: 700;
 }
 
+.navbar-header {
+    text-transform: none;
+}
+
 @media (max-width: 991px) {
     .navbar-header {
         float: none;
@@ -380,6 +388,43 @@ section h2 {
         padding-top: 75px;
     }
 }
+
+
+#myDiv {
+    width: 1000px; 
+    height: 400px; 
+    padding-left: 80px;
+}
+
+
+@media(max-width:1185px) {
+    #myDiv {
+        padding-left: 0; 
+        width: 1000px;
+    }
+}
+
+@media(max-width:1000px) {
+    #myDiv {
+        padding-left: 0; 
+        width: 850px;
+    }
+}
+
+@media(max-width:850px) {
+    #myDiv {
+        padding-left: 0; 
+        width: 750px;
+    }
+}
+
+@media(max-width:700px) {
+    #myDiv {
+        padding-left: 0; 
+        width: 700px;
+    }
+}
+
 
 .btn-outline {
     margin-top: 15px;
@@ -803,3 +848,83 @@ div.text-container {
     text-align: justify;
 }
 
+
+/* Footer */
+#seas-link, #harvard-link, #daslab-link{
+    background-repeat: no-repeat;
+    display:block;
+    height: 76px;
+    margin: 30px auto 25px;
+    text-indent: -9999px;
+    overflow: hidden;
+}
+
+#seas-link {
+    width: 263px;
+    background-size: 263px 156px;
+}
+
+#harvard-link {
+    width: 290px;
+    background-size: 290px 156px;
+}
+
+#daslab-link {
+    width: 196px;
+    background-size: 196px 156px;
+}
+
+#seas-link {
+    background-image: url(../images/seas_logo.png);
+}
+
+#harvard-link {
+    background-image: url(../images/harvard_logo.png);
+}
+
+#daslab-link {
+    background-image: url(../images/daslab_logo.png);
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+
+  #seas-link {
+    background-image: url(../images/seas_logo@2x.png);
+  }
+
+  #harvard-link {
+    background-image: url(../images/harvard_logo@2x.png);
+  }
+
+  #daslab-link {
+    background-image: url(../images/daslab_logo@2x.png);
+  }
+}
+
+
+
+@media(min-width:992px) {
+#seas-link {
+    margin-right: 25px;
+}
+#daslab-link {
+    margin-left: 25px;
+}
+}
+@media(max-width:992px) {
+    #seas-link{
+        width: 290px;
+    }
+}
+
+#seas-link:hover{
+    background-position-y: -77px;
+}
+
+#harvard-link:hover{
+    background-position-y: -77px;
+}
+
+#daslab-link:hover{
+    background-position-y: -79px;
+}

@@ -407,7 +407,7 @@ function clickbloomTuningButton(move_to_anchor) {
     var div_row1=document.createElement("div");
     div_row1.setAttribute("class","row")
 	    var div_title_col=document.createElement("div");
-	    div_title_col.setAttribute("class","col-lg-12")
+	    div_title_col.setAttribute("class","col-sm-12")
 	    var lsm_header=document.createElement("h4");
 	    lsm_header.textContent="Monkey vs. State-Of-The-Art";
 	    lsm_header.setAttribute("style","text-align: center;")
@@ -418,11 +418,11 @@ function clickbloomTuningButton(move_to_anchor) {
     var div_row2=document.createElement("div");
     div_row2.setAttribute("class","row")
 	    var div_title_col1a=document.createElement("div");
-	    div_title_col1a.setAttribute("class","col-lg-2")
+	    div_title_col1a.setAttribute("class","col-sm-2")
 		div_row2.appendChild(div_title_col1a); 
 
 	    var div_title_col1=document.createElement("div");
-	    div_title_col1.setAttribute("class","col-lg-4")
+	    div_title_col1.setAttribute("class","col-sm-4")
 	    var lsm_header1=document.createElement("h5");
 	    lsm_header1.textContent="False Positive Rates";
 	    lsm_header1.setAttribute("style","text-align: center;")
@@ -430,7 +430,7 @@ function clickbloomTuningButton(move_to_anchor) {
 		div_row2.appendChild(div_title_col1); // added secondary row title
 	    
 	    var div_title_col2=document.createElement("div");
-	    div_title_col2.setAttribute("class","col-lg-6")
+	    div_title_col2.setAttribute("class","col-sm-6")
 	    var lsm_header2=document.createElement("h5");
 	    lsm_header2.textContent="Entries per Level";
 	    lsm_header2.setAttribute("style","text-align: center;")
@@ -445,28 +445,28 @@ function clickbloomTuningButton(move_to_anchor) {
     div_new_row.setAttribute("class","row")
 
    	    var div_col1=document.createElement("div");
-	    div_col1.setAttribute("class","col-lg-1 col-lg-offset-1")
+	    div_col1.setAttribute("class","col-sm-1 col-sm-offset-1")
 	    var p1=document.createElement("p");
 	    p1.setAttribute("style","text-align: "+first_col_alignment+";")
 	    p1.textContent=("Level")
 	    div_col1.appendChild(p1);
 
    	    var div_col2=document.createElement("div");
-	    div_col2.setAttribute("class","col-lg-2")
+	    div_col2.setAttribute("class","col-sm-2")
 	    var p2=document.createElement("p");
 	    p2.setAttribute("style","text-align: center;")
 	    p2.textContent=("State-Of-The-Art")
 	    div_col2.appendChild(p2);
 
    	    var div_col3=document.createElement("div");
-	    div_col3.setAttribute("class","col-lg-2")
+	    div_col3.setAttribute("class","col-sm-2")
 	    var p3=document.createElement("p");
 	    p3.setAttribute("style","text-align: center;")
 	    p3.textContent=("Monkey")
 	    div_col3.appendChild(p3);
 
    	    var div_col4=document.createElement("div");
-	    div_col4.setAttribute("class","col-lg-6")
+	    div_col4.setAttribute("class","col-sm-6")
 	    var p4=document.createElement("p");
 	    p4.setAttribute("style","text-align: center;")
 	    p4.textContent=("")
@@ -484,35 +484,35 @@ function clickbloomTuningButton(move_to_anchor) {
     div_new_row.setAttribute("class","row")
 
         var div_col1=document.createElement("div");
-        div_col1.setAttribute("class","col-lg-1")
+        div_col1.setAttribute("class","col-sm-1")
         var p1=document.createElement("p");
         p1.setAttribute("style","text-align: right;")
         p1.textContent=("Buffer:")
         div_col1.appendChild(p1);
 
         var div_col1b=document.createElement("div");
-        div_col1b.setAttribute("class","col-lg-1")
+        div_col1b.setAttribute("class","col-sm-1")
         var p1b=document.createElement("p");
         p1b.setAttribute("style","text-align: "+first_col_alignment+";")
         p1b.textContent=("0")
         div_col1b.appendChild(p1b);
 
         var div_col2=document.createElement("div");
-        div_col2.setAttribute("class","col-lg-2")
+        div_col2.setAttribute("class","col-sm-2")
         var p2=document.createElement("p");
         p2.setAttribute("style","text-align: center;")
         p2.textContent=("--")
         div_col2.appendChild(p2);
 
         var div_col3=document.createElement("div");
-        div_col3.setAttribute("class","col-lg-2")
+        div_col3.setAttribute("class","col-sm-2")
         var p3=document.createElement("p");
         p3.setAttribute("style","text-align: center;")
         p3.textContent=("--")
         div_col3.appendChild(p3);
 
         var div_col4=document.createElement("div");
-        div_col4.setAttribute("class","col-lg-6")
+        div_col4.setAttribute("class","col-sm-6")
         div_col4.setAttribute("style","text-align: center;")
         var button=document.createElement("button");
         button.setAttribute("class","lsm_button lsm_button_buffer");
@@ -529,7 +529,39 @@ function clickbloomTuningButton(move_to_anchor) {
     result_div.appendChild(div_new_row); 
 
 
-    var lsm_button_size_ratio=(500-100)/filters_monkey.length;
+    var isMobile; 
+    if (window.matchMedia) 
+    {
+        isMobile = window.matchMedia('(max-device-width: 768px)').matches;
+    } 
+    else 
+    {
+        isMobile = screen.width <= 768;
+    }
+
+    if (window.matchMedia) 
+    {
+        isMobile = window.matchMedia('(max-device-width: 768px)').matches;
+    } 
+    else 
+    {
+        isMobile = screen.width <= 768;
+    }
+
+    console.log(screen.width)
+
+    var max_button_size=500;
+    if (screen.width<=1200)
+    {
+        max_button_size=Math.max(screen.width-700,350);
+    }
+
+
+
+    // if (isMobile)
+    //     max_button_size=350;
+
+    var lsm_button_size_ratio=(max_button_size-100)/filters_monkey.length;
     var cur_length=100;
     cur_length+=lsm_button_size_ratio;
 
@@ -541,19 +573,19 @@ function clickbloomTuningButton(move_to_anchor) {
     div_new_row.setAttribute("class","row")
 
         var div_col1=document.createElement("div");
-        div_col1.setAttribute("class","col-lg-1")
+        div_col1.setAttribute("class","col-sm-1")
 
         var div_col1b=document.createElement("div");
-        div_col1b.setAttribute("class","col-lg-1")
+        div_col1b.setAttribute("class","col-sm-1")
 
         var div_col2=document.createElement("div");
-        div_col2.setAttribute("class","col-lg-2")
+        div_col2.setAttribute("class","col-sm-2")
 
         var div_col3=document.createElement("div");
-        div_col3.setAttribute("class","col-lg-2")
+        div_col3.setAttribute("class","col-sm-2")
 
         var div_col4=document.createElement("div");
-        div_col4.setAttribute("class","col-lg-6")
+        div_col4.setAttribute("class","col-sm-6")
         div_col4.setAttribute("style","text-align: center;")
         var p4=document.createElement("p");
         p4.setAttribute("style","text-align: center;")
@@ -588,7 +620,7 @@ function clickbloomTuningButton(move_to_anchor) {
 		    div_new_row.setAttribute("class","row")
 
 		   	    var div_col1=document.createElement("div");
-			    div_col1.setAttribute("class","col-lg-1 col-lg-offset-1")
+			    div_col1.setAttribute("class","col-sm-1 col-sm-offset-1")
 			    var p1=document.createElement("p");
 			    p1.setAttribute("style","text-align: "+first_col_alignment+";")
 			    p1.textContent=((i+1)+"")
@@ -596,7 +628,7 @@ function clickbloomTuningButton(move_to_anchor) {
 
 
 		   	    var div_col2=document.createElement("div");
-			    div_col2.setAttribute("class","col-lg-2")
+			    div_col2.setAttribute("class","col-sm-2")
 	         	var MSD2=getMostSignificantDigit(filters_baseline[i].fp);
 	        	if (MSD2>10)
 	        		MSD2=10;
@@ -614,7 +646,7 @@ function clickbloomTuningButton(move_to_anchor) {
 
 
 		   	    var div_col3=document.createElement("div");
-			    div_col3.setAttribute("class","col-lg-2")
+			    div_col3.setAttribute("class","col-sm-2")
 	        	var MSD=getMostSignificantDigit(filters_monkey[i].fp);
 	        	if (MSD>10)
 	        		MSD=10;
@@ -632,7 +664,7 @@ function clickbloomTuningButton(move_to_anchor) {
 
 
 		   	    var div_col4=document.createElement("div");
-			    div_col4.setAttribute("class","col-lg-6")
+			    div_col4.setAttribute("class","col-sm-6")
 			    div_col4.setAttribute("style","text-align: center;")
 
 			    var levelcss=i+1;
@@ -681,7 +713,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	    	var Rmonkey=eval_R(filters_monkey, leveltier, T);
 
 	   	    var div_col1=document.createElement("div");
-		    div_col1.setAttribute("class","col-lg-2")
+		    div_col1.setAttribute("class","col-sm-2")
 		    var p1=document.createElement("p");
 		    p1.setAttribute("style","text-align: right;")
 		    p1.textContent=("Lookup cost:")
@@ -695,7 +727,7 @@ function clickbloomTuningButton(move_to_anchor) {
 
 
 	        var div_col2=document.createElement("div");
-		    div_col2.setAttribute("class","col-lg-2")
+		    div_col2.setAttribute("class","col-sm-2")
 	        var span2=document.createElement("span");
 	        span2.setAttribute("data-tooltip",message);
 	        span2.setAttribute("data-tooltip-position","bottom")
@@ -708,7 +740,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	        div_col2.appendChild(span2);
 		    
 	        var div_col3=document.createElement("div");
-	        div_col3.setAttribute("class","col-lg-2")
+	        div_col3.setAttribute("class","col-sm-2")
 	        var span3=document.createElement("span");
 	        span3.setAttribute("data-tooltip",message);
 	        span3.setAttribute("data-tooltip-position","bottom")
@@ -721,7 +753,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	        div_col3.appendChild(span3);
 
 	   	    var div_col4=document.createElement("div");
-		    div_col4.setAttribute("class","col-lg-6")
+		    div_col4.setAttribute("class","col-sm-6")
 
             var speedup=(Rbaseline/Rmonkey).toFixed(2);
 
@@ -763,28 +795,28 @@ function clickbloomTuningButton(move_to_anchor) {
 
 
 	        var div_col1=document.createElement("div");
-	        div_col1.setAttribute("class","col-lg-2")
+	        div_col1.setAttribute("class","col-sm-2")
 	        var p1=document.createElement("p");
 	        p1.setAttribute("style","text-align: right;")
 	        p1.textContent=("Update cost:")
 	        div_col1.appendChild(p1);
 
 	        var div_col2=document.createElement("div");
-	        div_col2.setAttribute("class","col-lg-2")
+	        div_col2.setAttribute("class","col-sm-2")
 	        var p2=document.createElement("p");
 	        p2.setAttribute("style","text-align: center;")
 	        p2.textContent=(W.toFixed(3)+" I/Os")
 	        div_col2.appendChild(p2);
 
 	        var div_col3=document.createElement("div");
-	        div_col3.setAttribute("class","col-lg-2")
+	        div_col3.setAttribute("class","col-sm-2")
 	        var p3=document.createElement("p");
 	        p3.setAttribute("style","text-align: center;")
 	        p3.textContent=(W.toFixed(3)+" I/Os")
 	        div_col3.appendChild(p3);
 
 	        var div_col4=document.createElement("div");
-	        div_col4.setAttribute("class","col-lg-6")
+	        div_col4.setAttribute("class","col-sm-6")
 	        var p4=document.createElement("p");
 	        p4.setAttribute("style","text-align: center;")
 	        p4.textContent=("")
@@ -805,21 +837,21 @@ function clickbloomTuningButton(move_to_anchor) {
             //alert("mfilter " + mfilter + "   mbuffer" + mbuffer + "  total_mem " + total_mem);
 
             var div_col1=document.createElement("div");
-            div_col1.setAttribute("class","col-lg-2")
+            div_col1.setAttribute("class","col-sm-2")
             var p1=document.createElement("p");
             p1.setAttribute("style","text-align: right;")
             p1.textContent=("Main memory:")
             div_col1.appendChild(p1);
 
             var div_col2=document.createElement("div");
-            div_col2.setAttribute("class","col-lg-2")
+            div_col2.setAttribute("class","col-sm-2")
             var p2=document.createElement("p");
             p2.setAttribute("style","text-align: center;")
             p2.textContent=(formatBytes(total_mem,2))
             div_col2.appendChild(p2);
 
             var div_col3=document.createElement("div");
-            div_col3.setAttribute("class","col-lg-2")
+            div_col3.setAttribute("class","col-sm-2")
             var p3=document.createElement("p");
             p3.setAttribute("style","text-align: center;")
 
@@ -827,7 +859,7 @@ function clickbloomTuningButton(move_to_anchor) {
             div_col3.appendChild(p3);
 
             var div_col4=document.createElement("div");
-            div_col4.setAttribute("class","col-lg-6")
+            div_col4.setAttribute("class","col-sm-6")
             var p4=document.createElement("p");
             p4.setAttribute("style","text-align: center;")
             p4.textContent=("")
