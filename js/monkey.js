@@ -670,25 +670,57 @@ function clickbloomTuningButton(move_to_anchor) {
 			    var levelcss=i+1;
 			    if (filters_monkey.length<5)
 			    	levelcss=5-filters_monkey.length+1+i;
-				// console.log(i+":"+levelcss)
+                // console.log(i+":"+levelcss)
+                
+                if (leveltier == 1) {
+			        var button=document.createElement("button");
+			        button.setAttribute("class","lsm_button lsm_button"+(levelcss));
+			        if (last_is_smaller)
+			    	    button.setAttribute("class","lsm_button_not_solid");
+			        else
+			    	    button.setAttribute("class","lsm_button");
+			        button.setAttribute("style","width: "+cur_length+"px");
+			        cur_length+=lsm_button_size_ratio;
+			        var text=document.createTextNode(numberWithCommas(filters_monkey[i].nokeys)+((last_is_smaller)?" (level is not full)":""))
+			        button.appendChild(text);
+                    div_col4.appendChild(button);
+                } else {
+                    var button=document.createElement("button");
+			        button.setAttribute("class","lsm_button lsm_button"+(levelcss));
+			        if (last_is_smaller)
+			    	    button.setAttribute("class","lsm_button_not_solid");
+			        else
+                        button.setAttribute("class","lsm_button");
+                    button.setAttribute("style","width: "+cur_length/3+"px; height: 36px");
+                    var message = "At this level, each file contains "
+                    +numberWithCommas(Math.floor(filters_monkey[i].nokeys/T))+" entries"+
+                    ((last_is_smaller)? " (level is not full)" : "");
+                    button.setAttribute("data-tooltip", message);
+                    button.setAttribute("data-tooltip-position", "left");
+                    div_col4.appendChild(button);
+                    for (var j = 0; j < 2; j++) {
+                        var button=document.createElement("button");
+			            button.setAttribute("class","lsm_button lsm_button"+(levelcss));
+			            if (last_is_smaller)
+			    	        button.setAttribute("class","lsm_button_not_solid");
+			            else
+			    	        button.setAttribute("class","lsm_button");
+			            button.setAttribute("style","width: "+cur_length/3+"px; height: 36px");
+                        var message = "At this level, each file contains "
+                        +numberWithCommas(Math.floor(filters_monkey[i].nokeys/T))+" entries"+
+                        ((last_is_smaller)? " (level is not full)" : "");
+                        button.setAttribute("data-tooltip", message);
+                        button.setAttribute("data-tooltip-position", "left");
+                        div_col4.appendChild(button);
+                    }
+                    cur_length+=lsm_button_size_ratio;
+                }
 
-			    var button=document.createElement("button");
-			    button.setAttribute("class","lsm_button lsm_button"+(levelcss));
-			    if (last_is_smaller)
-			    	button.setAttribute("class","lsm_button_not_solid");
-			    else
-			    	button.setAttribute("class","lsm_button");
-			    button.setAttribute("style","width: "+cur_length+"px");
-			    cur_length+=lsm_button_size_ratio;
-			    var text=document.createTextNode(numberWithCommas(filters_monkey[i].nokeys)+((last_is_smaller)?" (level is not full)":""))
-			    button.appendChild(text);
-			    div_col4.appendChild(button);
-
-				if (i==(filters_monkey.length-2))
-				{
+				if (i==(filters_monkey.length-2)) {
 				    if (filters_monkey[i].nokeys>filters_monkey[i+1].nokeys)
 				    	last_is_smaller=true;
-				}
+                }
+                
 			
 		    	div_new_row.appendChild(div_col1);
 		    	div_new_row.appendChild(div_col2);
@@ -1243,6 +1275,5 @@ function print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_
 
     // printf("\n");
 }
-
 
 
