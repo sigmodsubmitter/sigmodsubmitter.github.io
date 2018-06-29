@@ -294,15 +294,21 @@ function getMonkeyFPassigment(N,E,mbuffer,T,mfilter,P,leveltier)
 
 function eval_R(filters, leveltier, T)
 {
-	var total = 0; 
-    for (var i = 0; i < filters.length ; i++) 
+    var total = 0;
+    var n = filters.length;
+    if (leveltier == 2) n -= 1;
+    for (var i = 0; i < n ; i++) 
     {
         var val = calc_R(filters[i]);
-        if (leveltier == 0) {  // tiering
+        if (leveltier == 0 || leveltier == 2) {  // tiering
             total += val * (T-1);
         } else {
             total += val;
         }
+    }
+    if (leveltier == 2) {
+        var val = calc_R(filters[filters.length - 1]);
+        total += val;
     }
     return total;
 }
@@ -672,7 +678,7 @@ function clickbloomTuningButton(move_to_anchor) {
 			    	levelcss=5-filters_monkey.length+1+i;
                 // console.log(i+":"+levelcss)
                 
-                if (leveltier == 1) {
+                if (leveltier == 1 || (leveltier == 2 && i == filters_monkey.length-1)) {
 			        var button=document.createElement("button");
 			        button.setAttribute("class","lsm_button lsm_button"+(levelcss));
 			        if (last_is_smaller)
@@ -685,33 +691,35 @@ function clickbloomTuningButton(move_to_anchor) {
 			        button.appendChild(text);
                     div_col4.appendChild(button);
                 } else {
-                    var button=document.createElement("button");
-			        button.setAttribute("class","lsm_button lsm_button"+(levelcss));
-			        if (last_is_smaller)
-			    	    button.setAttribute("class","lsm_button_not_solid");
-			        else
-                        button.setAttribute("class","lsm_button");
-                    button.setAttribute("style","width: "+cur_length/3+"px; height: 36px");
-                    var message = "At this level, each file contains "
-                    +numberWithCommas(Math.floor(filters_monkey[i].nokeys/T))+" entries"+
-                    ((last_is_smaller)? " (level is not full)" : "");
-                    button.setAttribute("data-tooltip", message);
-                    button.setAttribute("data-tooltip-position", "left");
-                    div_col4.appendChild(button);
-                    for (var j = 0; j < 2; j++) {
+                    var n;
+                    if (T <= 8) {
+                        n = T-1;
+                    } else {
+                        n = 6
+                    }
+                    for (var j = 0; j < n; j++) {
                         var button=document.createElement("button");
 			            button.setAttribute("class","lsm_button lsm_button"+(levelcss));
 			            if (last_is_smaller)
 			    	        button.setAttribute("class","lsm_button_not_solid");
 			            else
 			    	        button.setAttribute("class","lsm_button");
-			            button.setAttribute("style","width: "+cur_length/3+"px; height: 36px");
+			            button.setAttribute("style","width: "+cur_length/n+"px; height: 36px");
                         var message = "At this level, each file contains "
                         +numberWithCommas(Math.floor(filters_monkey[i].nokeys/T))+" entries"+
                         ((last_is_smaller)? " (level is not full)" : "");
                         button.setAttribute("data-tooltip", message);
                         button.setAttribute("data-tooltip-position", "left");
                         div_col4.appendChild(button);
+                    }
+                    if (T > 8) {
+                        var span=document.createElement("span");
+                        var message="This level contains "+(T-1)+" runs";
+                        span.setAttribute("data-tooltip", message);
+                        span.setAttribute("data-tooltip-position", "left");
+                        span.setAttribute("style", "font-size: 24px; color: #a51c30;");
+                        span.textContent=" ...";
+                        div_col4.appendChild(span);
                     }
                     cur_length+=lsm_button_size_ratio;
                 }
