@@ -705,7 +705,7 @@ function clickbloomTuningButton(move_to_anchor) {
 			            else
 			    	        button.setAttribute("class","lsm_button");
 			            button.setAttribute("style","width: "+cur_length/n+"px; height: 36px");
-                        var message = "At this level, each file contains "
+                        var message = "At this level, each run contains "
                         +numberWithCommas(Math.floor(filters_monkey[i].nokeys/T))+" entries"+
                         ((last_is_smaller)? " (level is not full)" : "");
                         button.setAttribute("data-tooltip", message);
