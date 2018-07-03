@@ -691,35 +691,29 @@ function clickbloomTuningButton(move_to_anchor) {
 			        button.appendChild(text);
                     div_col4.appendChild(button);
                 } else {
-                    var n;
-                    if (T <= 8) {
-                        n = T-1;
-                    } else {
-                        n = 6
-                    }
+                    var n = Math.min(T-1, 7);
                     for (var j = 0; j < n; j++) {
-                        var button=document.createElement("button");
-			            button.setAttribute("class","lsm_button lsm_button"+(levelcss));
-			            if (last_is_smaller)
-			    	        button.setAttribute("class","lsm_button_not_solid");
-			            else
-			    	        button.setAttribute("class","lsm_button");
-			            button.setAttribute("style","width: "+cur_length/n+"px; height: 36px");
-                        var message = "At this level, each run contains "
-                        +numberWithCommas(Math.floor(filters_monkey[i].nokeys/T))+" entries"+
-                        ((last_is_smaller)? " (level is not full)" : "");
-                        button.setAttribute("data-tooltip", message);
-                        button.setAttribute("data-tooltip-position", "left");
-                        div_col4.appendChild(button);
-                    }
-                    if (T > 8) {
-                        var span=document.createElement("span");
-                        var message="This level contains "+(T-1)+" runs";
-                        span.setAttribute("data-tooltip", message);
-                        span.setAttribute("data-tooltip-position", "left");
-                        span.setAttribute("style", "font-size: 24px; color: #a51c30;");
-                        span.textContent=" ...";
-                        div_col4.appendChild(span);
+                        if (T > 8 && j == 5) {
+                            var span=document.createElement("span");
+                            var message="This level contains "+(T-1)+" runs";
+                            span.setAttribute("data-tooltip", message);
+                            span.setAttribute("data-tooltip-position", "left");
+                            span.setAttribute("style", "font-size: 24px; color: #a51c30; padding: 0px 2px");
+                            span.textContent=" ...";
+                            div_col4.appendChild(span);
+                        } else {
+                            var button=document.createElement("button");
+			                button.setAttribute("class","lsm_button lsm_button"+(levelcss));
+			                if (last_is_smaller)
+			    	            button.setAttribute("class","lsm_button_not_solid");
+			                else
+			    	            button.setAttribute("class","lsm_button");
+			                button.setAttribute("style","width: "+cur_length/n+"px; height: 36px");
+                            var message = "At this level, each run contains "+numberWithCommas(Math.floor(filters_monkey[i].nokeys/(T-1))+" entries"+((last_is_smaller)? " (level is not full)" : ""));
+                            button.setAttribute("data-tooltip", message);
+                            button.setAttribute("data-tooltip-position", "left");
+                            div_col4.appendChild(button);
+                        }
                     }
                     cur_length+=lsm_button_size_ratio;
                 }
@@ -760,11 +754,13 @@ function clickbloomTuningButton(move_to_anchor) {
 		    div_col1.appendChild(p1);
 
 	        var message;
-	        if (leveltier==0)
-	            message="The average I/O cost for a zero-result lookup is the sum of the false positives rates across all runs. With tiering, there are (T-1) runs per level, where T is the size ratio. Therefore, lookup cost is the sum of false positive rate prescriptions across all levels multiplied by (T-1).";
-	   	    else if (leveltier==1)
-	            message="The average I/O cost for a zero-result lookup is the sum of the false positives rates across all levels. ";
-
+	        if (leveltier==0) {
+                message="The average I/O cost for a zero-result lookup is the sum of the false positives rates across all runs. With tiering, there are (T-1) runs per level, where T is the size ratio. Therefore, lookup cost is the sum of false positive rate prescriptions across all levels multiplied by (T-1).";
+            } else if (leveltier==1) {
+                message="The average I/O cost for a zero-result lookup is the sum of the false positives rates across all levels. ";
+            } else if (leveltier==2) {
+                message="The average I/O cost for a zero-result lookup is the sum of the false positives rates across all runs. With lazy leveling, there are (T-1) runs per level on levels except the last one, where T is the size ratio. Therefore, lookup cost is the sum of false positive rate prescriptions across all levels except the last one multiplied by (T-1) plus the false positive rate of the last level.";
+            }
 
 	        var div_col2=document.createElement("div");
 		    div_col2.setAttribute("class","col-sm-2")
@@ -828,10 +824,13 @@ function clickbloomTuningButton(move_to_anchor) {
 
 	        var W;
 	        var entries_per_page=Math.floor(P/E);
-	        if (leveltier==1)
-	            W=(filters_monkey.length/entries_per_page)*(T-1)/2;
-	        else if (leveltier==0)
-	            W=(filters_monkey.length/entries_per_page)*(T-1)/T;
+	        if (leveltier==1) {
+                W=(filters_monkey.length/entries_per_page)*(T-1)/2;
+            } else if (leveltier==0) {
+                W=(filters_monkey.length/entries_per_page)*(T-1)/T;
+            } else if (leveltier==2) {
+                W=(1/entries_per_page)*((T-1)*(filters_monkey.length)/(T) + (T-1)/(T));
+            }
 
 
 	        var div_col1=document.createElement("div");
