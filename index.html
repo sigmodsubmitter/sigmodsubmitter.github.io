@@ -303,13 +303,18 @@
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="input-group">
-                      <span class="input-group-addon"><span data-tooltip="Number of Entries in the Index (e.g., 10485760)." data-tooltip-position="bottom">1. # Entries</span></span>
+                      <span class="input-group-addon"><span data-tooltip="Number of Entries in the Index (e.g., 10485760), which automatically changes the Level number" data-tooltip-position="bottom">1. # Entries</span></span>
                       <input id="N" type="text" class="form-control" aria-label="Index Size N (elements)" placeholder="Number of Entries in the Index (e.g., 10485760)" style="text-align:right" onkeyup="re_run(event, 'input1')"/>
                     </div>
                     <br>
                     <div class="input-group">
                       <span class="input-group-addon"><span data-tooltip="Key-Value pair size in bytes (e.g., 16)." data-tooltip-position="bottom">2. Entry size (bytes)</span></span>
                       <input id="E" type="number" class="form-control" aria-label="Key-Value pair size (bytes)" placeholder="Key-Value pair size in bytes (e.g., 16)" style="text-align:right" onchange="re_run(event, 'input2')" onwheel="re_run(event, 'input2')"  onkeyup="re_run(event, 'input2')"/>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                      <span class="input-group-addon"><span data-tooltip="The specified level number will automatically change the Entry number into the corresponding maximum capacity" data-tooltip-position="bottom">4. Levels </span></span>
+                      <input id="L" type="number" class="form-control" aria-label="Levels" placeholder="Levels" style="text-align:right" onchange="re_run(event, 'input2')" onwheel="re_run(event, 'input2')"  onkeyup="re_run(event, 'input2')"/>
                     </div>
                 </div>
 
@@ -333,18 +338,18 @@
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="input-group">
-                      <span class="input-group-addon"><span data-tooltip="Buffer Size in MB (e.g., 2)." data-tooltip-position="bottom">4. Buffer size (MB)</span></span>
+                      <span class="input-group-addon"><span data-tooltip="Buffer Size in MB (e.g., 2)." data-tooltip-position="bottom">5. Buffer size (MB)</span></span>
                       <input id="mbuffer" type="number" class="form-control" aria-label="Buffer Size Mbuffer (MB)" placeholder="Buffer Size in MB (e.g., 2)"  style="text-align:right" onchange="re_run(event, 'input4')" onwheel="re_run(event, 'input4')" onkeyup="re_run(event, 'input4')"/>
                     </div>
                     <br>
                     <div class="input-group">
-                    <span class="input-group-addon"><span data-tooltip="Total main memory allocated to BFs in MB (e.g., 6)." data-tooltip-position="bottom">5. Bloom filters' overall size (MB)</span></span>
+                    <span class="input-group-addon"><span data-tooltip="Total main memory allocated to BFs in MB (e.g., 6)." data-tooltip-position="bottom">6. Bloom filters' overall size (MB)</span></span>
                       <input id="mfilter" type="text" class="form-control" aria-label="Bloom filter size" placeholder="Total main memory allocated to BFs in MB (e.g., 6)" style="text-align:right" onkeyup="re_run(event, 'input7')"/>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="input-group">
-                    <span class="input-group-addon" style="text-align: left;"><span data-tooltip="With leveling each level has one run, and with tiering each level has (up to) size_ratio-1 runs." data-tooltip-position="bottom" >6. Merge policy</span></span>
+                    <span class="input-group-addon" style="text-align: left;"><span data-tooltip="With leveling each level has one run, and with tiering each level has (up to) size_ratio-1 runs." data-tooltip-position="bottom" >7. Merge policy</span></span>
                       <span class="input-group-addon">leveling&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="level" value="1" checked="true" onchange="MergeNotyFliudLSMTree()"/></span>
                       <span class="input-group-addon">tiering&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="tier" value="0" onchange="MergeNotyFliudLSMTree()"/></span>
                       <span class="input-group-addon">lazy leveling&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="lazylevel" value="2" checked="false" onchange="MergeNotyFliudLSMTree()"/></span>
@@ -352,20 +357,20 @@
                     </div>
                     <br>
                     <div id="input-group-T" class="input-group">
-                      <span class="input-group-addon"><span data-tooltip="Ratio between capacities of adjacent levels (e.g., 2)." data-tooltip-position="bottom">7. Size ratio</span></span>
+                      <span class="input-group-addon"><span data-tooltip="Ratio between capacities of adjacent levels (e.g., 2)." data-tooltip-position="bottom">8. Size ratio</span></span>
                       <input id="T" type="number" class="form-control" aria-label="Size Ratio T" placeholder="Ratio between capacities of adjacent levels (e.g., 2)" style="text-align:right" onchange="re_run(event, 'input8')" onwheel="re_run(event, 'input8')" onkeyup="re_run(event, 'input8')"/>
                       <!-- <span class="input-group-addon">(bytes)</span> -->
 
                     </div>
                     <br>
                     <div id="input-group-Fluid-K" class="input-group" style="display: none">
-                    <span class="input-group-addon"><span data-tooltip="Maximum runs for all levels except the largest one." data-tooltip-position="bottom">8. Fluid LSM-Tree K</span></span>
+                    <span class="input-group-addon"><span data-tooltip="Maximum runs for all levels except the largest one." data-tooltip-position="bottom">9. Fluid LSM-Tree K</span></span>
                       <input id="Fluid LSM-Tree K" type="text" class="form-control" aria-label="Fluid LSM-Tree K" placeholder="Maximum runs for all levels except the largest one" style="text-align:right" onkeyup="re_run(event, 'input7')"/>
 
                     </div>
                       <br>
                     <div id="input-group-Fluid-Z" class="input-group" style="display: none">
-                    <span class="input-group-addon"><span data-tooltip="Maximum runs for the largest level" data-tooltip-position="bottom">9. Fluid LSM-Tree Z </span></span>
+                    <span class="input-group-addon"><span data-tooltip="Maximum runs for the largest level" data-tooltip-position="bottom">10. Fluid LSM-Tree Z </span></span>
                       <input id="Fluid LSM-Tree Z" type="text" class="form-control" aria-label="Fluid LSM-Tree Z" placeholder="Maximum runs for the largest level" style="text-align:right" onkeyup="re_run(event, 'input9')"/>
                     </div>
                 </div>

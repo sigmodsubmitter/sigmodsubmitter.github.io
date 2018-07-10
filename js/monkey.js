@@ -22,6 +22,7 @@ function parseInputTextBoxes()
     parsedBoxes.T = parseInt(document.getElementById("T").value.replace(/\D/g,''), 10);
     parsedBoxes.mfilter = parseFloat(document.getElementById("mfilter").value.replace(/\D/g,''))*1048576;
     parsedBoxes.P = parseInt(document.getElementById("P").value.replace(/\D/g,''), 10);
+		parsedBoxes.L = parseInt(document.getElementById("L").value.replace(/\D/g,''), 10);
     parsedBoxes.isLeveled = isRadioLeveled("ltradio");  // tiered is 0, leveled is 1
     parsedBoxes.leveltier = getRadioValueByName("ltradio");
 		parsedBoxes.fluidK = parseInt(document.getElementById("Fluid LSM-Tree K").value.replace(/\D/g,''), 10);
@@ -149,7 +150,7 @@ function initFilters(N,E,mbuffer,T,mfilter,P,leveltier) {
      mfilter_bits=8*mfilter;
 
     var filter_array = [];
-    var remainingKeys=N;
+    var remainingKeys=N-mbuffer/E;
     var level=0;
     //Calculate the number of keys per level in a almost-full in each level LSM tree
     while (remainingKeys>0)
@@ -335,6 +336,7 @@ function scenario1()
     document.getElementById("E").value=16;
     document.getElementById("mbuffer").value=2; //in MB
     document.getElementById("T").value=10;
+		document.getElementById("L").value=6;
     document.getElementById("mfilter").value=numberWithCommas(81920); //in MB (5 bits per element)
     document.getElementById("P").value=4096; //in B
     document.getElementsByName("ltradio")[0].checked=true;
@@ -354,6 +356,7 @@ function scenario2()
     document.getElementById("E").value=16;
     document.getElementById("mbuffer").value=2; //in MB
     document.getElementById("T").value=4;
+		document.getElementById("L").value=10;
     document.getElementById("mfilter").value=numberWithCommas(81920); //in MB (10 bits per element)
     document.getElementById("P").value=4096; //in B
     document.getElementsByName("ltradio")[0].checked=false;
@@ -373,6 +376,7 @@ function scenario3()
     document.getElementById("E").value=16;
     document.getElementById("mbuffer").value=2; //in MB
     document.getElementById("T").value=2;
+		document.getElementById("L").value=19;
     document.getElementById("mfilter").value=numberWithCommas(0); //in MB (10 bits per element)
     document.getElementById("P").value=4096; //in B
     document.getElementsByName("ltradio")[0].checked=true;
