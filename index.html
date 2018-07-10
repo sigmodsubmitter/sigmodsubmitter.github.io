@@ -12,7 +12,7 @@
     <link href="../images/ico/SEAS-favicon.png" rel="icon" type="image/x-icon"/>
 
     <title>Monkey: LSM Tuning - DASlab @ Harvard University</title>
-   
+
 
     <!-- Bootstrap Core CSS - Uses Bootswatch Flatly Theme: http://bootswatch.com/flatly/ -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -86,14 +86,14 @@
                    <li class="page-scroll">
                         <a href="#research">Research</a>
                     </li>
- 
+
                      <li class="page-scroll">
                         <a href="#people">People</a>
                     </li>
                     <li class="page-scroll">
                         <a href="#about">About</a>
                     </li>
-  --> 
+  -->
                      <li class="page-scroll">
                         <a href="#publications">Publication</a>
                     </li>
@@ -140,14 +140,14 @@
             <div class="row">
                 <div class="col-lg-12">
                     <p>Typically, key-value stores use an LSM-tree as a storage backend. LSM-trees balance lookup and update performance, by (i) buffering updates, (ii) creating sorted runs, and (iii) periodically merge them forming a series of sorted runs with exponentially increasing size. Searching for a value requires to probe in the worst case all sorted runs, a cost that can modern key-value stores mitigate by employing (a) fence pointers and (b) Bloom filters, both maintained in main-memory. The above design elements of key-value stores exhibit an intrinsic trade-off between lookup cost, update cost, and main memory utilization. Existing designs enable a suboptimal and difficult to tune trade-off among these metrics.</p>
-                </div>  
-            </div>      
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2">
                     <img class="img-responsive img-centered" src="./images/background.png" alt="">
                 </div>
-            </div>           
-                         
+            </div>
+
         </div>
     </section>
 
@@ -166,14 +166,14 @@
                     <p>
                         Monkey improves read performance by optimal allocation of memory to the bloom filters. The core insight is that the worst-case lookup cost is proportional to the sum of the false positive rates of the Bloom filters across all levels of the LSM-tree. Contrary to state of the art that assigns a fixed number of bits-per-element to all Bloom filters, Monkey allocates memory to filters across different levels so as to minimize the sum of their false positive rates.
                     </p>
-                </div>  
-            </div>    
+                </div>
+            </div>
 
             <div class="row">
                 <div class="col-lg-10 col-lg-offset-1">
                     <img class="img-responsive img-centered" src="./images/monkey-tuning.png" alt="">
                 </div>
-            </div>           
+            </div>
 
             <div class="row">
                 <div class="col-lg-12">
@@ -206,32 +206,32 @@
                 <div class="text-container" >
                     <p>
                     <span id="figure1_explanation" class="text-content short-text">
-                        <strong>Figure 1: Trade-off Curves.</strong>   
-                        In Figure 1 below, we plot the trade-off curves between the worst-case costs of lookups and updates for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels.    
+                        <strong>Figure 1: Trade-off Curves.</strong>
+                        In Figure 1 below, we plot the trade-off curves between the worst-case costs of lookups and updates for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels.
                     </span>
                     <span class="show-more" >
                      <a href="#" id="fig1">Show more...</a>
                     </span>
-                    </p>  
+                    </p>
                 </div> -->
 
-<!-- <p><strong>Figure 1: Trade-off Curves.</strong>In Figure 1 below, we plot the trade-off curves between the worst-case costs of lookups and updates for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels.    
+<!-- <p><strong>Figure 1: Trade-off Curves.</strong>In Figure 1 below, we plot the trade-off curves between the worst-case costs of lookups and updates for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels.
 
-<p><strong>Figure 1: Trade-off Curves.</strong>In Figure 1 below, we plot the trade-off curves between the worst-case costs of lookups and updates for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels.</p><p>To focus on a particular slice of the design space, we enable parameterization of the <em>dataset </em> (number and size of data entries), the <em>environment</em> (size of persistent storage pages), and <em>main memory allocation</em> (size of the LSM-tree's buffer, and total size of all Bloom filters). We enable navigating the curves in Figure 1 to strike a particular balance between lookup cost and update cost by varying the <em> merge operation frequency, </em> which is a function of the merge policy (tiering vs. leveling) and the size ratio between adjacent levels of the LSM-tree. </p><p>Figure 1 shows that Monkey dominates state-of-the-art deisgns across the whole design space. The reason is that it allocates main memory across the Bloom filters so as to minimize lookup cost, and it can trade the gain in lookup cost for better update cost by varying the merge policy and size ratio. 
+<p><strong>Figure 1: Trade-off Curves.</strong>In Figure 1 below, we plot the trade-off curves between the worst-case costs of lookups and updates for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels.</p><p>To focus on a particular slice of the design space, we enable parameterization of the <em>dataset </em> (number and size of data entries), the <em>environment</em> (size of persistent storage pages), and <em>main memory allocation</em> (size of the LSM-tree's buffer, and total size of all Bloom filters). We enable navigating the curves in Figure 1 to strike a particular balance between lookup cost and update cost by varying the <em> merge operation frequency, </em> which is a function of the merge policy (tiering vs. leveling) and the size ratio between adjacent levels of the LSM-tree. </p><p>Figure 1 shows that Monkey dominates state-of-the-art deisgns across the whole design space. The reason is that it allocates main memory across the Bloom filters so as to minimize lookup cost, and it can trade the gain in lookup cost for better update cost by varying the merge policy and size ratio.
 
  -->
-<!-- 
+<!--
                 <p>
-                    <strong>Figure 1: Trade-off Curves.</strong>   
-                    In Figure 1 below, we plot the trade-off curves between the worst-case costs of lookups and updates for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels.    
+                    <strong>Figure 1: Trade-off Curves.</strong>
+                    In Figure 1 below, we plot the trade-off curves between the worst-case costs of lookups and updates for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels.
                 </p>
                 <p>
-                To focus on a particular slice of the design space, we enable parameterization of the <em>dataset </em> (number and size of data entries), the <em>environment</em> (size of persistent storage pages), and <em>main memory allocation</em> (size of the LSM-tree's buffer, and total size of all Bloom filters). We enable navigating the curves in Figure 1 to strike a particular balance between lookup cost and update cost by varying the <em> merge operation frequency, </em> which is a function of the merge policy (tiering vs. leveling) and the size ratio between adjacent levels of the LSM-tree. 
+                To focus on a particular slice of the design space, we enable parameterization of the <em>dataset </em> (number and size of data entries), the <em>environment</em> (size of persistent storage pages), and <em>main memory allocation</em> (size of the LSM-tree's buffer, and total size of all Bloom filters). We enable navigating the curves in Figure 1 to strike a particular balance between lookup cost and update cost by varying the <em> merge operation frequency, </em> which is a function of the merge policy (tiering vs. leveling) and the size ratio between adjacent levels of the LSM-tree.
                 </p>
                 <p>
-                Figure 1 shows that Monkey dominates state-of-the-art deisgns across the whole design space. The reason is that it allocates main memory across the Bloom filters so as to minimize lookup cost, and it can trade the gain in lookup cost for better update cost by varying the merge policy and size ratio. 
+                Figure 1 shows that Monkey dominates state-of-the-art deisgns across the whole design space. The reason is that it allocates main memory across the Bloom filters so as to minimize lookup cost, and it can trade the gain in lookup cost for better update cost by varying the merge policy and size ratio.
                 </p>  -->
-            
+
       <!--           <div class="text-container" >
                     <p>
                     <span id="figure2_explanation" class="text-content short-text">
@@ -240,10 +240,10 @@
                     <span class="show-more" >
                      <a href="#" id="fig2">Show more...</a>
                     </span>
-                    </p>  
+                    </p>
                 </div>
 
-               
+
                 </div>
             </div>
 
@@ -263,7 +263,7 @@
                 <p style="text-align: center;">
                 <em>Click on one of the three configuration buttons below or enter a custom configuration to visualize the corresponding performance trade-off curves in Figure 2 and the detailed tuning of the resulting LSM-tree in Figure 1. </em></p>
                 <p>
-                All three configurations correspond to 1 TB LSM-tree with 16 byte entries. The first two configurations reflect the default tuning of two state-of-the-art systems, <span data-tooltip="This is the default configuration of LevelDB." data-tooltip-position="bottom" style="text-decoration:underline; text-decoration-style: dotted;">LevelDB</span> and <span data-tooltip="Cassandra can navigate the design space both in terms of mering policy and in terms of size ratio. Here we choose the default configuration, and we show what is the impact of (i) changing the configuration, and (ii) using our optimal Bloom filer allocation policy." data-tooltip-position="bottom" style="text-decoration:underline; text-decoration-style: dotted;">Cassandra</span> respectively. For each system the two lines shown in Figure 2 show the benefit it can achieve by integrating Monkey's memory allocation for Bloom filters. The third configuration is an edge-case where no memory is allocated to the Bloom filters, and so the trade-off curves for Monkey and state-of-the-art designs converge. 
+                All three configurations correspond to 1 TB LSM-tree with 16 byte entries. The first two configurations reflect the default tuning of two state-of-the-art systems, <span data-tooltip="This is the default configuration of LevelDB." data-tooltip-position="bottom" style="text-decoration:underline; text-decoration-style: dotted;">LevelDB</span> and <span data-tooltip="Cassandra can navigate the design space both in terms of mering policy and in terms of size ratio. Here we choose the default configuration, and we show what is the impact of (i) changing the configuration, and (ii) using our optimal Bloom filer allocation policy." data-tooltip-position="bottom" style="text-decoration:underline; text-decoration-style: dotted;">Cassandra</span> respectively. For each system the two lines shown in Figure 2 show the benefit it can achieve by integrating Monkey's memory allocation for Bloom filters. The third configuration is an edge-case where no memory is allocated to the Bloom filters, and so the trade-off curves for Monkey and state-of-the-art designs converge.
                 </p>
                 <br>
             </div>
@@ -291,16 +291,16 @@
                         </span>
                     </div>
                 </div>
-            </div>         
+            </div>
             <br>
             <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6">    
-                <h4 style="text-align: center">Dataset</h4>            
-                    
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                <h4 style="text-align: center">Dataset</h4>
+
                 </div>
-                <div class="col-lg-6 col-md-6 col-sm-6">                
+                <div class="col-lg-6 col-md-6 col-sm-6">
                     <h4 style="text-align: center">Environment</h4>
-                </div>                
+                </div>
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="input-group">
                       <span class="input-group-addon"><span data-tooltip="Number of Entries in the Index (e.g., 10485760)." data-tooltip-position="bottom">1. # Entries</span></span>
@@ -322,49 +322,55 @@
             </div>
             <br>
             <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6">    
-                <h4 style="text-align: center">Main Memory Allocation</h4>            
-                    
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                <h4 style="text-align: center">Main Memory Allocation</h4>
+
                 </div>
-                <div class="col-lg-6 col-md-6 col-sm-6">                
+                <div class="col-lg-6 col-md-6 col-sm-6">
                     <h4 style="text-align: center">Merge Operation Frequency</h4>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6">                
+                <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="input-group">
                       <span class="input-group-addon"><span data-tooltip="Buffer Size in MB (e.g., 2)." data-tooltip-position="bottom">4. Buffer size (MB)</span></span>
                       <input id="mbuffer" type="number" class="form-control" aria-label="Buffer Size Mbuffer (MB)" placeholder="Buffer Size in MB (e.g., 2)"  style="text-align:right" onchange="re_run(event, 'input4')" onwheel="re_run(event, 'input4')" onkeyup="re_run(event, 'input4')"/>
                     </div>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6">                
-                    <div class="input-group">
-                    <span class="input-group-addon" style="text-align: left;"><span data-tooltip="With leveling each level has one run, and with tiering each level has (up to) size_ratio-1 runs." data-tooltip-position="bottom" >6. Merge policy</span></span>
-                      <span class="input-group-addon">leveling&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="level" value="1" checked="true" onchange="re_run(event, 'input5')"/></span>
-                      <span class="input-group-addon">tiering&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="tier" value="0" onchange="re_run(event, 'input6')"/></span>
-                      <span class="input-group-addon">lazy leveling&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="lazylevel" value="2" checked="false" onchange="re_run(event, 'input7')"/></span>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6"> 
-
-
+                    <br>
                     <div class="input-group">
                     <span class="input-group-addon"><span data-tooltip="Total main memory allocated to BFs in MB (e.g., 6)." data-tooltip-position="bottom">5. Bloom filters' overall size (MB)</span></span>
                       <input id="mfilter" type="text" class="form-control" aria-label="Bloom filter size" placeholder="Total main memory allocated to BFs in MB (e.g., 6)" style="text-align:right" onkeyup="re_run(event, 'input7')"/>
                     </div>
-
                 </div>
-                <div class="col-lg-6 col-md-6 col-sm-6">                
+                <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="input-group">
+                    <span class="input-group-addon" style="text-align: left;"><span data-tooltip="With leveling each level has one run, and with tiering each level has (up to) size_ratio-1 runs." data-tooltip-position="bottom" >6. Merge policy</span></span>
+                      <span class="input-group-addon">leveling&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="level" value="1" checked="true" onchange="MergeNotyFliudLSMTree()"/></span>
+                      <span class="input-group-addon">tiering&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="tier" value="0" onchange="MergeNotyFliudLSMTree()"/></span>
+                      <span class="input-group-addon">lazy leveling&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="lazylevel" value="2" checked="false" onchange="MergeNotyFliudLSMTree()"/></span>
+                      <span class="input-group-addon">Fliud LSM-Tree&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="Fliud LSM-Tree" value="3" checked="false" onchange="MergeByFliudLSMTree()"/></span>
+                    </div>
+                    <br>
+                    <div id="input-group-T" class="input-group">
                       <span class="input-group-addon"><span data-tooltip="Ratio between capacities of adjacent levels (e.g., 2)." data-tooltip-position="bottom">7. Size ratio</span></span>
                       <input id="T" type="number" class="form-control" aria-label="Size Ratio T" placeholder="Ratio between capacities of adjacent levels (e.g., 2)" style="text-align:right" onchange="re_run(event, 'input8')" onwheel="re_run(event, 'input8')" onkeyup="re_run(event, 'input8')"/>
                       <!-- <span class="input-group-addon">(bytes)</span> -->
+
+                    </div>
+                    <br>
+                    <div id="input-group-Fluid-K" class="input-group" style="display: none">
+                    <span class="input-group-addon"><span data-tooltip="Maximum runs for all levels except the largest one." data-tooltip-position="bottom">8. Fluid LSM-Tree K</span></span>
+                      <input id="Fluid LSM-Tree K" type="text" class="form-control" aria-label="Fluid LSM-Tree K" placeholder="Maximum runs for all levels except the largest one" style="text-align:right" onkeyup="re_run(event, 'input7')"/>
+
+                    </div>
+                      <br>
+                    <div id="input-group-Fluid-Z" class="input-group" style="display: none">
+                    <span class="input-group-addon"><span data-tooltip="Maximum runs for the largest level" data-tooltip-position="bottom">9. Fluid LSM-Tree Z </span></span>
+                      <input id="Fluid LSM-Tree Z" type="text" class="form-control" aria-label="Fluid LSM-Tree Z" placeholder="Maximum runs for the largest level" style="text-align:right" onkeyup="re_run(event, 'input9')"/>
                     </div>
                 </div>
             </div>
+            <br>
             <hr>
 
             <div id="result_tuning" class="text-center">
@@ -383,33 +389,33 @@
 <!--                     <span class="show-more" >
                      <a href="#" id="caption2">Show more...</a>
                     </span>
- -->                    </p>  
+ -->                    </p>
                 </div>
                 </div>
             </div>
 
             <div class="row text-center">
 
-                <div id="myDiv" class="col-sm-12"><!-- Plotly chart will be drawn inside this DIV --></div> 
+                <div id="myDiv" class="col-sm-12"><!-- Plotly chart will be drawn inside this DIV --></div>
 
             </div>
-            
+
 
             <div class="row">
-                
+
                 <div class="col-sm-12">
                 <div class="text-container" >
                     <p>
                     <span id="figure1_caption" class="text-content short-text">
-                     <strong>Figure 2.</strong> Trade-off curves between the lookup and update cost for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels. <!-- To focus on a particular slice of the design space, we enable parameterization of the <em>dataset </em> (number and size of data entries), the <em>environment</em> (size of persistent storage pages), and <em>main memory allocation</em> (size of the LSM-tree's buffer, and total size of all Bloom filters). The audience can vary the <em> merge operation frequency, </em> which is a function of the merge policy (tiering vs. leveling) and the size ratio between adjacent levels of the LSM-tree. 
+                     <strong>Figure 2.</strong> Trade-off curves between the lookup and update cost for Monkey. As a baseline, we also plot the analogous trade-off curve for state-of-the-art designs that assign the same false positive rate to filters across all levels. <!-- To focus on a particular slice of the design space, we enable parameterization of the <em>dataset </em> (number and size of data entries), the <em>environment</em> (size of persistent storage pages), and <em>main memory allocation</em> (size of the LSM-tree's buffer, and total size of all Bloom filters). The audience can vary the <em> merge operation frequency, </em> which is a function of the merge policy (tiering vs. leveling) and the size ratio between adjacent levels of the LSM-tree.
                      <br>
                     <em>The LSM-tree design space exhibits a trade-off between lookup cost and update cost that can be navigated by tuning the merge policy and size ratio</em>. In general, the curve for Monkey dominates the curve for the state-of-the-art because Monkey minimizes worst-case query cost by allocating main memory among the Bloom filters so as to minimize the sum of their false positive rates.  -->
                     </span>
                     <span class="show-more" >
                      <a href="#" id="caption1">Show more...</a>
                     </span>
-    
-                    </p>   
+
+                    </p>
                  </div>
                 </div>
             </div>
@@ -432,11 +438,11 @@
                     <p>
                         We show that LSM-based key-value stores exhibit an intrinsic trade-off among lookup cost, update cost, and main memory utilization. However, all existing designs strike a suboptimal and difficult to tune balance among these metrics. We present Monkey, an LSM-based key-value store that reaches the Pareto performance curve by allocating the Bloom filters so as to minimize the worst-case lookup cost. Monkey uses closed-form models to navigate the design space to find the holistic tuning that maximizes throughput under a given main memory budget, application workload, and storage medium.
                     </p>
-                </div>  
+                </div>
                 <div class="col-lg-4">
                     <img class="img-responsive img-centered" src="./images/monkey-baloon.png" alt="">
                 </div>
-            </div>    
+            </div>
         </div>
     </section> -->
 
@@ -503,11 +509,11 @@
         </a>
     </div>
 
-    
+
 <script type="text/javascript">
-var sc_project=11168654; 
-var sc_invisible=1; 
-var sc_security="99bf8838"; 
+var sc_project=11168654;
+var sc_invisible=1;
+var sc_security="99bf8838";
 var scJsHost = (("https:" == document.location.protocol) ?
 "https://secure." : "http://www.");
 document.write("<sc"+"ript type='text/javascript' src='" +

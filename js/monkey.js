@@ -6,8 +6,10 @@ function InputTextBoxes()
     var T;
     var mfilter;
     var P;
-    var leveltier;  // tiered is 0, leveled is 1	
-    var isLeveled
+    var leveltier;  // tiered is 0, leveled is 1, lazy_level is 2, fluid_LSM-Tree is 3
+    var isLeveled;
+		var fluidK;
+		var fluidZ;
 }
 
 
@@ -20,8 +22,10 @@ function parseInputTextBoxes()
     parsedBoxes.T = parseInt(document.getElementById("T").value.replace(/\D/g,''), 10);
     parsedBoxes.mfilter = parseFloat(document.getElementById("mfilter").value.replace(/\D/g,''))*1048576;
     parsedBoxes.P = parseInt(document.getElementById("P").value.replace(/\D/g,''), 10);
-    parsedBoxes.isLeveled = isRadioLeveled("ltradio");  // tiered is 0, leveled is 1	
+    parsedBoxes.isLeveled = isRadioLeveled("ltradio");  // tiered is 0, leveled is 1
     parsedBoxes.leveltier = getRadioValueByName("ltradio");
+		parsedBoxes.fluidK = parseInt(document.getElementById("Fluid LSM-Tree K").value.replace(/\D/g,''), 10);
+		parsedBoxes.fluidZ = parseInt(document.getElementById("Fluid LSM-Tree Z").value.replace(/\D/g,''), 10);
     return parsedBoxes;
 }
 
@@ -137,10 +141,10 @@ function calc_R(f)
 }
 
 
-// TODO for tiering, we now assume there are (T-1) runs in the last level are all equal to each other in size, 
-// but if the last level is not full to capacity, then there may in reality be less than (T-1) runs, and they 
+// TODO for tiering, we now assume there are (T-1) runs in the last level are all equal to each other in size,
+// but if the last level is not full to capacity, then there may in reality be less than (T-1) runs, and they
 // may have different sizes. To fix this problem, we can insert multiple runs per filter to the filters_array
-// until the number of remaining keys is 0. 
+// until the number of remaining keys is 0.
 function initFilters(N,E,mbuffer,T,mfilter,P,leveltier) {
      mfilter_bits=8*mfilter;
 
@@ -168,7 +172,7 @@ function initFilters(N,E,mbuffer,T,mfilter,P,leveltier) {
     for (var i=0;i<filter_array.length;i++)
     {
         filter_array[i].mem=mfilter_bits/filter_array.length;
-    }   
+    }
     return filter_array;
 }
 
@@ -179,7 +183,7 @@ function getBaselineFPassigment(N,E,mbuffer,T,mfilter,P,leveltier)
     var filter_array = initFilters(N,E,mbuffer,T,mfilter,P,leveltier);
 
     // console.log(filter_array);
-    
+
     var limit_on_M=mbuffer*8; //amount of memory for filters in bits
     var diff = limit_on_M;
     var change = true;
@@ -232,14 +236,12 @@ function getBaselineFPassigment(N,E,mbuffer,T,mfilter,P,leveltier)
         filter_array[i].fp = calc_R(filter_array[i]);
         // console.log(filter_array[i].mem+', '+filter_array[i].fp)
     }
-    return filter_array;    
+    return filter_array;
 }
 
 
-function getMonkeyFPassigment(N,E,mbuffer,T,mfilter,P,leveltier)
+function getMonkeyFPassigment(N, E, mbuffer, T, K, Z, mfilter, P, leveltier)
 {
-
-
 
     var filter_array = initFilters(N,E,mbuffer,T,mfilter,P,leveltier);
 
@@ -248,7 +250,7 @@ function getMonkeyFPassigment(N,E,mbuffer,T,mfilter,P,leveltier)
     var diff = limit_on_M;
     var change = true;
     var iteration = 0;
-    var current_R = eval_R(filter_array, leveltier, T);
+    var current_R = eval_R(filter_array, leveltier, T, K, Z);
     var original = current_R;
     var value = 0;
     while (diff > 1) {
@@ -257,7 +259,7 @@ function getMonkeyFPassigment(N,E,mbuffer,T,mfilter,P,leveltier)
             for (var j = i + 1; j < filter_array.length ; j++) {
                 filter_array[i].mem += diff;
                 filter_array[j].mem -= diff;
-                value = eval_R(filter_array, leveltier, T);
+                value = eval_R(filter_array, leveltier, T, K, Z);
                 if (value < current_R && value > 0 && filter_array[j].mem > 0 ) {
                     current_R = value;
                     change = true;
@@ -266,7 +268,7 @@ function getMonkeyFPassigment(N,E,mbuffer,T,mfilter,P,leveltier)
                 filter_array[i].mem -= diff * 2;
                 filter_array[j].mem += diff * 2;
 
-                value = eval_R(filter_array, leveltier, T);
+                value = eval_R(filter_array, leveltier, T, K, Z);
 
                 if (value < current_R && value > 0 && filter_array[i].mem > 0 ) {
                     current_R = value;
@@ -287,38 +289,44 @@ function getMonkeyFPassigment(N,E,mbuffer,T,mfilter,P,leveltier)
         filter_array[i].fp = calc_R(filter_array[i]);
     }
 
-    return filter_array;    
+    return filter_array;
 }
 
 
 
-function eval_R(filters, leveltier, T)
+function eval_R(filters, leveltier, T, K = 9, Z = 1)
 {
     var total = 0;
     var n = filters.length;
-    if (leveltier == 2) n -= 1;
-    for (var i = 0; i < n ; i++) 
+		if(leveltier == 0){
+			K = T - 1;
+			Z = T - 1;
+		}else if(leveltier == 1){
+			K = 1;
+			Z = 1;
+		}else if(leveltier == 2){
+			K = T - 1;
+			Z = 1;
+		}
+    n -= 1;
+    for (var i = 0; i < n ; i++)
     {
         var val = calc_R(filters[i]);
-        if (leveltier == 0 || leveltier == 2) {  // tiering
-            total += val * (T-1);
-        } else {
-            total += val;
-        }
+				total += val * K;
     }
-    if (leveltier == 2) {
-        var val = calc_R(filters[filters.length - 1]);
-        total += val;
-    }
+
+    var val = calc_R(filters[filters.length - 1]);
+    total += val * Z;
+
     return total;
 }
 
 function reset_button_colors()
 {
 	var color='#777';
-    document.getElementById("scenario1").style.background=color;   
-    document.getElementById("scenario2").style.background=color;   
-    document.getElementById("scenario3").style.background=color;   
+    document.getElementById("scenario1").style.background=color;
+    document.getElementById("scenario2").style.background=color;
+    document.getElementById("scenario3").style.background=color;
 }
 
 function scenario1()
@@ -331,11 +339,13 @@ function scenario1()
     document.getElementById("P").value=4096; //in B
     document.getElementsByName("ltradio")[0].checked=true;
     document.getElementsByName("ltradio")[1].checked=false;
+		document.getElementById("Fluid LSM-Tree K").value = 1;
+		document.getElementById("Fluid LSM-Tree Z").value = 1;
 
     reset_button_colors()
-    document.getElementById("scenario1").style.background='#000000';   
+    document.getElementById("scenario1").style.background='#000000';
 
-    clickbloomTuningButton(true)    
+    clickbloomTuningButton(true)
 }
 
 function scenario2()
@@ -348,11 +358,13 @@ function scenario2()
     document.getElementById("P").value=4096; //in B
     document.getElementsByName("ltradio")[0].checked=false;
     document.getElementsByName("ltradio")[1].checked=true;
+		document.getElementById("Fluid LSM-Tree K").value = 3;
+		document.getElementById("Fluid LSM-Tree Z").value = 3;
 
     reset_button_colors()
-    document.getElementById("scenario2").style.background='#000000';   
+    document.getElementById("scenario2").style.background='#000000';
 
-    clickbloomTuningButton(true)    
+    clickbloomTuningButton(true)
 }
 
 function scenario3()
@@ -365,11 +377,13 @@ function scenario3()
     document.getElementById("P").value=4096; //in B
     document.getElementsByName("ltradio")[0].checked=true;
     document.getElementsByName("ltradio")[1].checked=false;
+		document.getElementById("Fluid LSM-Tree K").value = 1;
+		document.getElementById("Fluid LSM-Tree Z").value = 1;
 
     reset_button_colors()
-    document.getElementById("scenario3").style.background='#000000';   
+    document.getElementById("scenario3").style.background='#000000';
 
-    clickbloomTuningButton(true)    
+    clickbloomTuningButton(true)
 }
 
 
@@ -384,22 +398,39 @@ function clickbloomTuningButton(move_to_anchor) {
     var mfilter=inputParameters.mfilter;
     var P=inputParameters.P;
     var leveltier=inputParameters.leveltier;
+		var K = inputParameters.fluidK;
+		var Z = inputParameters.fluidZ;
 
-    if (document.getElementById("N").value=="" || document.getElementById("E").value=="" || document.getElementById("T").value=="" || document.getElementById("P").value=="" 
-        || document.getElementById("mbuffer").value=="" || document.getElementById("mfilter").value=="" || isNaN(N) 
-        || isNaN(E) || isNaN(mbuffer) || isNaN(T) || isNaN(mfilter) || isNaN(P) || isNaN(leveltier))
+
+    if (document.getElementById("N").value=="" || document.getElementById("E").value=="" || document.getElementById("T").value=="" || document.getElementById("P").value==""
+        || document.getElementById("mbuffer").value=="" || document.getElementById("mfilter").value=="" || isNaN(N)
+        || isNaN(E) || isNaN(mbuffer) || isNaN(T) || isNaN(mfilter) || isNaN(P) || isNaN(leveltier) || isNaN(K) || isNaN(Z))
 	{
 		alert("Some of the input boxes are empty! Either select values for all parameters or run one of the scenarios.");
 		return;
 	}
 
-    //get BF allocation
-    var filters_baseline=getBaselineFPassigment(N,E,mbuffer,T,mfilter,P,leveltier);
-    var filters_monkey=getMonkeyFPassigment(N,E,mbuffer,T,mfilter,P,leveltier);    
+	if (leveltier==1) {
+		K = 1;
+		Z = 1;
+		} else if (leveltier==0) {
+			K = T - 1;
+			Z = T - 1;
+		} else if (leveltier==2) {
+			K = T - 1;
+			Z = 1;
+		}
 
+    //get BF allocation
+    var filters_baseline=getBaselineFPassigment(N, E, mbuffer, T, mfilter, P, leveltier);
+    var filters_monkey=getMonkeyFPassigment(N, E, mbuffer, T, T - 1, 1, mfilter, P, leveltier);
+		var filters_fluid_lsm_tree;
+		if(leveltier == 3){
+			filters_fluid_lsm_tree=getMonkeyFPassigment(N, E, mbuffer, T, K, Z, mfilter, P, leveltier);
+		}
 
     google.charts.setOnLoadCallback(drawChart);
-		
+
 
 	//present it nicely in the html!
     var result_div=document.getElementById("result_tuning")
@@ -413,9 +444,14 @@ function clickbloomTuningButton(move_to_anchor) {
     var div_row1=document.createElement("div");
     div_row1.setAttribute("class","row")
 	    var div_title_col=document.createElement("div");
-	    div_title_col.setAttribute("class","col-sm-12")
+	    div_title_col.setAttribute("class","col-sm-12");
 	    var lsm_header=document.createElement("h4");
-	    lsm_header.textContent="Monkey vs. State-Of-The-Art";
+			lsm_header.textContent="";
+			if(leveltier != 3){
+				lsm_header.textContent="Monkey vs. State-Of-The-Art";
+			} else {
+				lsm_header.textContent="Fluid LSM-Tree vs. Lazy Leveling vs. State-Of-The-Art";
+			}
 	    lsm_header.setAttribute("style","text-align: center;")
 		div_title_col.appendChild(lsm_header);
 		div_row1.appendChild(div_title_col);
@@ -425,65 +461,94 @@ function clickbloomTuningButton(move_to_anchor) {
     div_row2.setAttribute("class","row")
 	    var div_title_col1a=document.createElement("div");
 	    div_title_col1a.setAttribute("class","col-sm-2")
-		div_row2.appendChild(div_title_col1a); 
+		div_row2.appendChild(div_title_col1a);
 
 	    var div_title_col1=document.createElement("div");
-	    div_title_col1.setAttribute("class","col-sm-4")
+	    div_title_col1.setAttribute("class","col-sm-5")
 	    var lsm_header1=document.createElement("h5");
 	    lsm_header1.textContent="False Positive Rates";
 	    lsm_header1.setAttribute("style","text-align: center;")
 		div_title_col1.appendChild(lsm_header1);
 		div_row2.appendChild(div_title_col1); // added secondary row title
-	    
+
 	    var div_title_col2=document.createElement("div");
-	    div_title_col2.setAttribute("class","col-sm-6")
+	    div_title_col2.setAttribute("class","col-sm-5")
 	    var lsm_header2=document.createElement("h5");
 	    lsm_header2.textContent="Entries per Level";
 	    lsm_header2.setAttribute("style","text-align: center;")
 		div_title_col2.appendChild(lsm_header2);
 		div_row2.appendChild(div_title_col2); // added secondary row title
-	result_div.appendChild(div_row2); 
+	result_div.appendChild(div_row2);
 
 
     var first_col_alignment="center";
 	//titles
     var div_new_row=document.createElement("div");
-    div_new_row.setAttribute("class","row")
+    div_new_row.setAttribute("class","row");
+		var div_empty = document.createElement("div");
+		div_empty.setAttribute("class","col-sm-1");
+		var div_schema = document.createElement("div");
+		div_schema.setAttribute("class","col-sm-6");
+		var div_schema_row = document.createElement("div");
+		div_schema_row.setAttribute("class","row");
+		div_new_row.appendChild(div_empty);
+		div_new_row.appendChild(div_schema);
+		div_schema.appendChild(div_schema_row);
 
    	    var div_col1=document.createElement("div");
-	    div_col1.setAttribute("class","col-sm-1 col-sm-offset-1")
+	    div_col1.setAttribute("class","col-sm-2")
 	    var p1=document.createElement("p");
-	    p1.setAttribute("style","text-align: "+first_col_alignment+";")
+	    p1.setAttribute("style","text-align: "+first_col_alignment+";font-size:20px")
 	    p1.textContent=("Level")
 	    div_col1.appendChild(p1);
 
+
    	    var div_col2=document.createElement("div");
-	    div_col2.setAttribute("class","col-sm-2")
+	    div_col2.setAttribute("class","col-sm-6")
 	    var p2=document.createElement("p");
-	    p2.setAttribute("style","text-align: center;")
+	    p2.setAttribute("style","text-align: center;font-size:20px")
 	    p2.textContent=("State-Of-The-Art")
 	    div_col2.appendChild(p2);
 
    	    var div_col3=document.createElement("div");
-	    div_col3.setAttribute("class","col-sm-2")
+	    div_col3.setAttribute("class","col-sm-4")
 	    var p3=document.createElement("p");
-	    p3.setAttribute("style","text-align: center;")
+	    p3.setAttribute("style","text-align: center;font-size:20px")
 	    p3.textContent=("Monkey")
+			if(leveltier == 3){
+				p3.textContent=("Lazy Leveling")
+			}
 	    div_col3.appendChild(p3);
 
-   	    var div_col4=document.createElement("div");
-	    div_col4.setAttribute("class","col-sm-6")
+
+
+
+    	div_schema_row.appendChild(div_col1);
+    	div_schema_row.appendChild(div_col2);
+    	div_schema_row.appendChild(div_col3);
+
+			if(leveltier == 3){
+				//div_col1.setAttribute("class","col-sm-3");
+				div_col2.setAttribute("class","col-sm-3");
+				div_col3.setAttribute("class","col-sm-3");
+				//p1.setAttribute("style","text-align: center;font-size:15px");
+				//p2.setAttribute("style","text-align: center;font-size:15px");
+				//p3.setAttribute("style","text-align: center;font-size:15px");
+				var div_col_tmp=document.createElement("div");
+	    div_col_tmp.setAttribute("class","col-sm-3");
 	    var p4=document.createElement("p");
-	    p4.setAttribute("style","text-align: center;")
-	    p4.textContent=("")
-	    div_col4.appendChild(p4);
+	    p4.setAttribute("style","text-align: center;");
+	    p4.textContent=("Fluid LSM-Tree");
+	    div_col_tmp.appendChild(p4);
+			div_schema_row.appendChild(div_col_tmp);
+			}
 
 
-    	div_new_row.appendChild(div_col1);
-    	div_new_row.appendChild(div_col2);
-    	div_new_row.appendChild(div_col3);
-    	div_new_row.appendChild(div_col4);
-	result_div.appendChild(div_new_row); 
+
+
+
+
+	result_div.appendChild(div_new_row);
 
 //adding the buffer row
     var div_new_row=document.createElement("div");
@@ -494,69 +559,101 @@ function clickbloomTuningButton(move_to_anchor) {
         var p1=document.createElement("p");
         p1.setAttribute("style","text-align: right;")
         p1.textContent=("Buffer:")
+				if(leveltier==3){
+					p1.setAttribute("style","text-align: right;")
+				}
         div_col1.appendChild(p1);
 
-        var div_col1b=document.createElement("div");
-        div_col1b.setAttribute("class","col-sm-1")
-        var p1b=document.createElement("p");
-        p1b.setAttribute("style","text-align: "+first_col_alignment+";")
-        p1b.textContent=("0")
-        div_col1b.appendChild(p1b);
+				var div_col2 = document.createElement("div");
+				div_col2.setAttribute("class","col-sm-6");
+				var div_col2_row = document.createElement("div");
+				div_col2_row.setAttribute("class","row");
+				div_col2.appendChild(div_col2_row);
 
-        var div_col2=document.createElement("div");
-        div_col2.setAttribute("class","col-sm-2")
-        var p2=document.createElement("p");
-        p2.setAttribute("style","text-align: center;")
-        p2.textContent=("--")
-        div_col2.appendChild(p2);
+        var div_col2a=document.createElement("div");
+        div_col2a.setAttribute("class","col-sm-2")
+        var p2a=document.createElement("p");
+        p2a.setAttribute("style","text-align: center;")
+        p2a.textContent=("0");
+        div_col2a.appendChild(p2a);
+
+
+        var div_col2b=document.createElement("div");
+        div_col2b.setAttribute("class","col-sm-6")
+        var p2b=document.createElement("p");
+        p2b.setAttribute("style","text-align: center;")
+        p2b.textContent=("--");
+        div_col2b.appendChild(p2b);
+
+        var div_col2c=document.createElement("div");
+        div_col2c.setAttribute("class","col-sm-4")
+        var p2c=document.createElement("p");
+        p2c.setAttribute("style","text-align: center;")
+        p2c.textContent=("--");
+
+        div_col2c.appendChild(p2c);
+
+
+				div_col2_row.appendChild(div_col2a);
+				div_col2_row.appendChild(div_col2b);
+				div_col2_row.appendChild(div_col2c);
+
+				if(leveltier==3){
+					//p2a.setAttribute("style","text-align: center;font-size:15px")
+					//p2b.setAttribute("style","text-align: center;font-size:15px")
+					//div_col2a.setAttribute("class","col-sm-3")
+					div_col2b.setAttribute("class","col-sm-3")
+					//p2c.setAttribute("style","text-align: center;font-size:15px")
+					div_col2c.setAttribute("class","col-sm-3")
+
+					var div_col2d=document.createElement("div");
+	        div_col2d.setAttribute("class","col-sm-3")
+					var p2d=document.createElement("p");
+	        p2d.setAttribute("style","text-align: center")
+	        p2d.textContent=("--");
+	        div_col2d.appendChild(p2d);
+					div_col2_row.appendChild(div_col2d);
+				}
+
 
         var div_col3=document.createElement("div");
-        div_col3.setAttribute("class","col-sm-2")
-        var p3=document.createElement("p");
-        p3.setAttribute("style","text-align: center;")
-        p3.textContent=("--")
-        div_col3.appendChild(p3);
-
-        var div_col4=document.createElement("div");
-        div_col4.setAttribute("class","col-sm-6")
-        div_col4.setAttribute("style","text-align: center;")
+        div_col3.setAttribute("class","col-sm-5")
+        div_col3.setAttribute("style","text-align: center;")
         var button=document.createElement("button");
         button.setAttribute("class","lsm_button lsm_button_buffer");
         var text=document.createTextNode(numberWithCommas(Math.floor(mbuffer/E)))
         button.appendChild(text);
-        div_col4.appendChild(button);
+        div_col3.appendChild(button);
 
 
         div_new_row.appendChild(div_col1);
-        div_new_row.appendChild(div_col1b);
         div_new_row.appendChild(div_col2);
         div_new_row.appendChild(div_col3);
-        div_new_row.appendChild(div_col4);
-    result_div.appendChild(div_new_row); 
+    result_div.appendChild(div_new_row);
 
 
-    var isMobile; 
-    if (window.matchMedia) 
+    var isMobile;
+    if (window.matchMedia)
     {
         isMobile = window.matchMedia('(max-device-width: 768px)').matches;
-    } 
-    else 
+    }
+    else
     {
         isMobile = screen.width <= 768;
     }
 
-    if (window.matchMedia) 
+    if (window.matchMedia)
     {
         isMobile = window.matchMedia('(max-device-width: 768px)').matches;
-    } 
-    else 
+    }
+    else
     {
         isMobile = screen.width <= 768;
     }
 
     console.log(screen.width)
 
-    var max_button_size=500;
+    var max_button_size=457;
     if (screen.width<=1200)
     {
         max_button_size=Math.max(screen.width-700,350);
@@ -576,23 +673,31 @@ function clickbloomTuningButton(move_to_anchor) {
     	//nothing in LSM tree
 //adding the buffer row
     var div_new_row=document.createElement("div");
-    div_new_row.setAttribute("class","row")
+    div_new_row.setAttribute("class","row");
+		var div_empty = document.createElement("div");
+		div_empty.setAttribute("class","col-sm-1");
+		var div_col2 = document.createElement("div");
+		div_col2.setAttribute("class", "col-sm-6");
+		var div_col2_row = document.createElement("div");
+		div_col2_row.setAttribute("class","row");
+		div_col2.appendChild(div_col2_row);
 
-        var div_col1=document.createElement("div");
-        div_col1.setAttribute("class","col-sm-1")
 
-        var div_col1b=document.createElement("div");
-        div_col1b.setAttribute("class","col-sm-1")
 
-        var div_col2=document.createElement("div");
-        div_col2.setAttribute("class","col-sm-2")
+
+        var div_col2a=document.createElement("div");
+        div_col2a.setAttribute("class","col-sm-2")
+
+
+        var div_col2b=document.createElement("div");
+        div_col2b.setAttribute("class","col-sm-6")
+
+        var div_col2c=document.createElement("div");
+        div_col2c.setAttribute("class","col-sm-4");
 
         var div_col3=document.createElement("div");
-        div_col3.setAttribute("class","col-sm-2")
-
-        var div_col4=document.createElement("div");
-        div_col4.setAttribute("class","col-sm-6")
-        div_col4.setAttribute("style","text-align: center;")
+        div_col3.setAttribute("class","col-sm-5")
+        div_col3.setAttribute("style","text-align: center;")
         var p4=document.createElement("p");
         p4.setAttribute("style","text-align: center;")
         p4.textContent=("All data entries fit into the buffer")
@@ -600,16 +705,30 @@ function clickbloomTuningButton(move_to_anchor) {
         p4b.setAttribute("style","text-align: center;")
         p4b.textContent=("Add more entries to see a tree!")
 
-        div_col4.appendChild(p4);
-        div_col4.appendChild(p4b);
+        div_col3.appendChild(p4);
+        div_col3.appendChild(p4b);
 
 
-        div_new_row.appendChild(div_col1);
-        div_new_row.appendChild(div_col1b);
-        div_new_row.appendChild(div_col2);
+        div_col2_row.appendChild(div_col2a);
+        div_col2_row.appendChild(div_col2b);
+        div_col2_row.appendChild(div_col2c);
+
+				if(leveltier==3){
+					div_col2a.setAttribute("class","col-sm-3")
+					div_col2_row.removeChild(div_empty);
+					div_col2b.setAttribute("class","col-sm-3")
+					div_col2c.setAttribute("class","col-sm-3")
+					var div_col2d=document.createElement("div");
+	        div_col2d.setAttribute("class","col-sm-3")
+	        div_col2d.appendChild(p2d);
+					div_col2_row.appendChild(div_col2d);
+				}
+
+				div_new_row.appendChild(div_empty);
+				div_new_row.appendChild(div_col2);
         div_new_row.appendChild(div_col3);
-        div_new_row.appendChild(div_col4);
-    result_div.appendChild(div_new_row); 
+
+    result_div.appendChild(div_new_row);
 
 
 	    var hr=document.createElement("hr");
@@ -620,87 +739,94 @@ function clickbloomTuningButton(move_to_anchor) {
     {
 
 		var last_is_smaller=false;
-	    for (var i=0;i<filters_monkey.length;i++)
+		var L = filters_monkey.length;
+		if(leveltier == 3){
+			L = filters_fluid_lsm_tree.length;
+		}
+	    for (var i=0;i<L;i++)
 	    {
 		    var div_new_row=document.createElement("div");
-		    div_new_row.setAttribute("class","row")
+		    div_new_row.setAttribute("class","row");
 
-		   	    var div_col1=document.createElement("div");
-			    div_col1.setAttribute("class","col-sm-1 col-sm-offset-1")
-			    var p1=document.createElement("p");
-			    p1.setAttribute("style","text-align: "+first_col_alignment+";")
-			    p1.textContent=((i+1)+"")
-			    div_col1.appendChild(p1);
+				var div_empty = document.createElement("div");
+				div_empty.setAttribute("class","col-sm-1");
+				var div_col2 = document.createElement("div");
+				div_col2.setAttribute("class", "col-sm-6");
+				var div_col2_row = document.createElement("div");
+				div_col2_row.setAttribute("class","row");
+				div_col2.appendChild(div_col2_row);
+
+				var div_col2a=document.createElement("div");
+        div_col2a.setAttribute("class","col-sm-2")
+				var p2a=document.createElement("p");
+				p2a.setAttribute("style","text-align: center;")
+				p2a.textContent=((i+1)+"")
+				div_col2a.appendChild(p2a);
 
 
-		   	    var div_col2=document.createElement("div");
-			    div_col2.setAttribute("class","col-sm-2")
-	         	var MSD2=getMostSignificantDigit(filters_baseline[i].fp);
-	        	if (MSD2>10)
-	        		MSD2=10;
-	        	var message2="The false positive rate for Bloom filters at Level "+(i+1)+" is "+(filters_baseline[i].fp*100).toFixed(MSD2+1)+"%. This entails "+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(2)+" bits-per-element, resulting in a total of "+formatBytes(filters_baseline[i].mem/8,1)+" for Bloom filters at this level out of "+formatBytes(mfilter)+" for Bloom filters across all levels."
-	        	var span2=document.createElement("span");
-	        	span2.setAttribute("data-tooltip",message2);
-	        	span2.setAttribute("data-tooltip-position","left")
-			    var p2=document.createElement("p");
-			    p2.setAttribute("style","text-align: center;")
-	        	if (MSD2<1)
-	        		MSD2=1;
-		    	p2.textContent=(filters_baseline[i].fp*100).toFixed(MSD2-1)+"%"
-	        	span2.appendChild(p2);
-			    div_col2.appendChild(span2);
+        var div_col2b=document.createElement("div");
+        div_col2b.setAttribute("class","col-sm-6")
+				var MSD2b=getMostSignificantDigit(filters_baseline[i].fp);
+				if (MSD2b>10)
+					MSD2b=10;
+				var message2b="The false positive rate for Bloom filters at Level "+(i+1)+" is "+(filters_baseline[i].fp*100).toFixed(MSD2b+1)+"%. This entails "+(filters_baseline[i].mem/filters_baseline[i].nokeys).toFixed(2)+" bits-per-element, resulting in a total of "+formatBytes(filters_baseline[i].mem/8,1)+" for Bloom filters at this level out of "+formatBytes(mfilter)+" for Bloom filters across all levels."
+				var span2b=document.createElement("span");
+				span2b.setAttribute("data-tooltip",message2b);
+				span2b.setAttribute("data-tooltip-position","left")
+			var p2b=document.createElement("p");
+			p2b.setAttribute("style","text-align: center;")
+				if (MSD2b<1)
+					MSD2b=1;
+			p2b.textContent=(filters_baseline[i].fp*100).toFixed(MSD2b-1)+"%"
+				span2b.appendChild(p2b);
+			div_col2b.appendChild(span2b);
+
+        var div_col2c=document.createElement("div");
+        div_col2c.setAttribute("class","col-sm-4");
+
+	        	var MSD2c=getMostSignificantDigit(filters_monkey[i].fp);
+	        	if (MSD2c>10)
+	        		MSD2c=10;
+	        	var message2c="The false positive rate for Bloom filters at Level "+(i+1)+" is "+(filters_monkey[i].fp*100).toFixed(MSD2c+1)+"%. This entails "+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(2)+" bits-per-element, resulting in a total of "+formatBytes(filters_monkey[i].mem/8,1)+" for Bloom filters at this level out of "+formatBytes(mfilter)+" for Bloom filters across all levels."
+	        	var span2c=document.createElement("span");
+	        	span2c.setAttribute("data-tooltip",message2c);
+	        	span2c.setAttribute("data-tooltip-position","right")
+			    var p2c=document.createElement("p");
+			    p2c.setAttribute("style","text-align: center;")
+	        	if (MSD2c<1)
+	        		MSD2c=1;
+		    	p2c.textContent=(filters_monkey[i].fp*100).toFixed(MSD2c-1)+"%"
+	        	span2c.appendChild(p2c);
+			    div_col2c.appendChild(span2c);
 
 
 		   	    var div_col3=document.createElement("div");
-			    div_col3.setAttribute("class","col-sm-2")
-	        	var MSD=getMostSignificantDigit(filters_monkey[i].fp);
-	        	if (MSD>10)
-	        		MSD=10;
-	        	var message="The false positive rate for Bloom filters at Level "+(i+1)+" is "+(filters_monkey[i].fp*100).toFixed(MSD+1)+"%. This entails "+(filters_monkey[i].mem/filters_monkey[i].nokeys).toFixed(2)+" bits-per-element, resulting in a total of "+formatBytes(filters_monkey[i].mem/8,1)+" for Bloom filters at this level out of "+formatBytes(mfilter)+" for Bloom filters across all levels."
-	        	var span3=document.createElement("span");
-	        	span3.setAttribute("data-tooltip",message);
-	        	span3.setAttribute("data-tooltip-position","right")
-			    var p3=document.createElement("p");
-			    p3.setAttribute("style","text-align: center;")
-	        	if (MSD<1)
-	        		MSD=1;
-		    	p3.textContent=(filters_monkey[i].fp*100).toFixed(MSD-1)+"%"
-	        	span3.appendChild(p3);
-			    div_col3.appendChild(span3);
-
-
-		   	    var div_col4=document.createElement("div");
-			    div_col4.setAttribute("class","col-sm-6")
-			    div_col4.setAttribute("style","text-align: center;")
+			    div_col3.setAttribute("class","col-sm-5")
+			    div_col3.setAttribute("style","text-align: center;")
 
 			    var levelcss=i+1;
-			    if (filters_monkey.length<5)
-			    	levelcss=5-filters_monkey.length+1+i;
+			    if (L<5)
+			    	levelcss=5-L+1+i;
                 // console.log(i+":"+levelcss)
-                
-                if (leveltier == 1 || (leveltier == 2 && i == filters_monkey.length-1)) {
-			        var button=document.createElement("button");
-			        button.setAttribute("class","lsm_button lsm_button"+(levelcss));
-			        if (last_is_smaller)
-			    	    button.setAttribute("class","lsm_button_not_solid");
-			        else
-			    	    button.setAttribute("class","lsm_button");
-			        button.setAttribute("style","width: "+cur_length+"px");
-			        cur_length+=lsm_button_size_ratio;
-			        var text=document.createTextNode(numberWithCommas(filters_monkey[i].nokeys)+((last_is_smaller)?" (level is not full)":""))
-			        button.appendChild(text);
-                    div_col4.appendChild(button);
+								var n;
+                if (i == filters_monkey.length-1) {
+									maxRuns = Z;
+									n = Math.min(Z, 7);
                 } else {
-                    var n = Math.min(T-1, 7);
+									maxRuns = K;
+                  n = Math.min(K, 7);
+								}
+
                     for (var j = 0; j < n; j++) {
-                        if (T > 8 && j == 5) {
-                            var span=document.createElement("span");
-                            var message="This level contains "+(T-1)+" runs";
+                        if (maxRuns > 6 && j == 5) {
+                            var span =document.createElement("span");
+                            var message="This level contains "+maxRuns+" runs";
                             span.setAttribute("data-tooltip", message);
                             span.setAttribute("data-tooltip-position", "left");
-                            span.setAttribute("style", "font-size: 24px; color: #a51c30; padding: 0px 2px");
+                            span.setAttribute("style", "width:19.27px; font-size: 20px; color: #a51c30; padding: 0px 2px");
+														span.id = i + "span";
                             span.textContent=" ...";
-                            div_col4.appendChild(span);
+                            div_col3.appendChild(span);
                         } else {
                             var button=document.createElement("button");
 			                button.setAttribute("class","lsm_button lsm_button"+(levelcss));
@@ -708,31 +834,69 @@ function clickbloomTuningButton(move_to_anchor) {
 			    	            button.setAttribute("class","lsm_button_not_solid");
 			                else
 			    	            button.setAttribute("class","lsm_button");
-			                button.setAttribute("style","width: "+cur_length/n+"px; height: 36px");
-                            var message = "At this level, each run contains "+numberWithCommas(Math.floor(filters_monkey[i].nokeys/(T-1))+" entries"+((last_is_smaller)? " (level is not full)" : ""));
+												if(maxRuns >= 7){
+													button.setAttribute("style","width: "+(cur_length- 19.27)/6+"px; height: 36px");
+												}else{
+													button.setAttribute("style","width: "+cur_length/n+"px; height: 36px");
+												}
+
+
+                            var message = "At this level, each run contains "+numberWithCommas(Math.floor(filters_monkey[i].nokeys/maxRuns)+" entries"+((last_is_smaller)? " (level is not full)" : ""));
                             button.setAttribute("data-tooltip", message);
                             button.setAttribute("data-tooltip-position", "left");
-                            div_col4.appendChild(button);
+                            div_col3.appendChild(button);
                         }
                     }
                     cur_length+=lsm_button_size_ratio;
-                }
 
-				if (i==(filters_monkey.length-2)) {
-				    if (filters_monkey[i].nokeys>filters_monkey[i+1].nokeys)
+				if (i==(L-2)) {
+				    if ((leveltier != 3 && T*filters_monkey[i].nokeys>filters_monkey[i+1].nokeys) || (leveltier == 3 && T*filters_fluid_lsm_tree[i].nokeys>filters_fluid_lsm_tree[i+1].nokeys))
 				    	last_is_smaller=true;
                 }
-                
-			
-		    	div_new_row.appendChild(div_col1);
-		    	div_new_row.appendChild(div_col2);
-		    	div_new_row.appendChild(div_col3);
-		    	div_new_row.appendChild(div_col4);
-	    	  result_div.appendChild(div_new_row); 
+
+
+								div_col2_row.appendChild(div_col2a);
+				        div_col2_row.appendChild(div_col2b);
+				        div_col2_row.appendChild(div_col2c);
+
+								if(leveltier==3){
+									//p2a.setAttribute("style","text-align: center;font-size:15px")
+									//p2b.setAttribute("style","text-align: center;font-size:15px")
+									div_col2b.setAttribute("class","col-sm-3")
+									//p2c.setAttribute("style","text-align: center;font-size:15px")
+									div_col2c.setAttribute("class","col-sm-3")
+
+									var div_col2d=document.createElement("div");
+					        div_col2d.setAttribute("class","col-sm-3")
+
+
+
+									var MSD2d=getMostSignificantDigit(filters_fluid_lsm_tree[i].fp);
+				        	if (MSD2d>10)
+				        		MSD2d=10;
+				        	var message2d="The false positive rate for Bloom filters at Level "+(i+1)+" is "+(filters_fluid_lsm_tree[i].fp*100).toFixed(MSD2d+1)+"%. This entails "+(filters_fluid_lsm_tree[i].mem/filters_fluid_lsm_tree[i].nokeys).toFixed(2)+" bits-per-element, resulting in a total of "+formatBytes(filters_fluid_lsm_tree[i].mem/8,1)+" for Bloom filters at this level out of "+formatBytes(mfilter)+" for Bloom filters across all levels."
+				        	var span2d=document.createElement("span");
+				        	span2d.setAttribute("data-tooltip",message2d);
+				        	span2d.setAttribute("data-tooltip-position","right")
+									var p2d=document.createElement("p");
+									p2d.setAttribute("style","text-align: center;")
+				        	if (MSD2d<1)
+				        		MSD2d=1;
+					    	p2d.textContent=(filters_fluid_lsm_tree[i].fp*100).toFixed(MSD2d-1)+"%"
+				        	span2d.appendChild(p2d);
+						    div_col2d.appendChild(span2d);
+
+									div_col2_row.appendChild(div_col2d);
+								}
+
+								div_new_row.appendChild(div_empty);
+								div_new_row.appendChild(div_col2);
+				        div_new_row.appendChild(div_col3);
+	    	  result_div.appendChild(div_new_row);
 
 
 	    }
-	
+
 
 
 	    var hr=document.createElement("hr");
@@ -745,13 +909,19 @@ function clickbloomTuningButton(move_to_anchor) {
 
 	    	var Rbaseline=eval_R(filters_baseline, leveltier, T);
 	    	var Rmonkey=eval_R(filters_monkey, leveltier, T);
+				var RfluidLSMTree;
+				if(leveltier == 3){
+					RfluidLSMTree = eval_R(filters_fluid_lsm_tree, leveltier, T, K, Z)
+				}
 
-	   	    var div_col1=document.createElement("div");
-		    div_col1.setAttribute("class","col-sm-2")
-		    var p1=document.createElement("p");
-		    p1.setAttribute("style","text-align: right;")
-		    p1.textContent=("Lookup cost:")
-		    div_col1.appendChild(p1);
+				var div_col1 = document.createElement("div");
+				div_col1.setAttribute("class","col-sm-2")
+			var p1=document.createElement("p");
+			p1.setAttribute("style","text-align: right;")
+			p1.textContent=("Lookup cost:")
+			div_col1.appendChild(p1);
+
+
 
 	        var message;
 	        if (leveltier==0) {
@@ -760,10 +930,14 @@ function clickbloomTuningButton(move_to_anchor) {
                 message="The average I/O cost for a zero-result lookup is the sum of the false positives rates across all levels. ";
             } else if (leveltier==2) {
                 message="The average I/O cost for a zero-result lookup is the sum of the false positives rates across all runs. With lazy leveling, there are (T-1) runs per level on levels except the last one, where T is the size ratio. Therefore, lookup cost is the sum of false positive rate prescriptions across all levels except the last one multiplied by (T-1) plus the false positive rate of the last level.";
-            }
+            } else if (leveltier==3) {
+							message="The average I/O cost for a zero-result lookup is the sum of the false positives rates across all runs. With fluid LSM-Tree, there are K runs per level on levels except the last one, while there are Z runs in the last level. Therefore, lookup cost is the sum of false positive rate prescriptions across all levels except the last one multiplied by K plus the multiplication between Z and the false positive rate of the last level.";
+						}
+
+
 
 	        var div_col2=document.createElement("div");
-		    div_col2.setAttribute("class","col-sm-2")
+		    div_col2.setAttribute("class","col-sm-3")
 	        var span2=document.createElement("span");
 	        span2.setAttribute("data-tooltip",message);
 	        span2.setAttribute("data-tooltip-position","bottom")
@@ -774,7 +948,7 @@ function clickbloomTuningButton(move_to_anchor) {
 	        p2.appendChild(em2);
 	        span2.appendChild(p2);
 	        div_col2.appendChild(span2);
-		    
+
 	        var div_col3=document.createElement("div");
 	        div_col3.setAttribute("class","col-sm-2")
 	        var span3=document.createElement("span");
@@ -788,19 +962,50 @@ function clickbloomTuningButton(move_to_anchor) {
 	        span3.appendChild(p3);
 	        div_col3.appendChild(span3);
 
-	   	    var div_col4=document.createElement("div");
-		    div_col4.setAttribute("class","col-sm-6")
+					div_new_row.appendChild(div_col1);
+		    	div_new_row.appendChild(div_col2);
+		    	div_new_row.appendChild(div_col3);
 
             var speedup=(Rbaseline/Rmonkey).toFixed(2);
 
             if (isNaN(speedup))
                 speedup="1.0"
-	        message="Lookups are "+speedup+"x faster with Monkey. Update cost is the same as the state-of-the-art."
+
+
+					if(leveltier != 3){
+						message=" Lookups are "+speedup+"x faster with Monkey. Update cost is the same as the state-of-the-art."
+					}else{
+						var fluidSpeedUp=(Rbaseline/RfluidLSMTree).toFixed(2);
+						message=" Lazy leveling/Fluid LSM-Tree are"+speedup+"x/"+fluidSpeedUp+"x faster."
+
+						div_col2.setAttribute("style","width:12.5%")
+						div_col3.setAttribute("style","width:12.5%")
+
+						var div_col3a=document.createElement("div");
+		        div_col3a.setAttribute("class","col-sm-2")
+						div_col3a.setAttribute("style","width:12.5%")
+		        var span3a=document.createElement("span");
+		        span3a.setAttribute("data-tooltip",message);
+		        span3a.setAttribute("data-tooltip-position","bottom")
+		        var p3a=document.createElement("p");
+		        p3a.setAttribute("style","text-align: center;")
+		        var em3a=document.createElement("em");
+		        em3a.textContent=(RfluidLSMTree.toFixed(3)+" I/Os")
+		        p3a.appendChild(em3a);
+		        span3a.appendChild(p3a);
+		        div_col3a.appendChild(span3a);
+
+						div_new_row.appendChild(div_col3a);
+					}
+
 	        /*if (leveltier==0)
 	            message+=" TIERING: When a run is flushed to the next level it is NOT merged with the already existing runs (if any). Hence, every time a run is pushed to the next level it is written only once.";
 	        else if (leveltier==1)
 	            message+=" LEVELING: When a run is flushed to the next level it is ALWAYS merged with the already existing runs (if any). Hence, every flush causes (up to) size_ratio-1 merges in the next level.";
             */
+						var div_col4=document.createElement("div");
+		        div_col4.setAttribute("class","col-sm-5")
+						div_col4.setAttribute("style","overflow:  visible;height: 3vh;float:right")
 	        var span4=document.createElement("span");
 	        span4.setAttribute("data-tooltip",message);
 	        span4.setAttribute("data-tooltip-position","bottom")
@@ -808,29 +1013,30 @@ function clickbloomTuningButton(move_to_anchor) {
 	        p4.setAttribute("style","text-align: center;")
 	        var em4=document.createElement("em");
 	        em4.textContent=("Monkey lookups are "+speedup+"x faster!")
+					if(leveltier != 3){
+						em4.textContent=("Monkey lookups are "+speedup+"x faster!")
+					}else{
+						em4.textContent=("Lazy leveling/Fluid LSM-Tree lookups are "+speedup+"x/" + fluidSpeedUp + "x faster!")
+					}
 	        p4.appendChild(em4);
 	        span4.appendChild(p4);
 	        div_col4.appendChild(span4);
 
-	    	div_new_row.appendChild(div_col1);
-	    	div_new_row.appendChild(div_col2);
-	    	div_new_row.appendChild(div_col3);
-	    	div_new_row.appendChild(div_col4);
-		    result_div.appendChild(div_new_row); 
+					div_new_row.appendChild(div_col4);
+
+
+		    result_div.appendChild(div_new_row);
 
 	       //total write cost line
 	       var div_new_row=document.createElement("div");
 	       div_new_row.setAttribute("class","row")
 
 	        var W;
+					var W_lazy;
 	        var entries_per_page=Math.floor(P/E);
-	        if (leveltier==1) {
-                W=(filters_monkey.length/entries_per_page)*(T-1)/2;
-            } else if (leveltier==0) {
-                W=(filters_monkey.length/entries_per_page)*(T-1)/T;
-            } else if (leveltier==2) {
-                W=(1/entries_per_page)*((T-1)*(filters_monkey.length)/(T) + (T-1)/(T));
-            }
+					W = (1/entries_per_page)*((T-1)*(filters_monkey.length - 1)/(K + 1) + (T-1)/(Z + 1));
+					W_lazy = (1/entries_per_page)*((T-1)*(filters_monkey.length - 1)/T + (T-1)/2);
+
 
 
 	        var div_col1=document.createElement("div");
@@ -840,33 +1046,63 @@ function clickbloomTuningButton(move_to_anchor) {
 	        p1.textContent=("Update cost:")
 	        div_col1.appendChild(p1);
 
+
 	        var div_col2=document.createElement("div");
-	        div_col2.setAttribute("class","col-sm-2")
+	        div_col2.setAttribute("class","col-sm-3")
 	        var p2=document.createElement("p");
 	        p2.setAttribute("style","text-align: center;")
-	        p2.textContent=(W.toFixed(3)+" I/Os")
+					var em2=document.createElement("em");
+					em2.textContent=(W.toFixed(3)+" I/Os")
+	        p2.appendChild(em2);
 	        div_col2.appendChild(p2);
 
 	        var div_col3=document.createElement("div");
 	        div_col3.setAttribute("class","col-sm-2")
 	        var p3=document.createElement("p");
 	        p3.setAttribute("style","text-align: center;")
-	        p3.textContent=(W.toFixed(3)+" I/Os")
+					var em3=document.createElement("em");
+					em3.textContent=(W.toFixed(3)+" I/Os")
+	        p3.appendChild(em3);
 	        div_col3.appendChild(p3);
 
-	        var div_col4=document.createElement("div");
-	        div_col4.setAttribute("class","col-sm-6")
-	        var p4=document.createElement("p");
-	        p4.setAttribute("style","text-align: center;")
-	        p4.textContent=("")
-	        div_col4.appendChild(p4);
-
-
-	        div_new_row.appendChild(div_col1);
+					div_new_row.appendChild(div_col1);
 	        div_new_row.appendChild(div_col2);
 	        div_new_row.appendChild(div_col3);
+
+
+					if(leveltier == 3){
+
+						div_col2.setAttribute("style","width:12.5%")
+						div_col3.setAttribute("style","width:12.5%")
+						em3.textContent=(W_lazy.toFixed(3)+" I/Os")
+
+						var div_col3a=document.createElement("div");
+		        div_col3a.setAttribute("class","col-sm-2")
+						div_col3a.setAttribute("style","width:12.5%")
+		        var span3a=document.createElement("span");
+		        span3a.setAttribute("data-tooltip",message);
+		        span3a.setAttribute("data-tooltip-position","bottom")
+		        var p3a=document.createElement("p");
+		        p3a.setAttribute("style","text-align: center;")
+		        var em3a=document.createElement("em");
+		        em3a.textContent=(W.toFixed(3)+" I/Os")
+		        p3a.appendChild(em3a);
+		        span3a.appendChild(p3a);
+		        div_col3a.appendChild(span3a);
+
+						div_new_row.appendChild(div_col3a);
+					}
+
+					var div_col4=document.createElement("div");
+					div_col4.setAttribute("class","col-sm-5")
+					var p4=document.createElement("p");
+					p4.setAttribute("style","text-align: center;")
+					p4.textContent=("")
+					div_col4.appendChild(p4);
+
+
 	        div_new_row.appendChild(div_col4);
-	        result_div.appendChild(div_new_row); 
+	        result_div.appendChild(div_new_row);
 
             //total write cost line
            var div_new_row=document.createElement("div");
@@ -883,33 +1119,56 @@ function clickbloomTuningButton(move_to_anchor) {
             div_col1.appendChild(p1);
 
             var div_col2=document.createElement("div");
-            div_col2.setAttribute("class","col-sm-2")
+            div_col2.setAttribute("class","col-sm-3")
             var p2=document.createElement("p");
             p2.setAttribute("style","text-align: center;")
-            p2.textContent=(formatBytes(total_mem,2))
+						var em2=document.createElement("em");
+		        em2.textContent=(formatBytes(total_mem,2))
+		        p2.appendChild(em2);
             div_col2.appendChild(p2);
 
             var div_col3=document.createElement("div");
             div_col3.setAttribute("class","col-sm-2")
             var p3=document.createElement("p");
             p3.setAttribute("style","text-align: center;")
-
-            p3.textContent=(formatBytes(total_mem,2))
+						var em3=document.createElement("em");
+		        em3.textContent=(formatBytes(total_mem,2))
+		        p3.appendChild(em3);
             div_col3.appendChild(p3);
 
+						div_new_row.appendChild(div_col1);
+            div_new_row.appendChild(div_col2);
+            div_new_row.appendChild(div_col3);
+
+						if(leveltier == 3){
+
+							div_col2.setAttribute("style","width:12.5%")
+							div_col3.setAttribute("style","width:12.5%")
+
+							var div_col3a=document.createElement("div");
+			        div_col3a.setAttribute("class","col-sm-2")
+							div_col3a.setAttribute("style","width:12.5%")
+			        var p3a=document.createElement("p");
+			        p3a.setAttribute("style","text-align: center;")
+			        var em3a=document.createElement("em");
+			        em3a.textContent=(formatBytes(total_mem,2))
+			        p3a.appendChild(em3a);
+			        div_col3a.appendChild(p3a);
+
+							div_new_row.appendChild(div_col3a);
+						}
+
             var div_col4=document.createElement("div");
-            div_col4.setAttribute("class","col-sm-6")
+            div_col4.setAttribute("class","col-sm-5")
             var p4=document.createElement("p");
             p4.setAttribute("style","text-align: center;")
             p4.textContent=("")
             div_col4.appendChild(p4);
 
 
-            div_new_row.appendChild(div_col1);
-            div_new_row.appendChild(div_col2);
-            div_new_row.appendChild(div_col3);
+
             div_new_row.appendChild(div_col4);
-            result_div.appendChild(div_new_row); 
+            result_div.appendChild(div_new_row);
 
 	}
     // var hr=document.createElement("hr");
@@ -936,17 +1195,17 @@ function LSM_config() {
     var num_levels;
 }
 
-// returns write cost 
+// returns write cost
 function get_W(N, T, B, P, leveled) {
     if (P * B >= N) {
         return 0;
     }
 
-    var loga = Math.log(N / (B * P)) / Math.log(T);
+    var loga = Math.ceil(Math.log(N / (B * P)) / Math.log(T));
     var denom = leveled ? 2.0 : T;
     var all =  ((T - 1.0) / denom);
     all = loga * all ;
-    all = all + 1;
+  //  all = all + 1;
     all = all / B;
     return all;
 }
@@ -954,7 +1213,7 @@ function get_W(N, T, B, P, leveled) {
 // read cost under state-of-the-art approach
 function get_R_uniform_strategy(M, T, N, B, P, leveled) {
     M = M * (8 * 1024);
-    
+
     if (P * B >= N) {
         //return 0;
     }
@@ -1148,8 +1407,8 @@ function find_optimal_R(input_conf, constant_buffer_size = -1, use_new_bloom_tun
                 var leveled = L;
                 var N_used = N * (T-1) / (T);
                 var num_levels = 1 + Math.log(N_used / (B * P)) / Math.log(T);
-                var mem_for_bloom = M - P * B * E; 
-                
+                var mem_for_bloom = M - P * B * E;
+
                 var current_R = use_new_bloom_tuning ? get_accurate_R(mem_for_bloom / 1024, T, N_used, B, P, leveled) :
                         get_R_uniform_strategy(mem_for_bloom / 1024, T, N_used, B, P, leveled);
 
@@ -1194,7 +1453,7 @@ function getPoint(tieringVsLeveling, T, mfilter, conf, use_monkey) {
 
 // Find the corresponding optimal read cost for different upper bounds on write cost
 function print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_size = -1, use_monkey = true, smoothing = false, differentiate_tiered_leveled = true) {
-    
+
     var conf = new LSM_config();
     conf.P=input_conf.P;
     conf.T=input_conf.T;
@@ -1270,7 +1529,7 @@ function print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_
     return (array_to_print);
 
     // console.log("printing "+array_to_print.length+" rows")
-    
+
     // document.getElementById("explanation").value+=("Printing the "+array_to_print.length+ " configurations on the performance skyline.\n");
     // document.getElementById("explanation").value+=("write,\tread,\tT,\tL0 (MB),  merge,  levels,\tBF (MB)\n");
 
@@ -1284,3 +1543,17 @@ function print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_
 }
 
 
+
+function MergeByFliudLSMTree(){
+	document.getElementById("Fluid LSM-Tree K").value = 9;
+	document.getElementById("input-group-Fluid-K").style.display = '';
+	document.getElementById("Fluid LSM-Tree Z").value = 1;
+	document.getElementById("input-group-Fluid-Z").style.display = '';
+	re_run(event, 'input7');
+}
+
+function MergeNotyFliudLSMTree(){
+	document.getElementById("input-group-Fluid-K").style.display = 'none';
+	document.getElementById("input-group-Fluid-Z").style.display = 'none';
+	re_run(event, 'input7');
+}

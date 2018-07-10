@@ -6,7 +6,7 @@ function re_run(e) {
         clearTimeout(timer);
         timer = null;
     }
-    
+
     var event = e || event;
     // console.log(event)
 
@@ -23,7 +23,7 @@ function re_run(e) {
 	        return;
 	    }
 	}
-	
+
     if(event.target.id=="N")
     {
         var N = parseInt(document.getElementById("N").value.replace(/\D/g,''),10);
@@ -63,6 +63,8 @@ function re_run_now() {
     var mfilter=inputParameters.mfilter;
     var P=inputParameters.P;
     var leveltier=inputParameters.leveltier;
+    var fluidK=inputParameters.fluidK;
+    var fluidZ=inputParameters.fluidZ;
 
     if (!isNaN(N))
         document.getElementById("N").value=numberWithCommas(N);
@@ -76,8 +78,52 @@ function re_run_now() {
         document.getElementById("mfilter").value=numberWithCommas(mfilter/1048576)
     if (!isNaN(P))
         document.getElementById("P").value=P;
+        
+    if(leveltier != 3){
+      document.getElementById("Fluid LSM-Tree K").value=1;
+      fluidK = 1;
+      document.getElementById("Fluid LSM-Tree Z").value=1;
+      fluidZ = 1;
+    }
 
-    console.log("Running with: N="+N+", E="+E+", buffer="+(mbuffer/1048576)+", T="+T+", P="+P+", filter="+(mfilter/1048576)+", isLeveled="+leveltier)
+    if (!isNaN(fluidK)){
+      if(fluidK <= 0){
+        alert("K="+fluidK+" is too small")
+        console.log("K is too small: "+fluidK)
+        document.getElementById("Fluid LSM-Tree K").value=1;
+        fluidK = 1;
+      }else if(fluidK >= T){
+        alert("K="+fluidK+" is too large")
+        console.log("K is too large: "+fluidK)
+        document.getElementById("Fluid LSM-Tree K").value=T-1;
+        fluidK = T-1;
+      }else{
+        document.getElementById("Fluid LSM-Tree K").value=fluidK;
+      }
+    }
+
+    if (!isNaN(fluidZ)){
+      if(fluidZ <= 0){
+        alert("Z="+fluidZ+" is too small")
+        console.log("Z is too small: "+fluidZ)
+        document.getElementById("Fluid LSM-Tree Z").value=1;
+        fluidZ=1;
+      }else if(fluidZ >= T){
+        alert("Z="+fluidZ+" is too large")
+        console.log("Z is too large: "+fluidZ)
+        document.getElementById("Fluid LSM-Tree Z").value=T-1;
+        fluidZ=T-1;
+      }else{
+        document.getElementById("Fluid LSM-Tree Z").value=fluidZ;
+      }
+    }
+
+    if(leveltier != 3){
+      console.log("Running with: N="+N+", E="+E+", buffer="+(mbuffer/1048576)+", T="+T+", P="+P+", filter="+(mfilter/1048576)+", isLeveled="+leveltier)
+    }else{
+      console.log("Running with: N="+N+", E="+E+", buffer="+(mbuffer/1048576)+", T="+T+", P="+P+", filter="+(mfilter/1048576)+", K="+fluidK+", Z="+fluidZ+" in fluid LSM-Tree.")
+    }
+
     // console.log("")
     // console.log("N="+N)
     // console.log("E="+E)
@@ -88,16 +134,20 @@ function re_run_now() {
     // console.log("leveltier="+leveltier)
 
     var color='#777';
-    document.getElementById("scenario1").style.background=color;   
-    document.getElementById("scenario2").style.background=color;   
-    document.getElementById("scenario3").style.background=color;   
+    document.getElementById("scenario1").style.background=color;
+    document.getElementById("scenario2").style.background=color;
+    document.getElementById("scenario3").style.background=color;
 
-    if (document.getElementById("N").value=="" || document.getElementById("E").value=="" || document.getElementById("T").value=="" || document.getElementById("P").value=="" 
-        || document.getElementById("mbuffer").value=="" || document.getElementById("mfilter").value=="" || isNaN(N) 
+    if (document.getElementById("N").value=="" || document.getElementById("E").value=="" || document.getElementById("T").value=="" || document.getElementById("P").value==""
+        || document.getElementById("mbuffer").value=="" || document.getElementById("mfilter").value=="" || isNaN(N)
         || isNaN(E) || isNaN(mbuffer) || isNaN(T) || isNaN(mfilter) || isNaN(P) || isNaN(leveltier))
     {
 
         return;
+    }
+
+    if(leveltier == 3 && (document.getElementById("Fluid LSM-Tree K").value=="" || document.getElementById("Fluid LSM-Tree Z").value=="" || isNaN(fluidK) || isNaN(fluidZ))){
+      return;
     }
 
 
