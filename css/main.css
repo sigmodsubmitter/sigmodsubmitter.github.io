@@ -1,7 +1,7 @@
 text-overflow: unset;
 
 html, body{
-	background-color: #000; /*#11714C*/ 
+	background-color: #000; /*#11714C*/
 }
 
 body {
@@ -24,7 +24,7 @@ p {
 
 .publications a {
     /*font-weight: bold;*/
-    font-weight: 500;    
+    font-weight: 500;
 }
 
 p.small {
@@ -146,7 +146,7 @@ header .intro-text  {
 .btn-success:hover {
 	background-color: #63b5ab;
 	border-color: #63b5ab;
-	
+
 }
 
 .btn-success {
@@ -301,7 +301,7 @@ header .intro-text .skills {
         margin: 15px 0;
     }
     /* since 3.1.0 */
-    .navbar-collapse.collapse.in { 
+    .navbar-collapse.collapse.in {
         display: block!important;
     }
     .collapsing {
@@ -337,6 +337,10 @@ section {
 section h2 {
     margin: 0;
     font-size: 3em;
+}
+
+#people {
+	background-color: #f7f7f7;
 }
 
 .team-member {
@@ -391,36 +395,36 @@ section h2 {
 
 
 #myDiv {
-    width: 1000px; 
-    height: 400px; 
+    width: 1000px;
+    height: 400px;
     padding-left: 80px;
 }
 
 
 @media(max-width:1185px) {
     #myDiv {
-        padding-left: 0; 
+        padding-left: 0;
         width: 1000px;
     }
 }
 
 @media(max-width:1000px) {
     #myDiv {
-        padding-left: 0; 
+        padding-left: 0;
         width: 850px;
     }
 }
 
 @media(max-width:850px) {
     #myDiv {
-        padding-left: 0; 
+        padding-left: 0;
         width: 750px;
     }
 }
 
 @media(max-width:700px) {
     #myDiv {
-        padding-left: 0; 
+        padding-left: 0;
         width: 700px;
     }
 }
@@ -517,7 +521,7 @@ footer h3 {
 footer .footer-above {
     padding-top: 20px;
     /*background-color: #202020;*/  /*#2c3e50*/
-    background-color: #000;  
+    background-color: #000;
 }
 
 footer .footer-col {
@@ -534,11 +538,11 @@ footer .footer-below {
    -------------------------------------------- */
 
 .btn-params {
-    -webkit-border-radius: 20px !important; 
-    -moz-border-radius: 20px !important; 
-    -ms-border-radius: 20px !important; 
-    -o-border-radius: 20px !important; 
-    border-radius: 20px !important; 
+    -webkit-border-radius: 20px !important;
+    -moz-border-radius: 20px !important;
+    -ms-border-radius: 20px !important;
+    -o-border-radius: 20px !important;
+    border-radius: 20px !important;
     background: #777;
     height: 56px !important;
     padding: 14px 27px !important;
@@ -686,7 +690,7 @@ h3.acknowledgements {
     font-size:24px;
     font-weight: normal;
     text-align: center;
-    text-transform: none;    
+    text-transform: none;
 }
 
 #research a{
@@ -835,7 +839,7 @@ h3.acknowledgements {
 
 div.text-container {
     margin: 0 auto;
-    text-align: justify;   
+    text-align: justify;
 }
 
 .text-content{

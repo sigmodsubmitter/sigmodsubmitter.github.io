@@ -1,10 +1,10 @@
 
 setTimeout(scenario1, 200);
-// setTimeout(function(){ 
+// setTimeout(function(){
 //   $(document).ready(function(){
 //     $('[data-toggle="tooltip"]').tooltip({
 //      'delay': { show: 0, hide: 0 }
-//     }); 
+//     });
 //   });
 // }, 50);
 
@@ -98,11 +98,11 @@ function initChart() {
     var xmax=2;
     var ymax=2;
 
-    var layout = 
-    { 
+    var layout =
+    {
         xaxis: {
             title: 'Update cost (I/Os)',
-            range: [ xmin, xmax ] 
+            range: [ xmin, xmax ]
         },
         yaxis: {
             title: 'Lookup cost (I/Os)',
@@ -117,19 +117,18 @@ function initChart() {
 
 }
 
-function addPoint(tieringVsLeveling, T, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, use_monkey) {
+function addPoint(leveltier, T, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, isOptimalFPR) {
                 var meetingR;
-                var N_used = conf.N * (T-1) / T;
-                if (use_monkey) {
-                    meetingR = get_accurate_R(mfilter / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
+                if (isOptimalFPR) {
+                    meetingR = get_accurate_R(mfilter, T, conf.N, conf.K, conf.Z, conf.B, conf.P, leveltier);
                 }
                 else {
-                    meetingR = get_R_uniform_strategy(mfilter  / 1024, T, N_used, conf.B, conf.P, tieringVsLeveling);
+                    meetingR = get_R_uniform_strategy(mfilter, T, conf.N, conf.K, conf.Z, conf.B, conf.P, leveltier);
                 }
-                var meetingW = get_W(N_used, T, conf.B, conf.P, tieringVsLeveling);
+                var meetingW = get_W(conf.N, T, conf.K, conf.Z, conf.B, conf.P, conf.Mu, leveltier);
                     monkeyTW.push(meetingW.toFixed(4));
                     monkeyTR.push(meetingR.toFixed(3));
-                    monkeyT_Ratio.push("Ratio: "+T);   
+                    monkeyT_Ratio.push("Ratio: "+T);
                 return {W: meetingW, R: meetingR};
 }
 
@@ -145,9 +144,13 @@ function drawChart() {
     var E=inputParameters.E;
     var mbuffer=inputParameters.mbuffer;
     var T=inputParameters.T;
-    var mfilter=inputParameters.mfilter;
+    var K=inputParameters.fluidK;
+    var Z=inputParameters.fluidZ;
+    var Mu=inputParameters.Mu;
+    var mfilter_per_entry=inputParameters.mfilter_per_entry;
+    var mfilter = mfilter_per_entry*N/8;
     var P=inputParameters.P;
-    var isLeveled=inputParameters.isLeveled;
+    var leveltier=inputParameters.leveltier;
 
     var conf = new LSM_config();
     conf.T=-1;
@@ -157,9 +160,13 @@ function drawChart() {
     conf.M=mbuffer+mfilter;
     conf.E=E;
     conf.B=P/E;
+    conf.K=K;
+    conf.Z=Z;
+    conf.Mu=Mu;
+    conf.leveltier=leveltier;
 
     var smoothing=false;
-//print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_size = -1, use_monkey = true, smoothing = false, differentiate_tiered_leveled = true) 
+//print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_size = -1, use_monkey = true, smoothing = false, differentiate_tiered_leveled = true)
     var monkey_pareto = print_csv_experiment(conf, 0, false, mbuffer, true, smoothing)
     var state_of_art_pareto = print_csv_experiment(conf, 0, false, mbuffer, false, smoothing)
 
@@ -171,8 +178,8 @@ function drawChart() {
     var monkeyL_Ratio= new Array();
 
     // console.log("isLeveled  " + isLeveled + " \n");
-    var part1_monkey_point = getPoint(isLeveled, T, mfilter, conf, 1);
-    var part1_state_of_the_art_point = getPoint(isLeveled, T, mfilter, conf, 0);
+    var part1_monkey_point = getPoint(leveltier, T, mfilter, conf, 1);
+    var part1_state_of_the_art_point = getPoint(leveltier, T, mfilter, conf, 0);
     //console.log("leveltier  " + leveltier);
     // console.log(part1_monkey_point);
     // console.log(part1_state_of_the_art_point);
@@ -186,9 +193,9 @@ function drawChart() {
 
     for (var i=0;i<monkey_pareto.length;i++)
     {
-        if (monkey_pareto[i].L==0)
+        if (monkey_pareto[i].leveltier==0)
         {
-            if (monkey_pareto[i].T > 4) {
+            if (monkey_pareto[i].T > 3) {
                 monkeyTW.push(monkey_pareto[i].W.toFixed(4));
                 monkeyTR.push(monkey_pareto[i].R.toFixed(3));
                 monkeyT_Ratio.push("Ratio: " + monkey_pareto[i].T);
@@ -198,14 +205,14 @@ function drawChart() {
         {
             if (monkeyLW.length==0)
             {
-                addPoint(0, 4, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, 1);
+                //addPoint(0, 4, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, 1);
                 addPoint(0, 3, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, 1);
                 addPoint(0, 2, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio, 1);
                 addPoint(1, 2, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
                 addPoint(1, 3, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
-                addPoint(1, 4, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
+                //addPoint(1, 4, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
             }
-            if (monkey_pareto[i].T > 4) {
+            if (monkey_pareto[i].T > 3) {
                 monkeyLW.push(monkey_pareto[i].W.toFixed(4));
                 monkeyLR.push(monkey_pareto[i].R.toFixed(3));
                 monkeyL_Ratio.push("Ratio: " + monkey_pareto[i].T);
@@ -223,13 +230,13 @@ function drawChart() {
     var highestSoA_R;
     for (var i=0;i<state_of_art_pareto.length;i++)
     {
-        if (state_of_art_pareto[i].L==0)
+        if (state_of_art_pareto[i].leveltier==0)
         {
             if (state_of_artTW.length == 0) {
                 highestSoA_R = state_of_art_pareto[i].R;
                 highestSoA_W = state_of_art_pareto[i].W;
             }
-            if (state_of_art_pareto[i].T > 4) {
+            if (state_of_art_pareto[i].T > 3) {
                 state_of_artTW.push(state_of_art_pareto[i].W.toFixed(4));
                 state_of_artTR.push(state_of_art_pareto[i].R.toFixed(3));
                 state_of_artT_Ratio.push("Ratio: "+state_of_art_pareto[i].T);
@@ -239,21 +246,21 @@ function drawChart() {
         {
             if (state_of_artLW.length==0)
             {
-                addPoint(0, 4, mfilter, conf, state_of_artTW, state_of_artTR, state_of_artT_Ratio, 0);
+                //addPoint(0, 4, mfilter, conf, state_of_artTW, state_of_artTR, state_of_artT_Ratio, 0);
                 addPoint(0, 3, mfilter, conf, state_of_artTW, state_of_artTR, state_of_artT_Ratio, 0);
                 addPoint(0, 2, mfilter, conf, state_of_artTW, state_of_artTR, state_of_artT_Ratio, 0);
                 var meeting_point = addPoint(1, 2, mfilter, conf, state_of_artLW, state_of_artLR, state_of_artL_Ratio, 0);
                 addPoint(1, 3, mfilter, conf, state_of_artLW, state_of_artLR, state_of_artL_Ratio, 0);
-                addPoint(1, 4, mfilter, conf, state_of_artLW, state_of_artLR, state_of_artL_Ratio, 0);
-                
+                //addPoint(1, 4, mfilter, conf, state_of_artLW, state_of_artLR, state_of_artL_Ratio, 0);
+
                 meetSoA_R = meeting_point.R;
                 meetSoA_W = meeting_point.W;
             }
-            if (state_of_art_pareto[i].T > 4) {
+            if (state_of_art_pareto[i].T > 3) {
               state_of_artLW.push(state_of_art_pareto[i].W.toFixed(4));
                state_of_artLR.push(state_of_art_pareto[i].R.toFixed(3));
                state_of_artL_Ratio.push("Ratio: "+state_of_art_pareto[i].T);
-            }   
+            }
         }
     }
 
@@ -337,14 +344,14 @@ function drawChart() {
 
     var xmin=0;
     var ymin=0;
-    var xmax=meetSoA_W*3;
-    var ymax=Math.min(highestSoA_R, meetSoA_R*3);
+    var xmax=Math.max(state_of_artLW[state_of_artLW.length-1], monkeyLW[monkeyLW.length-1])+0.02;
+    var ymax=Math.max(state_of_artTR[0], monkeyTR[0])+0.05;
 
-    var layout = 
-    { 
+    var layout =
+    {
         xaxis: {
             title: 'Update cost (I/Os)',
-            range: [ xmin, xmax ] 
+            range: [ xmin, xmax ]
         },
         yaxis: {
             title: 'Lookup cost (I/Os)',
@@ -357,4 +364,3 @@ function drawChart() {
     Plotly.newPlot('myDiv', data, layout);
 
 }
-

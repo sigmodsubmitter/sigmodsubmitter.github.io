@@ -59,6 +59,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="#page-top">Monkey</a>
             </div>
@@ -94,8 +95,12 @@
                         <a href="#about">About</a>
                     </li>
   -->
+
                      <li class="page-scroll">
                         <a href="#publications">Publication</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#people">People</a>
                     </li>
                     <li class="page-scroll">
                         <a href="http://daslab.seas.harvard.edu">DASlab</a>
@@ -313,15 +318,20 @@
                     </div>
                     <br>
                     <div class="input-group">
-                      <span class="input-group-addon"><span data-tooltip="The specified level number will automatically change the Entry number into the corresponding maximum capacity" data-tooltip-position="bottom">4. Levels </span></span>
+                      <span class="input-group-addon"><span data-tooltip="The specified level number will automatically change the Entry number into the corresponding maximum capacity" data-tooltip-position="bottom">3. Levels </span></span>
                       <input id="L" type="number" class="form-control" aria-label="Levels" placeholder="Levels" style="text-align:right" onchange="re_run(event, 'input2')" onwheel="re_run(event, 'input2')"  onkeyup="re_run(event, 'input2')"/>
                     </div>
                 </div>
 
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="input-group">
-                      <span class="input-group-addon"><span data-tooltip="Page Size in bytes (e.g., 4096)." data-tooltip-position="bottom">3. Page size (bytes)</span></span>
+                      <span class="input-group-addon"><span data-tooltip="Page Size in bytes (e.g., 4096)." data-tooltip-position="bottom">4. Page size (bytes)</span></span>
                       <input id="P" type="number" class="form-control" aria-label="Page Size P (bytes)" placeholder="Page Size in bytes (e.g., 4096)" style="text-align:right" onchange="re_run(event, 'input3')" onwheel="re_run(event, 'input3')" onkeyup="re_run(event, 'input3')"/>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                      <span class="input-group-addon"><span data-tooltip="Speed Ratio between Sequential and Random Access" data-tooltip-position="bottom">5. S/R Speed Ratio &mu; </span></span>
+                      <input id="Mu" type="text" class="form-control" aria-label="mu" placeholder="Sequential/Random Acess Speed Ratio (e.g., 1)" style="text-align:right" onkeyup="re_run(event, 'input3')" />
                     </div>
                 </div>
             </div>
@@ -338,18 +348,24 @@
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="input-group">
-                      <span class="input-group-addon"><span data-tooltip="Buffer Size in MB (e.g., 2)." data-tooltip-position="bottom">5. Buffer size (MB)</span></span>
+                      <span class="input-group-addon"><span data-tooltip="Buffer Size in MB (e.g., 2)." data-tooltip-position="bottom">6. Buffer size (MB)</span></span>
                       <input id="mbuffer" type="number" class="form-control" aria-label="Buffer Size Mbuffer (MB)" placeholder="Buffer Size in MB (e.g., 2)"  style="text-align:right" onchange="re_run(event, 'input4')" onwheel="re_run(event, 'input4')" onkeyup="re_run(event, 'input4')"/>
                     </div>
                     <br>
                     <div class="input-group">
-                    <span class="input-group-addon"><span data-tooltip="Total main memory allocated to BFs in MB (e.g., 6)." data-tooltip-position="bottom">6. Bloom filters' overall size (MB)</span></span>
-                      <input id="mfilter" type="text" class="form-control" aria-label="Bloom filter size" placeholder="Total main memory allocated to BFs in MB (e.g., 6)" style="text-align:right" onkeyup="re_run(event, 'input7')"/>
+                    <span class="input-group-addon"><span data-tooltip="bits per entry (e.g., 5)." data-tooltip-position="bottom">7. Bloom filters' bits per entry</span></span>
+                      <input id="mfilter_per_entry" type="text" class="form-control" aria-label="bits per entry" placeholder="The memory allocated to each entry (e.g., 5)" style="text-align:right" onkeyup="re_run(event, 'input3')"/>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="text-align: left;"><span data-tooltip="FPR Allocation Policy" data-tooltip-position="bottom" >8. False Positive Rate Allocation Policy</span></span>
+                          <span class="input-group-addon">Fixed FPR&nbsp;<input id="fpr_policy" name="fpr_radio" type="radio" aria-label="fixed" value="0" onchange="re_run(event, 'input7')"/></span>
+                          <span class="input-group-addon">Optimal FPR&nbsp;<input id="fpr_policy" name="fpr_radio" type="radio" aria-label="optimal" value="1" checked="true" onchange="re_run(event, 'input7')"/></span>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="input-group">
-                    <span class="input-group-addon" style="text-align: left;"><span data-tooltip="With leveling each level has one run, and with tiering each level has (up to) size_ratio-1 runs." data-tooltip-position="bottom" >7. Merge policy</span></span>
+                    <span class="input-group-addon" style="text-align: left;"><span data-tooltip="With leveling each level has one run, and with tiering each level has (up to) size_ratio-1 runs." data-tooltip-position="bottom" >9. Merge policy</span></span>
                       <span class="input-group-addon">leveling&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="level" value="1" checked="true" onchange="MergeNotyFliudLSMTree()"/></span>
                       <span class="input-group-addon">tiering&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="tier" value="0" onchange="MergeNotyFliudLSMTree()"/></span>
                       <span class="input-group-addon">lazy leveling&nbsp;<input id="leveltier" name="ltradio" type="radio" aria-label="lazylevel" value="2" checked="false" onchange="MergeNotyFliudLSMTree()"/></span>
@@ -357,26 +373,39 @@
                     </div>
                     <br>
                     <div id="input-group-T" class="input-group">
-                      <span class="input-group-addon"><span data-tooltip="Ratio between capacities of adjacent levels (e.g., 2)." data-tooltip-position="bottom">8. Size ratio</span></span>
+                      <span class="input-group-addon"><span data-tooltip="Ratio between capacities of adjacent levels (e.g., 2)." data-tooltip-position="bottom">10. Size ratio</span></span>
                       <input id="T" type="number" class="form-control" aria-label="Size Ratio T" placeholder="Ratio between capacities of adjacent levels (e.g., 2)" style="text-align:right" onchange="re_run(event, 'input8')" onwheel="re_run(event, 'input8')" onkeyup="re_run(event, 'input8')"/>
                       <!-- <span class="input-group-addon">(bytes)</span> -->
 
                     </div>
                     <br>
                     <div id="input-group-Fluid-K" class="input-group" style="display: none">
-                    <span class="input-group-addon"><span data-tooltip="Maximum runs for all levels except the largest one." data-tooltip-position="bottom">9. Fluid LSM-Tree K</span></span>
-                      <input id="Fluid LSM-Tree K" type="text" class="form-control" aria-label="Fluid LSM-Tree K" placeholder="Maximum runs for all levels except the largest one" style="text-align:right" onkeyup="re_run(event, 'input7')"/>
+                    <span class="input-group-addon"><span data-tooltip="Maximum runs for all levels except the largest one." data-tooltip-position="bottom">12. Fluid LSM-Tree K</span></span>
+                      <input id="Fluid LSM-Tree K" type="number" class="form-control" aria-label="Fluid LSM-Tree K" placeholder="Maximum runs for all levels except the largest one" style="text-align:right" onkeyup="re_run(event, 'input7')"/>
 
                     </div>
                       <br>
                     <div id="input-group-Fluid-Z" class="input-group" style="display: none">
-                    <span class="input-group-addon"><span data-tooltip="Maximum runs for the largest level" data-tooltip-position="bottom">10. Fluid LSM-Tree Z </span></span>
-                      <input id="Fluid LSM-Tree Z" type="text" class="form-control" aria-label="Fluid LSM-Tree Z" placeholder="Maximum runs for the largest level" style="text-align:right" onkeyup="re_run(event, 'input9')"/>
+                    <span class="input-group-addon"><span data-tooltip="Maximum runs for the largest level" data-tooltip-position="bottom">13. Fluid LSM-Tree Z </span></span>
+                      <input id="Fluid LSM-Tree Z" type="number" class="form-control" aria-label="Fluid LSM-Tree Z" placeholder="Maximum runs for the largest level" style="text-align:right" onkeyup="re_run(event, 'input9')"/>
                     </div>
                 </div>
             </div>
             <br>
-            <hr>
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                <h4 style="text-align: center">Workload</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                  <div class="input-group">
+                    <span class="input-group-addon"><span data-tooltip="The number of unique entries in the target key range" data-tooltip-position="bottom">11. Entries of Long Range Query </span></span>
+                    <input id="s" type="number" class="form-control" aria-label="Proportion" placeholder=" s (e.g., 2048)"  style="text-align:right" onchange="re_run(event, 'input4')" onwheel="re_run(event, 'input4')" onkeyup="re_run(event, 'input4')"/>
+                  </div>
+                </div>
+            </div>
+            <br>
 
             <div id="result_tuning" class="text-center">
                 <p><span data-tooltip="Bloom filter allocation will be displayed here!" data-tooltip-position="bottom"><em>Click on one of the scenarios above and get ready for Monkey business.</em></span>
@@ -450,9 +479,7 @@
             </div>
         </div>
     </section> -->
-
-
-        <!-- Publications Section -->
+    <!-- Publications Section -->
     <section id="publications" class="alternate">
         <div class="row">
                 <div class="col-lg-12 text-center">
@@ -463,6 +490,14 @@
             </div>
         <div class="container">
             <div class="row">
+              <div class="col-lg-12 col-md-12 publications">
+                  <p>
+                      Niv Dayan, Stratos Idreos<br />
+                      <a href="https://stratos.seas.harvard.edu/files/stratos/files/dostoyevski.pdf">Dostoevsky: Better Space-Time Trade-Offs for LSM-Tree Based
+Key-Value Stores via Adaptive Removal of Superfluous Merging</a> <br />
+                      In <span class="venue"> Proceedings of the ACM SIGMOD International Conference on Management of Data</span>, 2018<br/><br/>
+                  </p>
+              </div>
                 <div class="col-lg-12 col-md-12 publications">
                     <p>
                         Niv Dayan, Manos Athanassoulis, Stratos Idreos<br />
@@ -470,11 +505,63 @@
                         In <span class="venue"> Proceedings of the ACM SIGMOD International Conference on Management of Data</span>, 2017<br/><br/>
                     </p>
                 </div>
+
             </div>
         </div>
     </section>
+<!-- People Section -->
+<section id="people" class="">
+  <div class="container">
+	            <div class="row">
+	                <div class="col-lg-12 text-center">
+	                    <h2>People</h2>
+	                </div>
+	            </div>
+	            <div class="row">
+		            <div class="col-sm-3">
+	                    <div class="team-member">
+	                   		<a href="http://nivdayan.github.io/" target="_blank" title="Niv's Website">
+	                        	<img src="images/people/niv.jpg" class="img-responsive img-circle" alt="">
+								<h4>Niv Dayan</h4>
+								<p class="text-muted">Postdoctoral Researcher</p>
+	                        </a>
+	                    </div>
+	                </div>
 
-    <!-- People Section -->
+                  <div class="col-sm-3">
+	                    <div class="team-member">
+	                   		<a href="http://manos.athanassoulis.net/" target="_blank" title="Manos' Website">
+	                        	<img src="images/people/manos.jpg" class="img-responsive img-circle" alt="">
+								<h4>Manos Athanassoulis</h4>
+								<p class="text-muted">Postdoctoral Researcher</p>
+	                        </a>
+	                    </div>
+	                </div>
+                  <div class="col-sm-3">
+	                    <div class="team-member">
+	                   		<a href="http://littlepig2013.github.io/" target="_blank" title="Zichen's Website">
+	                        	<img src="images/people/zichen.jpg" class="img-responsive img-circle" alt="">
+								<h4>Zichen Zhu</h4>
+								<p class="text-muted">Graduate Researcher</p>
+	                        </a>
+	                    </div>
+	                </div>
+		            <div class="col-sm-3">
+	                    <div class="team-member">
+	                   		<a href="http://stratos.seas.harvard.edu/" target="_blank" title="Stratos' Website">
+	                        	<img src="images/people/stratos.jpg" class="img-responsive img-circle" alt="">
+								<h4>Stratos Idreos</h4>
+								<p class="text-muted">Assistant Professor of Computer Science</p>
+	                        </a>
+	                    </div>
+	                </div>
+
+				</div>
+	        </div>
+</section>
+
+
+
  <!--    <section  id="people">
 
     </section> -->
@@ -557,6 +644,7 @@ tracking"></a></div></noscript>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
     <script src="js/classie.js"></script>
     <script src="js/cbpAnimatedHeader.js"></script>
+    <script src="js/lambertw.js"></script>
 
     <!-- Contact Form JavaScript -->
     <script src="js/jqBootstrapValidation.js"></script>

@@ -24,43 +24,69 @@ function re_run(e) {
 	    }
 	}
 
-    if(event.target.id=="mfilter")
+    if(event.target.id=="mfilter_per_entry")
     {
-        var mfilter = parseInt(document.getElementById("mfilter").value.replace(/\D/g,''),10);
-        document.getElementById("mfilter").value=numberWithCommas(mfilter)
+        var mfilter_per_entry = parseFloat(document.getElementById("mfilter_per_entry").value);
+        if(!isNaN(mfilter_per_entry)){
+        document.getElementById("mfilter_per_entry").value=mfilter_per_entry
+      }else{
+        document.getElementById("mfilter_per_entry").value="";
+      }
+
         // console.log(numberWithCommas(N))
     }
 
+    var N = parseInt(document.getElementById("N").value.replace(/\D/g,''),10);
+    document.getElementById("N").value=numberWithCommas(N)
+    var mbuffer = parseFloat(document.getElementById("mbuffer").value.replace(/\D/g,''))*1048576;
+    var E = parseInt(document.getElementById("E").value.replace(/\D/g,''),10);
+    var T = parseInt(document.getElementById("T").value.replace(/\D/g,''),10);
+
+
     if(event.target.id=="mbuffer")
     {
-        var mbuffer = parseFloat(document.getElementById("mbuffer").value.replace(/\D/g,''))*1048576;
         document.getElementById("mbuffer").value=mbuffer/1048576;
         // console.log(numberWithCommas(N))
+        var L = Math.ceil(Math.log(N*E*(T - 1)/mbuffer/T + 1/T)/Math.log(T));
+        if(L <= 0){
+          L = 0;
+        }
+        document.getElementById("L").value=L;
     }
 
     if(event.target.id=="E")
     {
-        var mfilter = parseInt(document.getElementById("E").value.replace(/\D/g,''),10);
-        document.getElementById("E").value=E
+        document.getElementById("E").value=E;
+        var L = Math.ceil(Math.log(N*E*(T - 1)/mbuffer/T + 1/T)/Math.log(T));
+        if(L <= 0){
+          L = 0;
+        }
+        document.getElementById("L").value=L;
         // console.log(numberWithCommas(N))
     }
 
     if(event.target.id=="T")
     {
-        var T = parseInt(document.getElementById("T").value.replace(/\D/g,''),10);
-        if (T<2)
-            document.getElementById("T").value=2;
+        if (T<2){
+          document.getElementById("T").value=2;
+          T = 2;
+        }
+        var L = Math.ceil(Math.log(N*E*(T - 1)/mbuffer/T + 1/T)/Math.log(T));
+        if(L <= 0){
+          L = 0;
+        }
+        document.getElementById("L").value=L;
+
         // console.log(numberWithCommas(T))
     }
 
     if(event.target.id=="N")
     {
-        var N = parseInt(document.getElementById("N").value.replace(/\D/g,''),10);
         document.getElementById("N").value=numberWithCommas(N)
-        var mbuffer = parseFloat(document.getElementById("mbuffer").value.replace(/\D/g,''))*1048576;
-        var E = parseInt(document.getElementById("E").value.replace(/\D/g,''),10);
-        var T = parseInt(document.getElementById("T").value.replace(/\D/g,''),10);
-        var L = Math.ceil(Math.log(N*E*(T - 1)/mbuffer + 1)/Math.log(T)) + 1;
+        var L = Math.ceil(Math.log(N*E*(T - 1)/mbuffer/T+ 1/T)/Math.log(T));
+        if(L <= 0){
+          L = 0;
+        }
         document.getElementById("L").value=L;
         // console.log(numberWithCommas(N))
     }
@@ -68,10 +94,7 @@ function re_run(e) {
     if(event.target.id=="L")
     {
         var L = parseInt(document.getElementById("L").value.replace(/\D/g,''),10);
-        document.getElementById("L").value=L
-        var mbuffer = parseFloat(document.getElementById("mbuffer").value.replace(/\D/g,''))*1048576;
-        var E = parseInt(document.getElementById("E").value.replace(/\D/g,''),10);
-        var T = parseInt(document.getElementById("T").value.replace(/\D/g,''),10);
+        document.getElementById("L").value=L;
         var N = Math.floor(mbuffer*(Math.pow(T, L + 1) - 1)/(E*(T - 1)));
         document.getElementById("N").value=numberWithCommas(N)
         // console.log(numberWithCommas(N))
@@ -91,11 +114,14 @@ function re_run_now() {
     var E=inputParameters.E;
     var mbuffer=inputParameters.mbuffer;
     var T=inputParameters.T;
-    var mfilter=inputParameters.mfilter;
+    var mfilter_per_entry=inputParameters.mfilter_per_entry;
     var P=inputParameters.P;
     var leveltier=inputParameters.leveltier;
     var fluidK=inputParameters.fluidK;
     var fluidZ=inputParameters.fluidZ;
+    var isOptimalFPR=inputParameters.isOptimalFPR;
+    var Mu=inputParameters.Mu;
+    var s=inputParameters.s;
 
     if (!isNaN(N))
         document.getElementById("N").value=numberWithCommas(N);
@@ -105,17 +131,14 @@ function re_run_now() {
         document.getElementById("mbuffer").value=mbuffer/1048576;
     if (!isNaN(T))
         document.getElementById("T").value=T;
-    if (!isNaN(mfilter))
-        document.getElementById("mfilter").value=numberWithCommas(mfilter/1048576)
+    if (!isNaN(mfilter_per_entry))
+        document.getElementById("mfilter_per_entry").value=mfilter_per_entry
     if (!isNaN(P))
         document.getElementById("P").value=P;
-
-    if(leveltier != 3){
-      document.getElementById("Fluid LSM-Tree K").value=1;
-      fluidK = 1;
-      document.getElementById("Fluid LSM-Tree Z").value=1;
-      fluidZ = 1;
-    }
+    if (!isNaN(Mu))
+        document.getElementById("Mu").value=Mu;
+    if (!isNaN(s))
+        document.getElementById("s").value=s;
 
     if (!isNaN(fluidK)){
       if(fluidK <= 0){
@@ -148,11 +171,25 @@ function re_run_now() {
         document.getElementById("Fluid LSM-Tree Z").value=fluidZ;
       }
     }
+/*
+    if(!isNaN(s)){
+      var L_max = Math.ceil(Math.log(N*E/mbuffer/2))
+      var min_s = 2*L_max*P/E;
+      if (s <= min_s){
+        alert("The size of unique entries (s="+s+") in a long range query is too small")
+        console.log("s is too small: "+s)
+        document.getElementById("s").value=Math.pow(2, Math.floor(Math.log(min_s)/Math.log(2))+1);
+        s=min_s;
+      }
+    }
+*/
+
+
 
     if(leveltier != 3){
-      console.log("Running with: N="+N+", E="+E+", buffer="+(mbuffer/1048576)+", T="+T+", P="+P+", filter="+(mfilter/1048576)+", isLeveled="+leveltier)
+      console.log("Running with: N="+N+", E="+E+", buffer="+(mbuffer/1048576)+", T="+T+", P="+P+", filter="+(mfilter_per_entry)+" bits per entry, isLeveled="+leveltier)
     }else{
-      console.log("Running with: N="+N+", E="+E+", buffer="+(mbuffer/1048576)+", T="+T+", P="+P+", filter="+(mfilter/1048576)+", K="+fluidK+", Z="+fluidZ+" in fluid LSM-Tree.")
+      console.log("Running with: N="+N+", E="+E+", buffer="+(mbuffer/1048576)+", T="+T+", P="+P+", filter="+(mfilter_per_entry)+" bits per entry, K="+fluidK+", Z="+fluidZ+" in fluid LSM-Tree.")
     }
 
     // console.log("")
@@ -170,8 +207,8 @@ function re_run_now() {
     document.getElementById("scenario3").style.background=color;
 
     if (document.getElementById("N").value=="" || document.getElementById("E").value=="" || document.getElementById("T").value=="" || document.getElementById("P").value==""
-        || document.getElementById("mbuffer").value=="" || document.getElementById("mfilter").value=="" || isNaN(N)
-        || isNaN(E) || isNaN(mbuffer) || isNaN(T) || isNaN(mfilter) || isNaN(P) || isNaN(leveltier))
+        || document.getElementById("mbuffer").value=="" || document.getElementById("mfilter_per_entry").value=="" || isNaN(N)
+        || isNaN(E) || isNaN(mbuffer) || isNaN(T) || isNaN(mfilter_per_entry) || isNaN(P) || isNaN(leveltier) || isNaN(Mu) || isNaN(s))
     {
 
         return;
@@ -181,19 +218,28 @@ function re_run_now() {
       return;
     }
 
+    if(N >= Number.MAX_SAFE_INTEGER){
+      alert("Too large N can't be supported!");
+      document.getElementById("N").value=68719476736;
+      return;
+    }
+
+
 
     if (T<2)
     {
         alert("T="+T+" is too small. It should be 2 or higher.")
         console.log("T is too small: "+T)
+        return;
     }
-    else if (mbuffer==0)
+
+    if (mbuffer==0)
     {
         alert("Buffer="+mbuffer+" is too small.")
         console.log("T is too small: "+T)
+        return;
     }
-    else
-    {
-        clickbloomTuningButton(false)
-    }
+
+    clickbloomTuningButton(false)
+
 }
