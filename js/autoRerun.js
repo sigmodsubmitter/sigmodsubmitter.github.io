@@ -1,7 +1,6 @@
 var timer=null;
 
 function re_run(e) {
-
     if(timer){
         clearTimeout(timer);
         timer = null;
@@ -38,9 +37,14 @@ function re_run(e) {
 
     var N = parseInt(document.getElementById("N").value.replace(/\D/g,''),10);
     document.getElementById("N").value=numberWithCommas(N)
-    var mbuffer = parseFloat(document.getElementById("mbuffer").value.replace(/\D/g,''))*1048576;
+    var mbuffer = parseFloat(document.getElementById("mbuffer").value)*1048576;
     var E = parseInt(document.getElementById("E").value.replace(/\D/g,''),10);
     var T = parseInt(document.getElementById("T").value.replace(/\D/g,''),10);
+    var w=parseFloat(document.getElementById("w").value);
+    var r=parseFloat(document.getElementById("r").value);
+    var v=parseFloat(document.getElementById("v").value);
+    var qL=parseFloat(document.getElementById("qL").value);
+    var qS=parseFloat(document.getElementById("qS").value);
 
 
     if(event.target.id=="mbuffer")
@@ -94,12 +98,113 @@ function re_run(e) {
     if(event.target.id=="L")
     {
         var L = parseInt(document.getElementById("L").value.replace(/\D/g,''),10);
+        if(L < 0){
+          L = 0;
+          alert("L="+L+" is too small.")
+          console.log("L is too small: "+L)
+          return;
+        }
         document.getElementById("L").value=L;
         var N = Math.floor(mbuffer*(Math.pow(T, L + 1) - 1)/(E*(T - 1)));
         document.getElementById("N").value=numberWithCommas(N)
         // console.log(numberWithCommas(N))
     }
 
+/*
+    var multiplier = Math.pow(10, 10);
+    if(event.target.id=="w"){
+      if(w < 0 || w > 1){
+        alert("w="+w+" should be in the range [0, 1].")
+        console.log("w should be in the range [0, 1]: "+w)
+        document.getElementById("w").value = (multiplier - v*multiplier - r*multiplier - q*multiplier)/multiplier;
+        return;
+      }else{
+        var tmp = (multiplier - v*multiplier - r*multiplier - w*multiplier)/multiplier;
+        if(tmp < 0){
+          document.getElementById("q").value = 0;
+          var tmp1 = (multiplier - r*multiplier - w*multiplier)/multiplier;
+          if(tmp1 < 0){
+            document.getElementById("v").value = 0;
+            document.getElementById("r").value = (multiplier - w*multiplier)/multiplier;
+          }else{
+            document.getElementById("v").value = tmp1;
+          }
+        }else{
+          document.getElementById("q").value = tmp;
+        }
+      }
+    }
+
+    if(event.target.id=="r"){
+      if(r < 0 || r > 1){
+        alert("r="+r+" should be in the range [0, 1].")
+        console.log("r should be in the range [0, 1]: "+r)
+        document.getElementById("r").value = (multiplier - v*multiplier - w*multiplier - q*multiplier)/multiplier;
+        return;
+      }else{
+        var tmp = (multiplier - v*multiplier - r*multiplier - w*multiplier)/multiplier;
+        if(tmp < 0){
+          document.getElementById("q").value = 0;
+          var tmp1 = (multiplier - r*multiplier - w*multiplier)/multiplier;
+          if(tmp1 < 0){
+            document.getElementById("v").value = 0;
+            document.getElementById("w").value = (multiplier - r*multiplier)/multiplier;
+          }else{
+            document.getElementById("v").value = tmp1;
+          }
+        }else{
+          document.getElementById("q").value = tmp;
+        }
+      }
+    }
+
+    if(event.target.id=="v"){
+
+      if(v < 0 || v > 1){
+        alert("v="+v+" should be in the range [0, 1].")
+        console.log("v should be in the range [0, 1]: "+v)
+        document.getElementById("v").value = (multiplier - r*multiplier - w*multiplier - q*multiplier)/multiplier;
+        return;
+      }else{
+        var tmp = (multiplier - v*multiplier - r*multiplier - w*multiplier)/multiplier;
+        if(tmp < 0){
+          document.getElementById("q").value = 0;
+          var tmp1 = (multiplier - v*multiplier - w*multiplier)/multiplier;
+          if(tmp1 < 0){
+            document.getElementById("r").value = 0;
+            document.getElementById("w").value = (multiplier - v*multiplier)/multiplier;
+          }else{
+            document.getElementById("r").value = tmp1;
+          }
+        }else{
+          document.getElementById("q").value = tmp;
+        }
+      }
+    }
+
+    if(event.target.id=="q"){
+
+      if(q < 0 || q > 1){
+        alert("q="+q+" should be in the range [0, 1].")
+        console.log("q should be in the range [0, 1] "+q)
+        document.getElementById("q").value = (multiplier - r*multiplier - w*multiplier - v*multiplier)/multiplier;
+        return;
+      }else{
+        var tmp = (multiplier - v*multiplier - r*multiplier - q*multiplier)/multiplier;
+        if(tmp < 0){
+          document.getElementById("w").value = 0;
+          var tmp1 = (multiplier - v*multiplier - q*multiplier)/multiplier;
+          if(tmp1 < 0){
+            document.getElementById("r").value = 0;
+            document.getElementById("v").value = (multiplier - q*multiplier)/multiplier;
+          }else{
+            document.getElementById("r").value = tmp1;
+          }
+        }else{
+          document.getElementById("w").value = tmp;
+        }
+      }
+    }*/
 
     timer=setTimeout(re_run_now,250);
 
@@ -122,6 +227,11 @@ function re_run_now() {
     var isOptimalFPR=inputParameters.isOptimalFPR;
     var Mu=inputParameters.Mu;
     var s=inputParameters.s;
+    var w=inputParameters.w;
+    var r=inputParameters.r;
+    var v=inputParameters.v;
+    var qL=inputParameters.qL;
+    var qS=inputParameters.qS;
 
     if (!isNaN(N))
         document.getElementById("N").value=numberWithCommas(N);
@@ -139,6 +249,36 @@ function re_run_now() {
         document.getElementById("Mu").value=Mu;
     if (!isNaN(s))
         document.getElementById("s").value=s;
+    if (!isNaN(w)){
+      document.getElementById("w").value=w;
+    }else{
+      document.getElementById("w").value=1;
+    }
+
+    if (!isNaN(r)){
+      document.getElementById("r").value=r;
+    }else{
+      document.getElementById("r").value=1;
+    }
+
+    if (!isNaN(v)){
+      document.getElementById("v").value=v;
+    }else{
+      document.getElementById("v").value=1;
+    }
+
+    if (!isNaN(qL)){
+      document.getElementById("qL").value=qL;
+    }else{
+      document.getElementById("qL").value=1;
+    }
+
+    if (!isNaN(qS)){
+      document.getElementById("qS").value=qS;
+    }else{
+      document.getElementById("qS").value=1;
+    }
+
 
     if (!isNaN(fluidK)){
       if(fluidK <= 0){
@@ -185,7 +325,6 @@ function re_run_now() {
 */
 
 
-
     if(leveltier != 3){
       console.log("Running with: N="+N+", E="+E+", buffer="+(mbuffer/1048576)+", T="+T+", P="+P+", filter="+(mfilter_per_entry)+" bits per entry, isLeveled="+leveltier)
     }else{
@@ -208,7 +347,7 @@ function re_run_now() {
 
     if (document.getElementById("N").value=="" || document.getElementById("E").value=="" || document.getElementById("T").value=="" || document.getElementById("P").value==""
         || document.getElementById("mbuffer").value=="" || document.getElementById("mfilter_per_entry").value=="" || isNaN(N)
-        || isNaN(E) || isNaN(mbuffer) || isNaN(T) || isNaN(mfilter_per_entry) || isNaN(P) || isNaN(leveltier) || isNaN(Mu) || isNaN(s))
+        || isNaN(E) || isNaN(mbuffer) || isNaN(T) || isNaN(mfilter_per_entry) || isNaN(P) || isNaN(leveltier) || isNaN(Mu) || isNaN(s) || isNaN(w) || isNaN(r) || isNaN(v) || isNaN(qL) || isNaN(qS))
     {
 
         return;
@@ -240,6 +379,6 @@ function re_run_now() {
         return;
     }
 
-    clickbloomTuningButton(false)
+    //clickbloomTuningButton(false)
 
 }

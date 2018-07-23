@@ -36,6 +36,17 @@ function initChart() {
         line: {width: 1}
     };
 
+    var monkeyLazyLeveling = {
+        y: [-1],
+        x: [-1],
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: 'Monkey - Lazy Leveling',
+        text: [ "" ],
+        marker: { size: 7, symbol: 'circle'},
+        line: {width: 1}
+    };
+
     var state_of_artTiering = {
         y: [-1],
         x: [-1],
@@ -125,13 +136,12 @@ function addPoint(leveltier, T, mfilter, conf, monkeyTW, monkeyTR, monkeyT_Ratio
                 else {
                     meetingR = get_R_uniform_strategy(mfilter, T, conf.N, conf.K, conf.Z, conf.B, conf.P, leveltier);
                 }
-                var meetingW = get_W(conf.N, T, conf.K, conf.Z, conf.B, conf.P, conf.Mu, leveltier);
+                var meetingW = get_W(mfilter, conf.N, T, conf.K, conf.Z, conf.B, conf.P, conf.Mu, leveltier);
                     monkeyTW.push(meetingW.toFixed(4));
                     monkeyTR.push(meetingR.toFixed(3));
                     monkeyT_Ratio.push("Ratio: "+T);
                 return {W: meetingW, R: meetingR};
 }
-
 
 
 
@@ -152,18 +162,21 @@ function drawChart() {
     var P=inputParameters.P;
     var leveltier=inputParameters.leveltier;
 
+
     var conf = new LSM_config();
     conf.T=-1;
-    conf.L=-1;
+    conf.L=Math.ceil(Math.log(N*E*(T - 1)/mbuffer/T+ 1/T)/Math.log(T));
     conf.P=mbuffer / P;
     conf.N=N;
     conf.M=mbuffer+mfilter;
+    conf.mfilter=mfilter;
     conf.E=E;
     conf.B=P/E;
     conf.K=K;
     conf.Z=Z;
     conf.Mu=Mu;
     conf.leveltier=leveltier;
+    conf.Y=calc_Y(mfilter/N, K, Z, T, L);
 
     var smoothing=false;
 //print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_size = -1, use_monkey = true, smoothing = false, differentiate_tiered_leveled = true)
@@ -176,6 +189,10 @@ function drawChart() {
     var monkeyLW = new Array();
     var monkeyLR = new Array();
     var monkeyL_Ratio= new Array();
+    //lazy Leveling
+    var monkeyLazyLW = new Array();
+    var monkeyLazyLR = new Array();
+    var monkeyLazyL_Ratio= new Array();
 
     // console.log("isLeveled  " + isLeveled + " \n");
     var part1_monkey_point = getPoint(leveltier, T, mfilter, conf, 1);
@@ -212,10 +229,15 @@ function drawChart() {
                 addPoint(1, 3, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
                 //addPoint(1, 4, mfilter, conf, monkeyLW, monkeyLR, monkeyL_Ratio, 1);
             }
+            if( monkeyLazyLW.length==0){
+              addPoint(2, 2, mfilter, conf, monkeyLazyLW, monkeyLazyLR, monkeyLazyL_Ratio, 1);
+              addPoint(2, 3, mfilter, conf, monkeyLazyLW, monkeyLazyLR, monkeyLazyL_Ratio, 1);
+            }
             if (monkey_pareto[i].T > 3) {
                 monkeyLW.push(monkey_pareto[i].W.toFixed(4));
                 monkeyLR.push(monkey_pareto[i].R.toFixed(3));
                 monkeyL_Ratio.push("Ratio: " + monkey_pareto[i].T);
+                addPoint(2, monkey_pareto[i].T, mfilter, conf, monkeyLazyLW, monkeyLazyLR, monkeyLazyL_Ratio, 1);
             }
         }
     }
@@ -314,6 +336,18 @@ function drawChart() {
         line: {width: 1}
     };
 
+    var monkeyLazyLeveling = {
+        y: monkeyLazyLR,
+        x: monkeyLazyLW,
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: 'Monkey - Lazy Leveling',
+        // text: ['A-1', 'A-2', 'A-3', 'A-4', 'A-5'],
+        text: monkeyLazyL_Ratio,
+        marker: { size: 7, symbol: 'circle'},
+        line: {width: 1}
+    };
+
     var state_of_artTiering = {
         y: state_of_artTR,
         x: state_of_artTW,
@@ -339,13 +373,14 @@ function drawChart() {
 
 
 
-    var data = [ state_of_artTiering, state_of_artLeveling, stateOfArtPoint, monkeyTiering , monkeyLeveling, monkeyPoint];
+    var data = [ state_of_artTiering, state_of_artLeveling, stateOfArtPoint, monkeyTiering , monkeyLeveling, monkeyPoint, monkeyLazyLeveling];
 
 
     var xmin=0;
     var ymin=0;
-    var xmax=Math.max(state_of_artLW[state_of_artLW.length-1], monkeyLW[monkeyLW.length-1])+0.02;
-    var ymax=Math.max(state_of_artTR[0], monkeyTR[0])+0.05;
+    var xmax=meetSoA_W*3;
+    var ymax=Math.min(highestSoA_R, meetSoA_R*3)*2/3;
+
 
     var layout =
     {

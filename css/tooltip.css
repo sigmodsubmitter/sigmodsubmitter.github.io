@@ -1,7 +1,7 @@
 [data-tooltip] {
     display: inline-block;
     position: relative;
-    cursor: help;
+    /*cursor: help;*/
     padding: 0px;
 }
 /* Tooltip styling */

@@ -380,20 +380,20 @@
                     </div>
                     <br>
                     <div id="input-group-Fluid-K" class="input-group" style="display: none">
-                    <span class="input-group-addon"><span data-tooltip="Maximum runs for all levels except the largest one." data-tooltip-position="bottom">12. Fluid LSM-Tree K</span></span>
+                    <span class="input-group-addon"><span data-tooltip="Maximum runs for all levels except the largest one." data-tooltip-position="bottom">17. Fluid LSM-Tree K</span></span>
                       <input id="Fluid LSM-Tree K" type="number" class="form-control" aria-label="Fluid LSM-Tree K" placeholder="Maximum runs for all levels except the largest one" style="text-align:right" onkeyup="re_run(event, 'input7')"/>
 
                     </div>
                       <br>
                     <div id="input-group-Fluid-Z" class="input-group" style="display: none">
-                    <span class="input-group-addon"><span data-tooltip="Maximum runs for the largest level" data-tooltip-position="bottom">13. Fluid LSM-Tree Z </span></span>
+                    <span class="input-group-addon"><span data-tooltip="Maximum runs for the largest level" data-tooltip-position="bottom">18. Fluid LSM-Tree Z </span></span>
                       <input id="Fluid LSM-Tree Z" type="number" class="form-control" aria-label="Fluid LSM-Tree Z" placeholder="Maximum runs for the largest level" style="text-align:right" onkeyup="re_run(event, 'input9')"/>
                     </div>
                 </div>
             </div>
             <br>
             <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="col-lg-12 col-md-12 col-sm-12">
                 <h4 style="text-align: center">Workload</h4>
                 </div>
             </div>
@@ -403,9 +403,77 @@
                     <span class="input-group-addon"><span data-tooltip="The number of unique entries in the target key range" data-tooltip-position="bottom">11. Entries of Long Range Query </span></span>
                     <input id="s" type="number" class="form-control" aria-label="Proportion" placeholder=" s (e.g., 2048)"  style="text-align:right" onchange="re_run(event, 'input4')" onwheel="re_run(event, 'input4')" onkeyup="re_run(event, 'input4')"/>
                   </div>
+                  <br>
+                  <div class="input-group">
+                    <span class="input-group-addon"><span data-tooltip="Proportion of Update Operation" data-tooltip-position="bottom">12. Proportion of Update Operation </span></span>
+                    <input id="w" type="text" class="form-control" aria-label="proportion of update operation" placeholder=" w (e.g., 1)"  style="text-align:right" onchange="re_run(event, 'input4')" onwheel="re_run(event, 'input4')" onkeyup="re_run(event, 'input4')"/>
+                  </div>
+                  <br>
+                  <div class="input-group">
+                    <span class="input-group-addon"><span data-tooltip="Proportion of Long Range Lookup Operation" data-tooltip-position="bottom">13. Proportion of Long Range Lookup Operation </span></span>
+                    <input id="qL" type="text" class="form-control" aria-label="proportion of long range lookup operation" placeholder=" qL (e.g., 1)"  style="text-align:right" onchange="re_run(event, 'input4')" onwheel="re_run(event, 'input4')" onkeyup="re_run(event, 'input4')"/>
+                  </div>
+                  <br>
+                </div>
+
+
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                  <div class="input-group">
+                    <span class="input-group-addon"><span data-tooltip="Proportion of Non-result Point Lookup Operation" data-tooltip-position="bottom">14. Proportion of Non-result Point Lookup Operation </span></span>
+                    <input id="r" type="text" class="form-control" aria-label="proportion of non-result point lookup operation" placeholder=" r (e.g., 1)"  style="text-align:right" onchange="re_run(event, 'input4')" onwheel="re_run(event, 'input4')" onkeyup="re_run(event, 'input4')"/>
+                  </div>
+                    <br>
+                    <div class="input-group">
+                      <span class="input-group-addon"><span data-tooltip="Proportion of Existig Point Lookup Operation" data-tooltip-position="bottom">15. Proportion of Existig Point Lookup Operation </span></span>
+                      <input id="v" type="text" class="form-control" aria-label="proportion of existing point lookup operation" placeholder=" v (e.g., 1)"  style="text-align:right" onchange="re_run(event, 'input4')" onwheel="re_run(event, 'input4')" onkeyup="re_run(event, 'input4')"/>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                      <span class="input-group-addon"><span data-tooltip="Proportion of Short Range Lookup Operation" data-tooltip-position="bottom">16. Proportion of Short Range Lookup Operation </span></span>
+                      <input id="qS" type="text" class="form-control" aria-label="proportion of short range lookup operation" placeholder=" qS (e.g., 1)"  style="text-align:right" onchange="re_run(event, 'input4')" onwheel="re_run(event, 'input4')" onkeyup="re_run(event, 'input4')"/>
+                    </div>
+                </div>
+                <br>
+
+            </div>
+            <br>
+
+            <div class="row">
+              <div class="col-lg-3 col-md-3 col-sm-3">
+                  <div class="input-group input-group-lg text-center">
+                      <span class="input-group-btn">
+                          <a style="width:100%" id="Build" class="btn btn-default btn-params" type="button" onclick="clickbloomTuningButton(false)" href="#result_tuning"><span data-tooltip="Automatically build the tree and calculate the cost according to the specified configuration." data-tooltip-position="bottom" style="font-size:14px">Build And Evaluate</span></a>
+                      </span>
+                  </div>
+                  <br>
+              </div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    <div class="input-group input-group-lg text-center">
+                        <span class="input-group-btn">
+                            <a style="width:100%" id="AutoTune1" class="btn btn-default btn-params" type="button" onclick="AutoTune1(event)" href="#result_tuning"><span data-tooltip="Automatically find the best size ratio within a fixed tree structure." data-tooltip-position="bottom" style="font-size:14px">Autotune in Fixed Structure</span></a>
+                        </span>
+                    </div>
+                    <br>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    <div class="input-group input-group-lg text-center">
+                        <span class="input-group-btn">
+                            <a style="width:100%" id="AutoTune2" class="btn btn-default btn-params" type="button" onclick="AutoTune2(event)" href="#result_tuning"><span data-tooltip="Automatically find the best size ratio across leveling, tiering and lazy leveling." data-tooltip-position="bottom" style="font-size:14px">Autotune Across Structures</span></a>
+                        </span>
+                    </div>
+                    <br>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    <div class="input-group input-group-lg text-center">
+                        <span class="input-group-btn">
+                            <a style="width:100%" id="Autotune3" class="btn btn-default btn-params" type="button" onclick="AutoTune3(event)" href="#result_tuning"><span data-tooltip="Automatically find the best size ratio, K, Z in Fluid LSM-Tree." data-tooltip-position="bottom" style="font-size:14px">Autotune in Fluid LSM-Tree</span></a>
+                        </span>
+                    </div>
+                    <br>
                 </div>
             </div>
             <br>
+
 
             <div id="result_tuning" class="text-center">
                 <p><span data-tooltip="Bloom filter allocation will be displayed here!" data-tooltip-position="bottom"><em>Click on one of the scenarios above and get ready for Monkey business.</em></span>
