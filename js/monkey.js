@@ -35,9 +35,21 @@ function parseInputTextBoxes()
 		parsedBoxes.s = parseInt(document.getElementById("s").value.replace(/\D/g,''), 10);
     parsedBoxes.isLeveled = isRadioLeveled("ltradio");  // tiered is 0, leveled is 1
     parsedBoxes.leveltier = getRadioValueByName("ltradio");
-		parsedBoxes.isOptimalFPR = getRadioValueByName("fpr_radio");
-		parsedBoxes.fluidK = parseInt(document.getElementById("Fluid LSM-Tree K").value.replace(/\D/g,''), 10);
-		parsedBoxes.fluidZ = parseInt(document.getElementById("Fluid LSM-Tree Z").value.replace(/\D/g,''), 10);
+		parsedBoxes.isOptimalFPR = getRadioValueByName("fpr_radio"); // 0 -> fixed; 1 -> optimal for non-result point lookup ; 2 -> optimal for point lookup
+		if(parsedBoxes.leveltier == 3){
+			parsedBoxes.fluidK = parseInt(document.getElementById("Fluid LSM-Tree K").value.replace(/\D/g,''), 10);
+			parsedBoxes.fluidZ = parseInt(document.getElementById("Fluid LSM-Tree Z").value.replace(/\D/g,''), 10);
+		}else if(parsedBoxes.leveltier == 0){
+			parsedBoxes.fluidK = parsedBoxes.T - 1;
+			parsedBoxes.fluidZ = parsedBoxes.T - 1;
+		}else if(parsedBoxes.leveltier == 1){
+			parsedBoxes.fluidK = 1;
+			parsedBoxes.fluidZ = 1;
+		}else{
+			parsedBoxes.fluidK = parsedBoxes.T - 1;
+			parsedBoxes.fluidZ = 1;
+		}
+
 		parsedBoxes.Mu = parseFloat(document.getElementById("Mu").value)
 		parsedBoxes.w = parseFloat(document.getElementById("w").value);
 		parsedBoxes.r = parseFloat(document.getElementById("r").value);
@@ -264,7 +276,7 @@ function getRadioValueByName(radioName)
             val = radios[i].value;
         }
     }
-    return val;
+    return parseInt(val);
 }
 
 function myLog(x, base)
@@ -323,7 +335,7 @@ function calc_Y(b, K, Z, T, L){
 	if(flag){
 
 		delta = Number.MAX_VALUE;
-		for(var i=0;i<=L;i++){
+		for(var i=0;i<L;i++){
 			bb_X = L - i;
 			tmp_delta = bb_A - (bb_B*Math.pow(T, bb_X) - bb_C*bb_X)
 			if(tmp_delta > 0 && tmp_delta < delta){
@@ -492,7 +504,7 @@ function getBaselineFPassigment(N,E,mbuffer,T,K, Z, Y, mfilter_bits,P,leveltier)
 }
 
 
-function getMonkeyFPassigment(N, E, mbuffer, T, K, Z, Y, mfilter_bits, P, leveltier)
+function getMonkeyFPassigment(N, E, mbuffer, T, K, Z, Y, mfilter_bits, P, leveltier, isOptimalFPR=1, r=1, v=0)
 {
 		var THRESHOLD = 1e-15
     var filter_array = initFilters(N,E,mbuffer,T,K, Z, Y, mfilter_bits,P,leveltier, true);
@@ -503,7 +515,13 @@ function getMonkeyFPassigment(N, E, mbuffer, T, K, Z, Y, mfilter_bits, P, levelt
     var change = true;
     var iteration = 0;
     var current_R = eval_R(filter_array, leveltier, T, Y, K, Z);
-    var original = current_R;
+		var current_Value;
+		if(isOptimalFPR == 1){
+			current_Value = current_R;
+		}else{
+			current_Value = (r*current_R + v*eval_R(filter_array, leveltier, T, Y, K, Z, true))/(r+v);
+		}
+    var original = current_Value;
     var value = 0;
     while (diff > 1) {
         change = false;
@@ -512,19 +530,30 @@ function getMonkeyFPassigment(N, E, mbuffer, T, K, Z, Y, mfilter_bits, P, levelt
 							  var flag = 0;
                 filter_array[i].mem += diff;
                 filter_array[j].mem -= diff;
-                value = eval_R(filter_array, leveltier, T, Y, K, Z);
-                if (current_R - value > THRESHOLD && value > 0 && filter_array[j].mem > 0 ) {
-                    current_R = value;
+								var R, V;
+                R = eval_R(filter_array, leveltier, T, Y, K, Z);
+								if(isOptimalFPR == 2){
+									value = (r*R + v*eval_R(filter_array, leveltier, T, Y, K, Z, true))/(r+v);
+								}else{
+									value = R;
+								}
+                if (current_Value - value > THRESHOLD && value > 0 && filter_array[j].mem > 0 ) {
+                    current_Value = value;
                     change = true;
 										continue;
                 }
                 filter_array[i].mem -= diff * 2;
                 filter_array[j].mem += diff * 2;
 
-                value = eval_R(filter_array, leveltier, T, Y, K, Z);
+								R = eval_R(filter_array, leveltier, T, Y, K, Z);
+								if(isOptimalFPR == 2){
+									value = (r*R + v*eval_R(filter_array, leveltier, T, Y, K, Z, true))/(r+v);
+								}else{
+									value = R;
+								}
 
-                if (current_R - value > THRESHOLD && value > 0 && filter_array[i].mem > 0 ) {
-                    current_R = value;
+                if (current_Value - value > THRESHOLD && value > 0 && filter_array[i].mem > 0 ) {
+                    current_Value = value;
                     change = true;
 										continue;
                 }
@@ -549,7 +578,7 @@ function getMonkeyFPassigment(N, E, mbuffer, T, K, Z, Y, mfilter_bits, P, levelt
 
 
 
-function eval_R(filters, leveltier, T, Y, K = 9, Z = 1)
+function eval_R(filters, leveltier, T, Y, K, Z, vflag=false)
 {
     var total = 0;
     var n = filters.length;
@@ -569,13 +598,21 @@ function eval_R(filters, leveltier, T, Y, K = 9, Z = 1)
         var val = calc_R(filters[i]);
 				total += val * K;
     }
+		var last_level_fpr = 1;
     if(Y < filters.length){
 			var val = calc_R(filters[n]);
 	    total += val * Z;
+			if(Y <= 0 && vflag){
+				last_level_fpr = val;
+			}
 		}
 
+		if(vflag){
+			return total+Y*Z - last_level_fpr*Math.ceil(Z/2) + 1;
+		}else{
+			return total+Y*Z;
+		}
 
-    return total+Y*Z;
 }
 
 function reset_button_colors()
@@ -721,10 +758,10 @@ function clickbloomTuningButton(move_to_anchor) {
     //get BF allocation
 		var mfilter_bits = mfilter_per_entry*N;
 		var filters;
-		if(isOptimalFPR == "0"){
+		if(isOptimalFPR == 0){
 			filters = getBaselineFPassigment(N, E, mbuffer, T, K, Z, Y, mfilter_bits, P, leveltier);
 		}else{
-			filters = getMonkeyFPassigment(N, E, mbuffer, T, K, Z, Y, mfilter_bits, P, leveltier);
+			filters = getMonkeyFPassigment(N, E, mbuffer, T, K, Z, Y, mfilter_bits, P, leveltier, isOptimalFPR, r, v);
 		}
 
     google.charts.setOnLoadCallback(drawChart);
@@ -1195,9 +1232,13 @@ function clickbloomTuningButton(move_to_anchor) {
 												}else{
 													button.setAttribute("style","width: "+cur_length/n+"px; height: 36px");
 												}
+												var message;
+												if(last_is_smaller){
+													message = "At this level, each run contains "+numberWithCommas(Math.floor(T*filters[i-1].nokeys/maxRuns))+" entries. The level is not full and only "+ (filters[i].nokeys*100/(T*filters[i-1].nokeys)).toFixed(3)+"% of its capacity is filled."
+												}else{
+													message = "At this level, each run contains "+numberWithCommas(Math.floor(filters[i].nokeys/maxRuns))+" entries."
+													}
 
-
-                            var message = "At this level, each run contains "+numberWithCommas(Math.floor(filters[i].nokeys/maxRuns)+" entries"+((last_is_smaller)? " (level is not full)" : ""));
                             button.setAttribute("data-tooltip", message);
                             button.setAttribute("data-tooltip-position", "left");
                             div_col3.appendChild(button);
@@ -1334,19 +1375,19 @@ function clickbloomTuningButton(move_to_anchor) {
 
 }
 
-function getTotalCost(input_conf, L_decimal_flag=false){
-	var N=input_conf.N;
-	var M=input_conf.mfilter_per_entry*N/8;
-	var T=input_conf.T;
-	var E=input_conf.E;
-	var mbuffer=input_conf.mbuffer;
-	var B=input_conf.P/E;
-	var P=mbuffer/input_conf.P;
-	var K = input_conf.fluidK;
-	var Z = input_conf.fluidZ;
-	var s = input_conf.s;
-	var Mu = input_conf.Mu;
-	var leveltier=input_conf.leveltier;
+function getTotalCost(conf, L_decimal_flag=false){
+	var N=conf.N;
+	var M=conf.mfilter;
+	var T=conf.T;
+	var E=conf.E;
+	var mbuffer=conf.M-conf.mfilter;
+	var B=conf.B;
+	var P=conf.P;
+	var K = conf.K;
+	var Z = conf.Z;
+	var s = conf.s;
+	var Mu = conf.Mu;
+	var leveltier=conf.leveltier;
 	if(leveltier==0){
 		K = T - 1;
 		Z = T - 1;
@@ -1358,11 +1399,11 @@ function getTotalCost(input_conf, L_decimal_flag=false){
 		Z = 1;
 	}
 
-	var w=input_conf.w;
-	var v=input_conf.v;
-	var r=input_conf.r;
-	var qL=input_conf.qL;
-	var qS=input_conf.qS;
+	var w=conf.w;
+	var v=conf.v;
+	var r=conf.r;
+	var qL=conf.qL;
+	var qS=conf.qS;
 	var sum=w+v+r+qL+qS;
 	var L;
 	if(L_decimal_flag){
@@ -1371,8 +1412,8 @@ function getTotalCost(input_conf, L_decimal_flag=false){
 		L = Math.ceil(Math.log(N*E*(T - 1)/(mbuffer*T)+ 1/T)/Math.log(T));
 	}
 
-	var Y = calc_Y(M/N, K, Z, T, L);
-	var R = get_accurate_R(M, T, N, K, Z, B, P, input_conf.leveltier);
+	var Y = calc_Y(M*8/N, K, Z, T, L);
+	var R = get_accurate_R(M, T, N, K, Z, B, P, conf.leveltier);
 	var fpr_Z = (R - Y*Z)*(T - 1)/(T - Math.pow(T, Y - L + 1))/Z;
 	var V;
 	if(Y > 0){
@@ -1393,7 +1434,7 @@ function getTotalCost(input_conf, L_decimal_flag=false){
 }
 
 
-function AutoTune(tuneFlag, min_value, max_value, input_conf) {
+function AutoTune(tuneFlag, min_value, max_value, conf) {
 
 	var delta_value = Math.ceil((max_value - min_value)/2);
 	var tmp, tmp1, tmp2;
@@ -1405,17 +1446,17 @@ function AutoTune(tuneFlag, min_value, max_value, input_conf) {
 			tmp = Math.ceil(min_value + delta_value);
 			if(tuneFlag == 0){
 				input_conf.T = tmp;
-				optimal_conf = AutoTune(1, 1, tmp-1, input_conf);
+				optimal_conf = AutoTune(1, 1, tmp-1, conf);
 
 			}else if(tuneFlag == 1){
 
 				input_conf.K = tmp;
-				optimal_conf = AutoTune(2, 1, input_conf.T-1, input_conf);
+				optimal_conf = AutoTune(2, 1, input_conf.T-1, conf);
 
 			}else{
 				input_conf.Z = tmp;
 				optimal_conf = [];
-				optimal_conf.push(getTotalCost(input_conf));
+				optimal_conf.push(getTotalCost(conf, true));
 				optimal_conf.push([tmp]);
 			}
 
@@ -1449,14 +1490,14 @@ function AutoTune(tuneFlag, min_value, max_value, input_conf) {
 				tmp1 = Math.max(Math.floor(tmp - delta_value), min_value);
 				input_conf.Z = tmp1;
 				optimal_conf1 = []
-				optimal_conf1.push(getTotalCost(input_conf));
+				optimal_conf1.push(getTotalCost(conf, true));
 				optimal_conf1.push([tmp1]);
 				cost1 = optimal_conf1[0];
 
 				tmp2 = Math.min(Math.ceil(tmp + delta_value), max_value);
 				input_conf.Z = tmp2;
 				optimal_conf2 = []
-				optimal_conf2.push(getTotalCost(input_conf));
+				optimal_conf2.push(getTotalCost(conf, true));
 				optimal_conf2.push([tmp2]);
 				cost2 = optimal_conf2[0];
 			}
@@ -1485,57 +1526,155 @@ function AutoTune(tuneFlag, min_value, max_value, input_conf) {
 	return optimal_conf
 }
 
-function AutoTuneT_test(min_value, max_value, input_conf, start_value=NaN, steps=20){
+function AutoTune_KZ(T, conf){
+	var tmpK, tmpZ;
+	var tmpK1, tmpZ1;
+	var tmpConf_K = AutoTune_GD_test(1, 1, T-1, conf, Math.ceil(T/2), false, Math.round(T/4));
+	tmpK = tmpConf_K[1][tmpConf_K[1].length-1];
+	conf.K = tmpK;
+	var tmpConf_Z = AutoTune_GD_test(2, 1, T-1, conf, Math.ceil(T/2), false, Math.round(T/4));
+	tmpZ = tmpConf_Z[1][tmpConf_Z[1].length-1];
+	conf.Z = tmpZ;
+	while(true){
+		tmpConf_K = AutoTune_GD_test(1, 1, T-1, conf, Math.ceil(T/2), false, Math.round(T/4));
+		tmpK1 = tmpConf_K[1][tmpConf_K[1].length-1];
+		conf.K = tmpK1;
+		if(tmpK1 == tmpK){
+			break;
+		}else{
+			tmpK = tmpK1;
+		}
+		tmpConf_Z = AutoTune_GD_test(2, 1, T-1, conf, Math.ceil(T/2), false, Math.round(T/4));
+		tmpZ1 = tmpConf_Z[1][tmpConf_Z[1].length-1];
+		conf.Z = tmpZ1;
+		if(tmpZ1 == tmpZ){
+			break;
+		}else{
+			tmpZ = tmpZ1;
+		}
+
+	}
+	return conf;
+}
+
+function AutoTune_GD_test(adjust_flag, min_value, max_value, conf, start_value=NaN, refine_flag=false, steps=100){
 	var tmp, tmp1, tmp2;
 	tmp_min = min_value;
 	tmp_max = max_value;
-	var cost, cost1, cost;
+	var cost, cost1, cost2;
 	var optimal_conf;
+	var direction_flag = 0;
 	if(isNaN(start_value)){
 			tmp = Math.ceil((tmp_max - tmp_min)/2) + min_value;
 	}else{
-		tmp = start_value;
+		tmp = parseInt(start_value);
 	}
-
+	var tmp_conf;
 	do{
-		input_conf.T = tmp;
-		cost = getTotalCost(input_conf, true);
+		tmp_conf = Object.assign({}, conf);
 
+		if(adjust_flag == 0){
+			tmp_conf.T = tmp;
+			if(refine_flag){
+				tmp_conf = AutoTune_KZ(tmp, tmp_conf);
+			}
+		}else if(adjust_flag == 1){
+			tmp_conf.K = tmp;
+		}else{
+			tmp_conf.Z = tmp;
+		}
 
+		cost = getTotalCost(tmp_conf, true);
+
+		tmp_conf = Object.assign({}, conf);
 		if(tmp <= min_value){
 			cost1 = Number.MAX_VALUE;
 		}else{
-			input_conf.T = tmp - 1;
-			cost1 = getTotalCost(input_conf, true);
+			if(adjust_flag == 0){
+				tmp_conf.T = tmp - 1;
+				if(refine_flag){
+					tmp_conf = AutoTune_KZ(tmp-1, tmp_conf);
+				}
+			}else if(adjust_flag == 1){
+				tmp_conf.K = tmp - 1;
+			}else{
+				tmp_conf.Z = tmp - 1;
+			}
+			cost1 = getTotalCost(tmp_conf, true);
 		}
 
-
+		tmp_conf = Object.assign({}, conf);
 		if(tmp >= max_value){
 			cost2 = Number.MAX_VALUE;
 		}else{
-			input_conf.T = tmp + 1;
-			cost2 = getTotalCost(input_conf, true);
+			if(adjust_flag == 0){
+				tmp_conf.T = tmp + 1;
+				if(refine_flag){
+					tmp_conf = AutoTune_KZ(tmp+1, tmp_conf);
+				}
+			}else if(adjust_flag == 1){
+				tmp_conf.K = tmp + 1;
+			}else{
+				tmp_conf.Z = tmp + 1;
+			}
+			cost2 = getTotalCost(tmp_conf, true);
 		}
 
-		if(cost < cost1 && cost < cost2){
+		if(cost <= cost1 && cost <= cost2){
 			break;
+		}
+		if(cost2 > cost1){
+			if(direction_flag == 1){
+				steps = Math.max(1, Math.round(steps/2));
+				//steps /= 2;
+			}
+			direction_flag = -1;
+		}else if(cost2 < cost1){
+		  if(direction_flag == -1){
+				steps = Math.max(1, Math.round(steps/2));
+				//steps /= 2;
+		  }
+			direction_flag = 1;
 		}
 		var delta = (cost2 - cost1)/2*steps;
 		if(delta > 0){
-			tmp = tmp - Math.ceil(delta);
+			//tmp = tmp - Math.min(delta, Math.max((tmp - tmp_min)/2, 1));
+			tmp = tmp - Math.min(Math.ceil(delta), Math.max(Math.floor((tmp - tmp_min)/2), 1));
 		}else{
-			tmp = tmp - Math.floor(delta)
+			//tmp = tmp + Math.min(-delta, Math.max((tmp_max - tmp)/2, 1));
+			tmp = tmp + Math.min(-Math.floor(delta), Math.max(Math.floor((tmp_max - tmp)/2), 1));
 		}
 	}while(tmp < tmp_max && tmp > tmp_min);
 
+	if(tmp > tmp_max){
+		tmp = tmp_max;
+		outOfRangeFlag = true;
+	}else if(tmp < tmp_min){
+		tmp = tmp_min;
+		outOfRangeFlag = true;
+	}
+
+		if(adjust_flag == 0){
+			conf.T = tmp;
+			if(refine_flag){
+				conf = AutoTune_KZ(tmp, conf);
+			}
+		}else if(adjust_flag == 1){
+			conf.K = tmp;
+		}else{
+			conf.Z = tmp;
+		}
+
+		cost = getTotalCost(conf, true);
+
 	optimal_conf = [];
 	optimal_conf.push(cost);
-	optimal_conf.push([tmp]);
+	optimal_conf.push([conf, tmp]);
 
 	return optimal_conf;
 }
 
-function AutoTuneT(min_value, max_value, input_conf) {
+function AutoTuneT(min_value, max_value, conf) {
 
 	var delta_value = Math.ceil((max_value - min_value)/2);
 	var tmp, tmp1, tmp2;
@@ -1545,9 +1684,9 @@ function AutoTuneT(min_value, max_value, input_conf) {
 	do{
 		if(unchanged_flag != 0){
 			tmp = min_value + delta_value;
-			input_conf.T = tmp;
+			conf.T = tmp;
 			optimal_conf = [];
-			optimal_conf.push(getTotalCost(input_conf));
+			optimal_conf.push(getTotalCost(conf, true));
 			optimal_conf.push([tmp]);
 			cost = optimal_conf[0];
 		}
@@ -1555,16 +1694,16 @@ function AutoTuneT(min_value, max_value, input_conf) {
 		if(unchanged_flag != 1 && unchanged_flag != 2){
 
 			tmp1 = Math.max(Math.floor(tmp - delta_value), min_value);
-			input_conf.T = tmp1;
+			conf.T = tmp1;
 			optimal_conf1 = []
-			optimal_conf1.push(getTotalCost(input_conf));
+			optimal_conf1.push(getTotalCost(conf, true));
 			optimal_conf1.push([tmp1]);
 			cost1 = optimal_conf1[0];
 
 			tmp2 = Math.min(Math.ceil(tmp + delta_value), max_value);
-			input_conf.T = tmp2;
+			conf.T = tmp2;
 			optimal_conf2 = []
-			optimal_conf2.push(getTotalCost(input_conf));
+			optimal_conf2.push(getTotalCost(conf, true));
 			optimal_conf2.push([tmp2]);
 			cost2 = optimal_conf2[0];
 
@@ -1593,46 +1732,90 @@ function AutoTuneT(min_value, max_value, input_conf) {
 	return optimal_conf
 }
 
-function calc_T(N, mbuffer, E, L){
+function calc_T(N, mbuffer, E, L, precision=1){
 	var tmp = N/(mbuffer/E);
 	var test_T = Math.ceil(Math.pow(tmp/(L+1), 1.0/L));
 	var test_T1 = test_T;
 	var test_T2 = test_T;
-	while((Math.pow(test_T1, L+1) - 1)/(test_T1-1) < tmp){
-		test_T1 -= 1
+	var tmp_precision;
+	var step;
+	var deviation = (Math.pow(test_T1, L+1) - 1)/(test_T1-1) - tmp;
+	if(test_T == 2 && deviation > 0){
+		return [[test_T, deviation]]
 	}
-	while((Math.pow(test_T2, L+1) - 1)/(test_T2-1) < tmp){
-		test_T2 += 1
+	tmp_precision = precision;
+	step = 1;
+	while(true){
+		while((Math.pow(test_T1, L+1) - 1)/(test_T1-1) < tmp){
+			test_T1 = (test_T1*(1/precision) - step*(1/precision))/(1/precision);
+		}
+		if(tmp_precision < 1){
+			test_T1 = (test_T1*(1/precision) + step*(1/precision))/(1/precision);
+			step /= 10;
+			tmp_precision *= 10;
+		}else{
+			break;
+		}
 	}
+	var deviation1 = (Math.pow(test_T1, L+1) - 1)/(test_T1-1) - tmp;
+
+	tmp_precision = precision;
+	step = 1;
+	while(true){
+		while((Math.pow(test_T2, L+1) - 1)/(test_T2-1) < tmp){
+			test_T2 = (test_T2*(1/precision) + step*(1/precision))/(1/precision);
+		}
+		if(tmp_precision < 1){
+			test_T2 = (test_T2*(1/precision) - step*(1/precision))/(1/precision);
+			step /= 10;
+			tmp_precision *= 10;
+		}else{
+			break;
+		}
+	}
+	var deviation2 =(Math.pow(test_T2, L+1) - 1)/(test_T2-1) - tmp;
 	if(test_T1 >= 2 && test_T1 != test_T2){
-		return [test_T1, test_T2];
+		return [[test_T1, deviation1], [test_T2, deviation2]];
 	}else{
-		return [test_T2];
+		return [[test_T2, deviation2]];
 	}
 }
 
-function AutoTuneL(input_conf, tree_types_array){
+function AutoTuneL(conf, tree_types_array){
 	var optimal_conf = []
+	var tmp_conf;
 	var cost = Number.MAX_VALUE;
-	var Lmax = Math.ceil(Math.log(input_conf.N/(2*input_conf.mbuffer/input_conf.E)+ 1/2)/Math.log(2));
+	var Lmax = Math.ceil(Math.log(conf.N/(2*(conf.M-conf.mfilter)/conf.E)+ 1/2)/Math.log(2));
+	var T_dict = {};//{T:[L, deviation]}
 	for(var L=1;L<=Lmax;L++){
-		T_array = calc_T(input_conf.N, input_conf.mbuffer, input_conf.E, L);
-		for(var i=0;i<T_array.length;i++){
-			input_conf.T = T_array[i];
+		var tmp_T_array = calc_T(conf.N, (conf.M-conf.mfilter), conf.E, L);
+		for(var i=0;i <tmp_T_array.length;i++){
+			var T = tmp_T_array[i][0];
+			var deviation =tmp_T_array[i][1];
+			if(!(T_dict[T] != undefined && T_dict[T][1] < deviation)){
+				T_dict[T] = [L, deviation];
+			}
+		}
+	}
+	for(var T in T_dict){
+		var tmp_conf = Object.assign({}, conf);
+			tmp_conf.T = T;
 			for(var j=0;j<tree_types_array.length;j++){
-				input_conf.leveltier=tree_types_array[j];
-				var tmp_cost=getTotalCost(input_conf);
+				tmp_conf.leveltier=tree_types_array[j];
+				if(conf.leveltier == 3){
+					tmp_conf = AutoTune_KZ(T, tmp_conf);
+				}
+				var tmp_cost=getTotalCost(tmp_conf, true);
 				if(tmp_cost < cost){
 					cost = tmp_cost;
 					optimal_conf = []
+					conf = Object.assign({}, tmp_conf);
 					optimal_conf.push(cost);
-					optimal_conf.push([tree_types_array[j], L, T_array[i]])
+					optimal_conf.push([conf, T_dict[T][0], T])
 				}
 			}
-
-
-		}
 	}
+
 	console.log(optimal_conf);
 	return optimal_conf;
 }
@@ -1658,6 +1841,12 @@ function LSM_config() {
     var valid;
     var throughput;
     var num_levels;
+		var s;
+		var r;
+		var v;
+		var w;
+		var qL;
+		var qS;
 }
 
 // returns write cost
@@ -2023,36 +2212,77 @@ function print_csv_experiment(input_conf, num_commas, print_details, fix_buffer_
     // printf("\n");
 }
 
-function AutoTune1(e){
+function getLSMConfig(){
 	var inputParameters = parseInputTextBoxes();
-	var optimal_conf = AutoTuneL(inputParameters, [inputParameters.leveltier]);
+
+	var N=inputParameters.N;
+	var E=inputParameters.E;
+	var mbuffer=inputParameters.mbuffer;
+	var T=inputParameters.T;
+	var K=inputParameters.fluidK;
+	var Z=inputParameters.fluidZ;
+	var Mu=inputParameters.Mu;
+	var mfilter_per_entry=inputParameters.mfilter_per_entry;
+	var mfilter = mfilter_per_entry*N/8;
+	var P=inputParameters.P;
+	var leveltier=inputParameters.leveltier;
+
+
+	var conf = new LSM_config();
+	conf.T=T;
+	conf.L=Math.ceil(Math.log(N*E*(T - 1)/mbuffer/T+ 1/T)/Math.log(T));
+	conf.P=mbuffer / P;
+	conf.N=N;
+	conf.M=mbuffer+mfilter;
+	conf.mfilter=mfilter;
+	conf.E=E;
+	conf.B=P/E;
+	conf.K=K;
+	conf.Z=Z;
+	conf.Mu=Mu;
+	conf.leveltier=leveltier;
+	conf.Y=calc_Y(mfilter/N, K, Z, T, L);
+	conf.s=inputParameters.s
+	conf.w=inputParameters.w;
+	conf.v=inputParameters.v;
+	conf.r=inputParameters.r;
+	conf.qL=inputParameters.qL;
+	conf.qS=inputParameters.qS;
+	return conf;
+}
+
+function AutoTune1(e){
+	var conf = getLSMConfig();
+	var optimal_conf = AutoTuneL(conf, [conf.leveltier]);
 	var startT = optimal_conf[1][optimal_conf[1].length-1];
-	var Tmax = 4* inputParameters.P/inputParameters.E;
-	var tmp_optimal_conf=AutoTuneT_test(2, Tmax, inputParameters, startT);
+	var Tmax = 4* conf.P/conf.E;
+	var tmp_optimal_conf=AutoTune_GD_test(0, Math.max(conf.K, conf.Z)+1, Tmax, conf, startT);
 	console.log(tmp_optimal_conf);
 	if(tmp_optimal_conf[0] < optimal_conf[0]){
 		optimal_conf = tmp_optimal_conf;
 	}
-	document.getElementById("T").value=optimal_conf[1][optimal_conf[1].length-1];
+	document.getElementById("T").value=Math.round(optimal_conf[1][optimal_conf[1].length-1]);
 	e.target.id="T";
 	re_run(e);
 	clickbloomTuningButton(true)
 }
 
 function AutoTune2(e){
-	var inputParameters = parseInputTextBoxes();
-	var optimal_conf = AutoTuneL(inputParameters, [0, 1, 2]);
+	var conf = getLSMConfig();
+	var optimal_conf = AutoTuneL(conf, [0, 1, 2]);
 	//var Tmax = 4* inputParameters.P/inputParameters.E;
 	//AutoTuneT(2, Tmax, inputParameters);
-	var tree_type=optimal_conf[1][0];
+	var tree_type=optimal_conf[1][0].leveltier;
 	var startT = optimal_conf[1][optimal_conf[1].length-1];
-	var Tmax = 4* inputParameters.P/inputParameters.E;
-	var tmp_optimal_conf=AutoTuneT_test(2, Tmax, inputParameters, startT);
+	var Tmax = 4* conf.P/conf.E;
+	var tmp_optimal_conf=AutoTune_GD_test(0, Math.max(conf.K, conf.Z)+1, Tmax, optimal_conf[1][0], startT);
 	console.log(tmp_optimal_conf);
 	if(tmp_optimal_conf[0] < optimal_conf[0]){
 		optimal_conf = tmp_optimal_conf;
 	}
-	document.getElementById("T").value=optimal_conf[1][optimal_conf[1].length-1];
+	document.getElementById("input-group-Fluid-K").style.display = 'none';
+document.getElementById("input-group-Fluid-Z").style.display = 'none';
+	document.getElementById("T").value=Math.round(optimal_conf[1][optimal_conf[1].length-1]);
 	var radios = document.getElementsByName("ltradio");
 	for(var i = 0; i < radios.length; i++){
 		if(radios[i].value==tree_type){
@@ -2067,12 +2297,32 @@ function AutoTune2(e){
 	clickbloomTuningButton(true)
 }
 function AutoTune3(e){
-	var inputParameters = parseInputTextBoxes();
-	var Tmax=4* inputParameters.P/inputParameters.E;
-	var optimal_conf = AutoTune(0, 2, Tmax, inputParameters);
-	document.getElementById("T").value=optimal_conf[1][optimal_conf[1].length-1];
-	document.getElementById("Fluid LSM-Tree K").value=optimal_conf[1][1];
-	document.getElementById("Fluid LSM-Tree Z").value=optimal_conf[1][0];
+	var conf = getLSMConfig();
+	var Tmax=4* conf.P/conf.E;
+	conf.leveltier = 3;
+	//var optimal_conf = AutoTune(0, 2, Tmax, inputParameters);
+	var optimal_conf = AutoTuneL(conf, [3]);
+	var startT = optimal_conf[1][optimal_conf[1].length-1];
+	var Tmax = 4* conf.P/conf.E;
+	var tmp_optimal_conf=AutoTune_GD_test(0, 2, Tmax, optimal_conf[1][0], startT, true);
+	console.log(tmp_optimal_conf);
+	if(tmp_optimal_conf[0] < optimal_conf[0]){
+		optimal_conf = tmp_optimal_conf;
+	}
+	document.getElementById("input-group-Fluid-K").style.display = '';
+	document.getElementById("input-group-Fluid-Z").style.display = '';
+	var radios = document.getElementsByName("ltradio");
+	for(var i = 0; i < radios.length; i++){
+		if(radios[i].value==3){
+			radios[i].checked=true;
+		}else{
+			radios[i].checked=false;
+		}
+
+	}
+	document.getElementById("T").value=Math.round(optimal_conf[1][optimal_conf[1].length-1]);
+	document.getElementById("Fluid LSM-Tree K").value=Math.min(Math.round(optimal_conf[1][0].K), document.getElementById("T").value - 1);
+	document.getElementById("Fluid LSM-Tree Z").value=Math.min(Math.round(optimal_conf[1][0].Z), document.getElementById("T").value - 1);
 	e.target.id="T";
 	re_run(e);
 	clickbloomTuningButton(true)

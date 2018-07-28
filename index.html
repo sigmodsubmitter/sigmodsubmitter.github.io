@@ -358,9 +358,10 @@
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon" style="text-align: left;"><span data-tooltip="FPR Allocation Policy" data-tooltip-position="bottom" >8. False Positive Rate Allocation Policy</span></span>
-                          <span class="input-group-addon">Fixed FPR&nbsp;<input id="fpr_policy" name="fpr_radio" type="radio" aria-label="fixed" value="0" onchange="re_run(event, 'input7')"/></span>
-                          <span class="input-group-addon">Optimal FPR&nbsp;<input id="fpr_policy" name="fpr_radio" type="radio" aria-label="optimal" value="1" checked="true" onchange="re_run(event, 'input7')"/></span>
+                        <span class="input-group-addon" style="text-align: left;"><span data-tooltip="False Positive Rate Allocation Policy" data-tooltip-position="bottom" >8. FPR Allocation Policy</span></span>
+                          <span class="input-group-addon"> <span data-tooltip="Distribute the memory evenly to each level" data-tooltip-position="bottom"  >Fixed &nbsp;<input id="fpr_policy" name="fpr_radio" type="radio" aria-label="fixed" value="0" onchange="re_run(event, 'input7')"/></span></span>
+                          <span class="input-group-addon"> <span data-tooltip="Distribute the memory to minimize the non-result point lookup cost" data-tooltip-position="bottom"> Optimal for No-result &nbsp;<input id="fpr_policy" name="fpr_radio" type="radio" aria-label="optimal for non-result" value="1" checked="true" onchange="re_run(event, 'input7')"/></span></span>
+                          <span class="input-group-addon"> <span data-tooltip="Distribute the memory to minimize both the non-result point and existing point lookup cost" data-tooltip-position="bottom"> Optimal &nbsp;<input id="fpr_policy" name="fpr_radio" type="radio" aria-label="optimal" value="2" onchange="re_run(event, 'input7')"/></span></span>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6">
@@ -442,7 +443,7 @@
               <div class="col-lg-3 col-md-3 col-sm-3">
                   <div class="input-group input-group-lg text-center">
                       <span class="input-group-btn">
-                          <a style="width:100%" id="Build" class="btn btn-default btn-params" type="button" onclick="clickbloomTuningButton(false)" href="#result_tuning"><span data-tooltip="Automatically build the tree and calculate the cost according to the specified configuration." data-tooltip-position="bottom" style="font-size:14px">Build And Evaluate</span></a>
+                          <a style="width:100%" id="Build" class="btn btn-default btn-params" type="button" onclick="clickbloomTuningButton(false)"><span data-tooltip="Automatically build the tree and calculate the cost according to the specified configuration." data-tooltip-position="bottom" style="font-size:14px">Build And Evaluate</span></a>
                       </span>
                   </div>
                   <br>
@@ -450,7 +451,7 @@
                 <div class="col-lg-3 col-md-3 col-sm-3">
                     <div class="input-group input-group-lg text-center">
                         <span class="input-group-btn">
-                            <a style="width:100%" id="AutoTune1" class="btn btn-default btn-params" type="button" onclick="AutoTune1(event)" href="#result_tuning"><span data-tooltip="Automatically find the best size ratio within a fixed tree structure." data-tooltip-position="bottom" style="font-size:14px">Autotune in Fixed Structure</span></a>
+                            <a style="width:100%" id="AutoTune1" class="btn btn-default btn-params" type="button" onclick="AutoTune1(event)"><span data-tooltip="Automatically find the best size ratio within a fixed tree structure." data-tooltip-position="bottom" style="font-size:14px">Autotune in Fixed Structure</span></a>
                         </span>
                     </div>
                     <br>
@@ -458,7 +459,7 @@
                 <div class="col-lg-3 col-md-3 col-sm-3">
                     <div class="input-group input-group-lg text-center">
                         <span class="input-group-btn">
-                            <a style="width:100%" id="AutoTune2" class="btn btn-default btn-params" type="button" onclick="AutoTune2(event)" href="#result_tuning"><span data-tooltip="Automatically find the best size ratio across leveling, tiering and lazy leveling." data-tooltip-position="bottom" style="font-size:14px">Autotune Across Structures</span></a>
+                            <a style="width:100%" id="AutoTune2" class="btn btn-default btn-params" type="button" onclick="AutoTune2(event)" ><span data-tooltip="Automatically find the best size ratio across leveling, tiering and lazy leveling." data-tooltip-position="bottom" style="font-size:14px">Autotune Across Structures</span></a>
                         </span>
                     </div>
                     <br>
@@ -466,7 +467,7 @@
                 <div class="col-lg-3 col-md-3 col-sm-3">
                     <div class="input-group input-group-lg text-center">
                         <span class="input-group-btn">
-                            <a style="width:100%" id="Autotune3" class="btn btn-default btn-params" type="button" onclick="AutoTune3(event)" href="#result_tuning"><span data-tooltip="Automatically find the best size ratio, K, Z in Fluid LSM-Tree." data-tooltip-position="bottom" style="font-size:14px">Autotune in Fluid LSM-Tree</span></a>
+                            <a style="width:100%" id="Autotune3" class="btn btn-default btn-params" type="button" onclick="AutoTune3(event)"><span data-tooltip="Automatically find the best size ratio, K, Z in Fluid LSM-Tree." data-tooltip-position="bottom" style="font-size:14px">Autotune in Fluid LSM-Tree</span></a>
                         </span>
                     </div>
                     <br>

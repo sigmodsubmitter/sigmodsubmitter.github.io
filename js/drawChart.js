@@ -47,6 +47,18 @@ function initChart() {
         line: {width: 1}
     };
 
+    var transitionOne = {
+        y: [-1],
+        x: [-1],
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: 'Transition 1',
+        // text: ['A-1', 'A-2', 'A-3', 'A-4', 'A-5'],
+        text: [ "" ],
+        marker: { size: 7, symbol: 'circle'},
+        line: {dash: 'dashdot', width: 1}
+    };
+
     var state_of_artTiering = {
         y: [-1],
         x: [-1],
@@ -85,7 +97,7 @@ function initChart() {
         x: [-1],
         mode: 'markers',
         type: 'scatter',
-        name: 'Monkey - Selected Configuration',
+        name: 'Selected Configuration',
         text: [ "" ],
         marker: { size: 13, symbol: 'star', color: 'black' },
         line: {width: 1}
@@ -195,8 +207,8 @@ function drawChart() {
     var monkeyLazyL_Ratio= new Array();
 
     // console.log("isLeveled  " + isLeveled + " \n");
-    var part1_monkey_point = getPoint(leveltier, T, mfilter, conf, 1);
-    var part1_state_of_the_art_point = getPoint(leveltier, T, mfilter, conf, 0);
+    var part1_monkey_point = getPoint(leveltier, T, mfilter, conf, inputParameters.isOptimalFPR);
+    //var part1_state_of_the_art_point = getPoint(leveltier, T, mfilter, conf, 0);
     //console.log("leveltier  " + leveltier);
     // console.log(part1_monkey_point);
     // console.log(part1_state_of_the_art_point);
@@ -241,6 +253,40 @@ function drawChart() {
             }
         }
     }
+
+    //transition
+    var transitionOneW = new Array();
+    var transitionOneR = new Array();
+    var transitionOne_Ratio= new Array();
+    //var transitionTwoW = new Array();
+    //var transitionTwoR = new Array();
+    //var transitionTwo_Ratio= new Array();
+
+    var w_min = Number.MAX_VALUE;
+    var w_min_index = -1;
+    for(var i=0; i < monkeyLazyLW.length-1; i++){
+      if(monkeyLazyLW[i] < w_min){
+        w_min = monkeyLazyLW[i];
+        w_min_index = i;
+      }
+    }
+
+    var transitionT = parseInt(monkeyLazyL_Ratio[w_min_index].substr(6));
+    var transitionK = transitionT - 1;
+    conf.K = transitionK;
+    //transition 1
+    addPoint(2, transitionT, mfilter, conf, transitionOneW, transitionOneR, transitionOne_Ratio, 1);
+    for(var tmpZ=2; tmpZ <= transitionT-1; tmpZ++){
+      conf.Z = tmpZ;
+      addPoint(3, transitionT, mfilter, conf, transitionOneW, transitionOneR, transitionOne_Ratio, 1);
+    }
+    //transition 2
+    /*
+    conf.Z = 1;
+    addPoint(2, transitionT, mfilter, conf, transitionTwoW, transitionTwoR, transitionTwo_Ratio, 1);
+    for(var tmpT=transitionT+1; tmpT <= monkey_pareto[monkey_pareto.length-1].T; tmpT++){
+      addPoint(3, tmpT, mfilter, conf, transitionTwoW, transitionTwoR, transitionTwo_Ratio, 1);
+    }*/
 
     var state_of_artTW = new Array();
     var state_of_artTR = new Array();
@@ -295,12 +341,12 @@ function drawChart() {
         x: [part1_monkey_point.W],
         mode: 'markers',
         type: 'scatter',
-        name: 'Monkey - Selected Configuration',
+        name: 'Selected Configuration',
         text: [ "Ratio: "+T ],
         marker: { size: 13, symbol: 'star', color: 'black' },
         line: {width: 1}
     };
-
+/*
     var stateOfArtPoint = {
         y: [part1_state_of_the_art_point.R],
         x: [part1_state_of_the_art_point.W],
@@ -312,7 +358,7 @@ function drawChart() {
         line: {width: 1}
     };
 
-
+*/
     var monkeyTiering = {
         y: monkeyTR,
         x: monkeyTW,
@@ -348,6 +394,30 @@ function drawChart() {
         line: {width: 1}
     };
 
+    var transitionOne = {
+        y: transitionOneR,
+        x: transitionOneW,
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: 'Transition 1',
+        // text: ['A-1', 'A-2', 'A-3', 'A-4', 'A-5'],
+        text: transitionOne_Ratio,
+        marker: { size: 7, symbol: 'circle'},
+        line: {dash: 'dashdot', width: 1}
+    };
+/*
+    var transitionTwo = {
+        y: transitionTwoR,
+        x: transitionTwoW,
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: 'Transition 2',
+        // text: ['A-1', 'A-2', 'A-3', 'A-4', 'A-5'],
+        text: transitionOne_Ratio,
+        marker: { size: 7, symbol: 'circle'},
+        line: {dash: 'dashdot', width: 1}
+    };
+*/
     var state_of_artTiering = {
         y: state_of_artTR,
         x: state_of_artTW,
@@ -373,13 +443,13 @@ function drawChart() {
 
 
 
-    var data = [ state_of_artTiering, state_of_artLeveling, stateOfArtPoint, monkeyTiering , monkeyLeveling, monkeyPoint, monkeyLazyLeveling];
+    var data = [ state_of_artTiering, state_of_artLeveling, monkeyTiering , transitionOne, monkeyLeveling, monkeyPoint, monkeyLazyLeveling];
 
 
     var xmin=0;
     var ymin=0;
     var xmax=meetSoA_W*3;
-    var ymax=Math.min(highestSoA_R, meetSoA_R*3)*2/3;
+    var ymax=Math.min(highestSoA_R, meetSoA_R*3);
 
 
     var layout =

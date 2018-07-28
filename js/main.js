@@ -8,6 +8,9 @@
 $(function() {
     $('body').on('click', '.page-scroll a', function(event) {
         var $anchor = $(this);
+        if($anchor.attr('href') == undefined){
+          return;
+        }
         $('html, body').stop().animate({
             scrollTop: $($anchor.attr('href')).offset().top
         }, 800, 'easeInOutExpo');
@@ -40,10 +43,10 @@ $('.navbar-collapse ul li a').click(function() {
 var tId;
 // Auto-hide the scroll to top button
 $( window ).scroll(function() {
-	$(".scroll-top a").fadeIn(700); 
+	$(".scroll-top a").fadeIn(700);
 	clearTimeout(tId);
 	tId=setTimeout(function(){
-		$(".scroll-top a").fadeOut(800);        
+		$(".scroll-top a").fadeOut(800);
 	}, 1500);
 });
 $(".scroll-top a").hide();
