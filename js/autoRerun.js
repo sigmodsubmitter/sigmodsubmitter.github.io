@@ -72,8 +72,11 @@ function re_run(e) {
     if(event.target.id=="T")
     {
         if (T<2){
+          alert("T="+T+" is too small.")
+          console.log("T is too small: "+T)
           document.getElementById("T").value=2;
           T = 2;
+          return;
         }
         var L = Math.ceil(Math.log(N*E*(T - 1)/mbuffer/T + 1/T)/Math.log(T));
         if(L <= 0){

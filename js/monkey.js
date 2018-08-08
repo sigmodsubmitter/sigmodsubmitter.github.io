@@ -1868,6 +1868,9 @@ function get_W(M, N, T, K, Z, B, P, Mu, leveltier) {
 		M = M*8;
 		var L = Math.log(N*(T - 1)/(B*P*T)+ 1/T)/Math.log(T);
 		var Y = calc_Y(M/N, K, Z, T, L);
+		if(L < 1 && leveltier == 0){
+			return L*(T-1)/(Z+1)/(Mu*B);
+		}
     var result = (T - 1)*((L - Y - 1)/(K + 1) + (Y + 1.0)/(Z + 1))/(Mu*B);
     return result;
 }
@@ -1899,14 +1902,16 @@ function get_R_uniform_strategy(M, T, N, K, Z, B, P, leveltier) {
     //double L = !leveled ? floor(1 +  log(N/(B * P)) / log(T)) : ceil(1 +  log(N/(B * P)) / log(T));
     //double L = !leveled ? floor(1 +  log(N/(B * P)) / log(T)) : ceil(1 +  log(N/(B * P)) / log(T));
 
-    var T_part = 1/( 1 - Math.pow(T, -L) );
+    var T_part = (1 - Math.pow(T, -L))/( 1 - Math.pow(T, -L-1) );
 
     var exponent = (M / N) * Math.log(2) * Math.log(2) * T_part;
 
     var EULER = 2.71828182845904523536;
     var bottom = Math.pow(EULER, exponent);
     var R = 1.0 / bottom;
-
+		if(L < 1){
+			return R*Z*L;
+		}
     return R*((L - 1)*K + Z);
 }
 
@@ -2069,15 +2074,15 @@ function find_optimal_R(input_conf, constant_buffer_size = -1, isOptimalFPR = tr
     var is_leveled = 1;
     for (var T = 2; T < B * 4; T++) {
         for (var P = starting_buffer_size;  P * B <= max_elements_in_buffer; P *= T) {
-            for (var L = 0; L <= 1; L++) {
-                var leveled = L;
+            for (var testLeveltier = 0; testLeveltier <= 1; testLeveltier++) {
+                var leveled = testLeveltier;
                 var num_levels =  Math.ceil(Math.log(N*(T - 1)/ (B * P * T)) / Math.log(T));
                 var mem_for_bloom = M - P * B * E;
 
-                var current_R = isOptimalFPR ? get_accurate_R(mem_for_bloom, T, N, K, Z, B, P, L) :
-                        get_R_uniform_strategy(mem_for_bloom, T, N, K, Z, B, P, L);
+                var current_R = isOptimalFPR ? get_accurate_R(mem_for_bloom, T, N, K, Z, B, P, testLeveltier) :
+                        get_R_uniform_strategy(mem_for_bloom, T, N, K, Z, B, P, testLeveltier);
 
-                var current_W = get_W(mem_for_bloom, N, T, K, Z, B, P, Mu, L);
+                var current_W = get_W(mem_for_bloom, N, T, K, Z, B, P, Mu, testLeveltier);
                 if (mem_for_bloom >= 0 && current_R < min_R && current_W <= W) {
                     min_R = current_R;
                     best_T = T;
